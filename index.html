@@ -235,7 +235,6 @@
     .ring-percent { font-size: 32px; font-weight: 800; color: var(--accent-2); }
     .ring-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
     
-    /* ПЛАШКА С ОПИСАНИЕМ ЗДОРОВЬЯ */
     .health-info-box {
       background: rgba(34,197,94,0.1);
       border: 1px solid rgba(34,197,94,0.3);
@@ -263,7 +262,6 @@
 
     .section-title { font-size: 12px; text-transform: uppercase; color: var(--text-dim); font-weight: 700; margin: 18px 4px 10px; display: flex; justify-content: space-between; }
 
-    /* ВЕХИ (ЗАЧЕРКИВАНИЕ) */
     .milestone { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; transition: all 0.3s; }
     .milestone.done { opacity: 0.6; border-color: rgba(34,197,94,0.3); background: rgba(30,41,59,0.4); }
     .milestone.done .ms-time { text-decoration: line-through; color: var(--text-dim); }
@@ -275,7 +273,6 @@
     .ms-desc { font-size: 12px; color: var(--text-dim); line-height: 1.3; margin-bottom: 4px; }
     .ms-arg { font-size: 11px; color: var(--accent-2); font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
-    /* ЗАДАНИЯ */
     .task { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
     .task.completed { border-color: rgba(34,197,94,0.5); opacity: 0.7; }
     .task-check { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; background: rgba(15,23,42,0.5); cursor: pointer; }
@@ -290,7 +287,6 @@
     .task-progress-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.5s; }
     .task-progress-status { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
 
-    /* МАГАЗИН */
     .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .shop-item { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .shop-emoji { font-size: 32px; margin-bottom: 8px; }
@@ -299,7 +295,6 @@
     .shop-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; background: rgba(34,197,94,0.15); color: var(--accent-2); font-weight: 700; font-size: 12px; cursor: pointer; }
     .shop-btn:disabled { background: rgba(148,163,184,0.1); color: #475569; }
 
-    /* НИЖНЯЯ ПАНЕЛЬ */
     .tabs {
       position: absolute; bottom: 0; left: 0; right: 0;
       display: flex; gap: 4px;
@@ -310,7 +305,6 @@
     .tab-btn { flex: 1; padding: 8px 4px; border-radius: 10px; border: none; background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .tab-btn.active { background: rgba(34,197,94,0.15); color: var(--accent-2); }
     
-    /* Кнопка ДЫШИ */
     .btn-breathe {
       background: linear-gradient(135deg, #22c55e, #16a34a);
       color: #04140a;
@@ -323,14 +317,12 @@
       100% { transform: scale(1); box-shadow: 0 0 10px rgba(34,197,94,0.4); }
     }
 
-    /* МОДАЛКИ */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-backdrop.show { opacity: 1; pointer-events: auto; }
     .modal-card { background: linear-gradient(160deg, #1e293b, #0f2a1e); border: 1px solid rgba(34,197,94,0.4); border-radius: 20px; padding: 24px 20px; max-width: 360px; width: 100%; text-align: center; }
     .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
     .modal-text { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
 
-    /* ЧАТ ПОМОЩНИКА */
     .chat-container { display: flex; flex-direction: column; height: 55vh; max-height: 400px; }
     .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
     .chat-messages::-webkit-scrollbar { display: none; }
@@ -456,7 +448,6 @@
           <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
         </div>
         
-        <!-- ПЛАШКА С ОПИСАНИЕМ -->
         <div class="health-info-box" style="margin-top: 14px; margin-bottom: 0;">
           <div class="health-info-icon">🩺</div>
           <div class="health-info-text" id="health-detailed-text">
@@ -669,7 +660,6 @@
       return Math.min(70 + ((days - 365) / (365 * 9)) * 30, 100);
     }
 
-    // ПОДРОБНОЕ ОПИСАНИЕ ЗДОРОВЬЯ
     function getDetailedHealthText(days) {
       if (days < 0.013) return "<strong>Только что:</strong> Пульс и давление начали снижаться. Организм понял, что яда больше не будет.";
       if (days < 0.33) return "<strong>Первые часы:</strong> Уровень угарного газа в крови падает. Кислород начинает поступать к органам в полном объеме. По данным ВОЗ, это первый шаг к чистой крови.";
@@ -791,7 +781,6 @@
       var percent = healthPercent(daysFloat);
       $('#health-percent').textContent = Math.floor(percent) + '%';
       
-      // Обновляем подробный текст о здоровье
       $('#health-detailed-text').innerHTML = getDetailedHealthText(daysFloat);
       
       $('#ring-fill').setAttribute('stroke-dashoffset', ringCirc - (percent / 100) * ringCirc);
@@ -801,11 +790,9 @@
       $('#stat-cigs').textContent = Math.floor(daysFloat * state.cigsPerDay).toLocaleString('ru-RU');
       $('#stat-money').textContent = formatMoney(daysFloat * state.cigsPerDay * state.cigPrice);
 
-      // УРОВЕНЬ (1 уровень = 1 день без курения)
       var currentLevel = Math.floor(daysFloat) + 1;
       $('#user-level').textContent = currentLevel;
 
-      // ОЧКИ (5 очков за каждый день)
       var pointsFromDays = Math.floor(daysFloat) * 5;
       var totalEarned = pointsFromDays + state.points;
       $('#user-points').textContent = Math.max(0, totalEarned - state.spentPoints);
@@ -1094,7 +1081,7 @@
     }
 
     /* =========================================================
-       УМНЫЙ ЧАТ-ПОМОЩНИК "ДЫШИ" (Pollinations AI)
+       УМНЫЙ ЧАТ-ПОМОЩНИК "ДЫШИ" (GigaChat через Cloudflare Worker)
        ========================================================= */
     function initChat() {
       var chatBtn = $('#breathe-modal-btn');
@@ -1188,27 +1175,36 @@
         input.value = '';
         showTyping();
 
-        var systemPrompt = "Ты — заботливый психолог и помощник по отказу от курения по имени Дыши. Твоя задача — поддерживать пользователя, давать короткие (до 3 предложений), мотивирующие и практичные советы. Если он жалуется на тягу, предлагай конкретные действия (вода, дыхание, прогулка). Будь теплым, эмпатичным, иногда задавай встречные вопросы, чтобы поддержать диалог. Не пиши длинные лекции. Твой стиль: дружелюбный, но твердый.";
-        var userContext = "Пользователь: " + state.name + ". Не курит уже: " + Math.floor((Date.now() - state.quitTs) / DAY) + " дней.";
-
-        fetch('https://text.pollinations.ai/', {
+        // ОТПРАВЛЯЕМ ЗАПРОС В НАШ CLOUDFLARE WORKER (GIGACHAT)
+        fetch('https://anti-tabak.g9nhprpvgm.workers.dev', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userContext + "\n\nПользователь говорит: " + val }
-            ],
-            model: 'openai'
+              { 
+                role: 'system', 
+                content: "Ты — Дыши, заботливый помощник по отказу от курения. Отвечай ТОЛЬКО на русском языке, грамотно, без ошибок. Будь кратким (2-3 предложения), поддерживающим. Если пользователь пишет о тяге, предложи конкретное действие (вода, дыхание, прогулка). Не выдумывай факты." 
+              },
+              { 
+                role: 'user', 
+                content: "Пользователя зовут " + state.name + ". Он не курит уже " + Math.floor((Date.now() - state.quitTs) / DAY) + " дней. Он говорит: " + val 
+              }
+            ]
           })
         })
-        .then(response => response.text())
-        .then(text => {
+        .then(response => response.json())
+        .then(data => {
           hideTyping();
-          addMessage(text.trim(), true, true);
+          if (data.choices && data.choices[0] && data.choices[0].message) {
+            addMessage(data.choices[0].message.content, true, true);
+          } else {
+            console.error('Ошибка ответа от GigaChat:', data);
+            addMessage("Извини, я не смог ответить. Попробуй ещё раз.", true, true);
+          }
         })
         .catch(err => {
           hideTyping();
+          console.error('Ошибка fetch:', err);
           var fallback = [
             "Я рядом. Сделай глубокий вдох. Ты справишься с этим.",
             "Каждая минута без сигарет делает тебя сильнее. Продолжай!",
