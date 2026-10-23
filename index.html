@@ -7,7 +7,6 @@
   <title>Антитабак — Начни дышать свободно</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
   <style>
     :root {
@@ -22,48 +21,46 @@
       --card: rgba(30, 41, 59, 0.75);
       --card-border: rgba(148, 163, 184, 0.15);
       --radius: 18px;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+    /* ЖЕСТКАЯ ФИКСАЦИЯ ЭКРАНА */
     html, body {
       height: 100%;
       width: 100%;
-      overflow: hidden; /* Жестко убираем любой скролл страницы */
-      position: fixed;  /* Фиксируем body на iOS */
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden !important;
+      position: fixed !important;
+      top: 0; left: 0; right: 0; bottom: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg-1);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
     }
 
     body {
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.15), transparent 60%),
-        radial-gradient(900px 500px at 90% 110%, rgba(56,189,248,0.12), transparent 60%),
-        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.15), transparent 60%),
+                  radial-gradient(900px 500px at 90% 110%, rgba(56,189,248,0.12), transparent 60%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-2));
     }
 
     body[data-progress="advanced"] {
-      background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.25), transparent 60%),
-        radial-gradient(900px 500px at 90% 110%, rgba(74,222,128,0.18), transparent 60%),
-        linear-gradient(180deg, #0b1220, #14251d);
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 110%, rgba(74,222,128,0.18), transparent 60%),
+                  linear-gradient(180deg, #0b1220, #14251d);
     }
 
     .hidden { display: none !important; }
 
     /* ================== ОНБОРДИНГ ================== */
     #onboarding {
-      position: fixed;
-      inset: 0;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      overflow-y: auto; /* Скролл только для онбординга */
       z-index: 10;
-      -webkit-overflow-scrolling: touch;
     }
 
     .hero-art {
@@ -73,52 +70,30 @@
       background: radial-gradient(ellipse at 50% 30%, rgba(74,222,128,0.35), transparent 55%),
                   radial-gradient(ellipse at 80% 80%, rgba(56,189,248,0.25), transparent 60%),
                   linear-gradient(160deg, #0b1220 0%, #0f2a1e 55%, #0b1220 100%);
+      pointer-events: none;
     }
 
+    /* Убран артефакт-солнце из CSS, вместо него мягкий градиент */
     .hero-art::before {
       content: "";
       position: absolute;
-      inset: -20%;
-      background: radial-gradient(circle at 30% 40%, rgba(148,163,184,0.22), transparent 40%),
-                  radial-gradient(circle at 70% 60%, rgba(148,163,184,0.18), transparent 45%);
-      filter: blur(40px);
-      animation: smoke 12s ease-in-out infinite alternate;
-    }
-
-    .hero-art::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 38%;
-      width: 180px;
-      height: 180px;
-      transform: translate(-50%, -50%) rotate(-15deg);
-      background: conic-gradient(from 0deg, #fbbf24, #f59e0b, #fbbf24);
+      top: 20%; left: 50%;
+      width: 200px; height: 200px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%);
       border-radius: 50%;
-      box-shadow: 0 0 120px 40px rgba(251,191,36,0.35), inset 0 0 60px rgba(255,255,255,0.4);
-      opacity: 0.9;
-      animation: sunPulse 6s ease-in-out infinite;
-    }
-
-    @keyframes smoke {
-      0% { transform: translate(0,0) scale(1); opacity: 0.7; }
-      100% { transform: translate(30px,-30px) scale(1.15); opacity: 0.3; }
-    }
-
-    @keyframes sunPulse {
-      0%, 100% { box-shadow: 0 0 120px 40px rgba(251,191,36,0.35), inset 0 0 60px rgba(255,255,255,0.4); }
-      50% { box-shadow: 0 0 160px 60px rgba(251,191,36,0.55), inset 0 0 80px rgba(255,255,255,0.6); }
+      filter: blur(20px);
     }
 
     .onboarding-content {
       position: relative;
       z-index: 2;
-      padding: 32px 24px 48px;
+      padding: 32px 24px calc(48px + env(safe-area-inset-bottom));
       background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 30%);
-      min-height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
+      min-height: 100%;
     }
 
     .brand-badge {
@@ -132,24 +107,19 @@
       color: var(--accent-2);
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.5px;
       margin-bottom: 20px;
       align-self: flex-start;
-      animation: fadeUp 0.7s ease both;
     }
-    .brand-badge::before { content: "🌿"; font-size: 16px; }
 
     .hero-title {
       font-size: clamp(30px, 8vw, 44px);
       font-weight: 800;
       line-height: 1.1;
-      letter-spacing: -0.5px;
       margin-bottom: 14px;
       background: linear-gradient(135deg, #fff 0%, #4ade80 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: fadeUp 0.7s 0.1s ease both;
     }
 
     .hero-subtitle {
@@ -157,12 +127,6 @@
       line-height: 1.55;
       color: var(--text-dim);
       margin-bottom: 28px;
-      animation: fadeUp 0.7s 0.2s ease both;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .btn {
@@ -177,7 +141,7 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.25s ease;
+      transition: transform 0.15s ease, box-shadow 0.25s ease;
       font-family: inherit;
     }
     .btn-primary {
@@ -185,66 +149,31 @@
       color: #04140a;
       box-shadow: 0 10px 30px var(--accent-glow);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px var(--accent-glow); }
-    .btn-primary:active { transform: translateY(0) scale(0.99); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
+    .btn-primary:active { transform: scale(0.98); }
     .btn-ghost {
       background: rgba(148,163,184,0.12);
       color: var(--text);
       border: 1px solid var(--card-border);
     }
-    .btn-small {
-      width: auto;
-      padding: 10px 16px;
-      font-size: 14px;
-      border-radius: 12px;
-    }
+    .btn-small { width: auto; padding: 10px 16px; font-size: 14px; border-radius: 12px; }
 
-    #form-step { animation: fadeUp 0.5s ease both; }
-
-    .field { margin-bottom: 18px; }
-    .field label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-dim);
-      margin-bottom: 8px;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-    .field input {
-      width: 100%;
-      padding: 15px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
-      background: rgba(15,23,42,0.6);
-      color: var(--text);
-      font-size: 16px;
-      outline: none;
-      transition: border 0.2s, box-shadow 0.2s;
-    }
-    .field input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
-    }
-    .field input::placeholder { color: #64748b; }
-    .field-hint { font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.4; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+    .field input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--card-border); background: rgba(15,23,42,0.6); color: var(--text); font-size: 16px; outline: none; }
+    .field input:focus { border-color: var(--accent); }
     .error-msg { color: var(--danger); font-size: 13px; margin-bottom: 14px; display: none; }
     .error-msg.show { display: block; }
 
     /* ================== ГЛАВНЫЙ ЭКРАН ================== */
     #app-main {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100dvh; /* Идеально подстраивается под экран */
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
       display: flex;
       flex-direction: column;
       max-width: 640px;
       margin: 0 auto;
       padding-top: env(safe-area-inset-top);
+      z-index: 5;
     }
 
     .top-bar {
@@ -258,371 +187,104 @@
     .greeting strong { color: var(--text); font-size: 16px; display: block; margin-top: 2px; }
 
     .stats-badge {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid var(--card-border);
-      padding: 6px 14px;
-      border-radius: 12px;
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(30, 41, 59, 0.8); border: 1px solid var(--card-border);
+      padding: 6px 14px; border-radius: 12px;
     }
     .badge-item { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: var(--accent-2); }
     
     .reset-btn {
-      background: rgba(148,163,184,0.1);
-      border: 1px solid var(--card-border);
-      color: var(--text-dim);
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
+      background: rgba(148,163,184,0.1); border: 1px solid var(--card-border);
+      color: var(--text-dim); padding: 6px 10px; border-radius: 8px; font-size: 14px;
     }
 
-    /* Обертка для контента вкладок со скроллом */
     .tab-content {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0 18px 90px; /* Снизу отступ под панель */
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 0 18px 90px;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none; /* Firefox */
+      scrollbar-width: none;
     }
-    .tab-content::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+    .tab-content::-webkit-scrollbar { display: none; }
 
-    /* Баннер сравнения */
-    .compare-banner {
-      background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(34,197,94,0.14));
-      border: 1px solid rgba(56,189,248,0.35);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .compare-icon { font-size: 26px; flex-shrink: 0; }
-    .compare-body { flex: 1; min-width: 0; }
-    .compare-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #38bdf8; font-weight: 700; margin-bottom: 2px; }
-    .compare-text { font-size: 13px; line-height: 1.3; color: var(--text); font-weight: 600; }
+    /* Контент вкладок */
+    .compare-banner { background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(34,197,94,0.14)); border: 1px solid rgba(56,189,248,0.35); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
+    .compare-icon { font-size: 26px; }
+    .compare-text { font-size: 13px; font-weight: 600; }
     .compare-text strong { color: var(--accent-2); font-size: 15px; }
 
-    /* Статистика экономии */
-    .stats-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 12px;
-      backdrop-filter: blur(10px);
-    }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; }
     .stat-emoji { font-size: 18px; margin-bottom: 4px; }
-    .stat-value { font-size: 20px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+    .stat-value { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 2px; }
     .stat-value.money { color: var(--accent-2); }
-    .stat-label { font-size: 10px; color: var(--text-dim); line-height: 1.3; }
+    .stat-label { font-size: 10px; color: var(--text-dim); }
 
-    .timer-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 18px 14px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 14px;
-    }
-    
-    .progress-ring-wrap {
-      position: relative;
-      width: 140px;
-      height: 140px;
-      margin: 0 auto 14px;
-    }
+    .timer-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px 14px; text-align: center; margin-bottom: 14px; }
+    .progress-ring-wrap { position: relative; width: 140px; height: 140px; margin: 0 auto 14px; }
     .progress-ring { transform: rotate(-90deg); }
     .progress-ring .track { fill: none; stroke: rgba(148,163,184,0.15); stroke-width: 10; }
-    .progress-ring .fill {
-      fill: none;
-      stroke: url(#gradient);
-      stroke-width: 10;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
-      filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));
-    }
+    .progress-ring .fill { fill: none; stroke: url(#gradient); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s; }
     .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .ring-percent {
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #fff, var(--accent-2));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1;
-    }
-    .ring-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .ring-percent { font-size: 32px; font-weight: 800; color: var(--accent-2); }
+    .ring-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
 
-    .timer-display { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
-    .time-cell {
-      background: rgba(15,23,42,0.6);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px 4px;
-      flex: 1;
-      max-width: 70px;
-    }
-    .time-num { font-size: 18px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
-    .time-unit { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .timer-display { display: flex; justify-content: center; gap: 6px; }
+    .time-cell { background: rgba(15,23,42,0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px 4px; flex: 1; max-width: 70px; }
+    .time-num { font-size: 18px; font-weight: 800; color: #fff; }
+    .time-unit { font-size: 9px; color: var(--text-dim); text-transform: uppercase; }
 
-    .goal-card {
-      background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(56,189,248,0.12));
-      border: 1px solid rgba(34,197,94,0.35);
-      border-radius: var(--radius);
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-    .goal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .goal-icon { font-size: 18px; }
-    .goal-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-2); font-weight: 700; }
-    .goal-text { font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 8px; }
+    .goal-card { background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(56,189,248,0.12)); border: 1px solid rgba(34,197,94,0.35); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
+    .goal-title { font-size: 11px; text-transform: uppercase; color: var(--accent-2); font-weight: 700; }
+    .goal-text { font-size: 14px; font-weight: 600; margin: 4px 0 8px; }
     .goal-countdown { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
-    .goal-countdown strong { color: var(--accent-2); font-variant-numeric: tabular-nums; }
 
-    .progress-bar { height: 6px; background: rgba(15,23,42,0.6); border-radius: 999px; overflow: hidden; }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border-radius: 999px;
-      transition: width 1s cubic-bezier(0.4,0,0.2,1);
-      box-shadow: 0 0 12px var(--accent-glow);
-    }
+    .section-title { font-size: 12px; text-transform: uppercase; color: var(--text-dim); font-weight: 700; margin: 18px 4px 10px; display: flex; justify-content: space-between; }
 
-    .section-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--text-dim);
-      font-weight: 700;
-      margin: 18px 4px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .section-title .counter { font-size: 11px; color: var(--accent-2); text-transform: none; letter-spacing: 0; }
-
-    /* ---- Вехи ---- */
-    .milestone {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 12px;
-      margin-bottom: 8px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      backdrop-filter: blur(10px);
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.3s;
-    }
-    .milestone.visible { opacity: 1; transform: translateY(0); }
-    .milestone.done {
-      border-color: rgba(34,197,94,0.5);
-      background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--card));
-    }
-    .ms-icon {
-      flex-shrink: 0;
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      background: rgba(148,163,184,0.12);
-      border: 1px solid var(--card-border);
-    }
-    .milestone.done .ms-icon { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); }
-    .ms-body { flex: 1; min-width: 0; }
-    .ms-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+    .milestone { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; }
+    .milestone.done { border-color: rgba(34,197,94,0.5); background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--card)); }
+    .ms-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.12); }
     .ms-time { font-size: 13px; font-weight: 700; color: #fff; }
-    .ms-status { font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 999px; white-space: nowrap; }
-    .ms-status.done { background: rgba(34,197,94,0.2); color: var(--accent-2); }
-    .ms-status.pending { background: rgba(148,163,184,0.12); color: var(--text-dim); }
-    .ms-desc { font-size: 12px; line-height: 1.4; color: var(--text-dim); }
+    .ms-desc { font-size: 12px; color: var(--text-dim); }
 
-    /* ---- Нижняя панель ---- */
+    /* ЗАДАНИЯ */
+    .task { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+    .task.completed { border-color: rgba(34,197,94,0.5); opacity: 0.7; }
+    .task-check { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; background: rgba(15,23,42,0.5); cursor: pointer; }
+    .task.completed .task-check { background: var(--accent); color: #000; border-color: var(--accent); }
+    .task-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .task-reward { font-size: 11px; color: #fbbf24; font-weight: 700; }
+    .task-hint { font-size: 11px; color: var(--text-dim); }
+
+    /* МАГАЗИН */
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .shop-item { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .shop-emoji { font-size: 32px; margin-bottom: 8px; }
+    .shop-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .shop-cost { font-size: 12px; color: #fbbf24; font-weight: 700; margin-bottom: 12px; }
+    .shop-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; background: rgba(34,197,94,0.15); color: var(--accent-2); font-weight: 700; font-size: 12px; cursor: pointer; }
+    .shop-btn:disabled { background: rgba(148,163,184,0.1); color: #475569; }
+
+    /* НИЖНЯЯ ПАНЕЛЬ */
     .tabs {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      display: flex;
-      gap: 4px;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; gap: 4px;
       padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(15,23,42,0.95);
-      backdrop-filter: blur(16px);
-      border-top: 1px solid var(--card-border);
+      background: rgba(15,23,42,0.95); border-top: 1px solid var(--card-border);
       z-index: 100;
     }
-    .tab-btn {
-      flex: 1;
-      padding: 8px 4px;
-      border-radius: 10px;
-      border: none;
-      background: transparent;
-      color: var(--text-dim);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-    }
+    .tab-btn { flex: 1; padding: 8px 4px; border-radius: 10px; border: none; background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .tab-btn.active { background: rgba(34,197,94,0.15); color: var(--accent-2); }
 
-    /* ---- Задания ---- */
-    .task {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 12px;
-      margin-bottom: 8px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    .task.completed { border-color: rgba(34,197,94,0.5); background: linear-gradient(135deg, rgba(34,197,94,0.1), var(--card)); }
-    .task.completed .task-text { text-decoration: line-through; color: var(--text-dim); }
-    .task-check {
-      flex-shrink: 0;
-      width: 24px; height: 24px;
-      border-radius: 8px;
-      border: 2px solid var(--card-border);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      color: transparent;
-      background: rgba(15,23,42,0.5);
-      margin-top: 2px;
-    }
-    .task.completed .task-check { background: linear-gradient(135deg, var(--accent), #16a34a); border-color: var(--accent); color: #04140a; }
-    .task-body { flex: 1; min-width: 0; }
-    .task-text { font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 2px; }
-    .task-reward { font-size: 11px; color: #fbbf24; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-    .task-hint { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
-
-    /* GPS */
-    .task-progress-box { margin-top: 8px; padding: 10px; background: rgba(15,23,42,0.6); border-radius: 10px; border: 1px solid var(--card-border); }
-    .task-progress-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: var(--text-dim); }
-    .task-progress-bar { height: 4px; background: rgba(148,163,184,0.2); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
-    .task-progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.5s ease; }
-    .task-progress-actions { display: flex; gap: 6px; }
-    .task-progress-status { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
-    .task-progress-status.error { color: var(--danger); }
-    .task-progress-status.success { color: var(--accent-2); }
-    .task-progress-status.active { color: #fbbf24; }
-
-    /* ---- Магазин ---- */
-    .shop-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .shop-item {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 16px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .shop-emoji { font-size: 32px; margin-bottom: 8px; }
-    .shop-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .shop-cost { font-size: 12px; color: #fbbf24; font-weight: 700; margin-bottom: 12px; }
-    .shop-btn {
-      width: 100%;
-      padding: 8px;
-      border-radius: 8px;
-      border: none;
-      background: rgba(34,197,94,0.15);
-      color: var(--accent-2);
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .shop-btn:active { background: rgba(34,197,94,0.3); }
-    .shop-btn:disabled { background: rgba(148,163,184,0.1); color: #475569; cursor: not-allowed; }
-
-    /* ---- Мини-игры ---- */
-    .game-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
-    .game-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .game-emoji { font-size: 20px; }
-    .game-name { font-size: 15px; font-weight: 700; color: #fff; }
-    .game-desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; margin-bottom: 12px; }
-    
-    .breath-wrap { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
-    .breath-circle {
-      width: 100px; height: 100px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(74,222,128,0.3), rgba(34,197,94,0.1));
-      border: 2px solid rgba(74,222,128,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: var(--accent-2);
-      transition: transform 4s ease-in-out; margin-bottom: 14px;
-    }
-    .breath-circle.inhale, .breath-circle.hold { transform: scale(1.3); }
-    .breath-circle.exhale { transform: scale(1); }
-    
-    #bubble-game-area {
-      position: relative; height: 180px; border-radius: 12px; overflow: hidden;
-      background: radial-gradient(circle at 50% 120%, rgba(56,189,248,0.15), rgba(15,23,42,0.8));
-      border: 1px solid var(--card-border); margin-bottom: 10px;
-    }
-    .bubble { position: absolute; border-radius: 50%; animation: bubbleFloat linear infinite; }
-    @keyframes bubbleFloat { from { transform: translateY(0) scale(1); opacity: 1; } to { transform: translateY(-200px) scale(1.1); opacity: 0; } }
-    
-    #memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-    .mem-card {
-      aspect-ratio: 1; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15));
-      border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 18px;
-    }
-    .mem-card.flipped { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2)); border-color: rgba(34,197,94,0.5); }
-    .mem-card.matched { background: linear-gradient(135deg, var(--accent), #16a34a); border-color: var(--accent); }
-
-    /* ---- Модалки ---- */
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-      z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
+    /* МОДАЛКА ПОДТВЕРЖДЕНИЯ */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-backdrop.show { opacity: 1; pointer-events: auto; }
-    .modal-card {
-      background: linear-gradient(160deg, #1e293b, #0f2a1e); border: 1px solid rgba(34,197,94,0.4);
-      border-radius: 20px; padding: 24px 20px; max-width: 360px; width: 100%; text-align: center;
-      transform: scale(0.9); transition: transform 0.3s;
-    }
-    .modal-backdrop.show .modal-card { transform: scale(1); }
-    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-    .modal-text { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.4; }
-    .modal-stat { background: rgba(34,197,94,0.12); padding: 12px; border-radius: 12px; margin-bottom: 16px; }
-    .modal-stat-value { font-size: 24px; font-weight: 800; color: var(--accent-2); }
-
-    /* Тосты */
-    .toast {
-      position: fixed; left: 50%; bottom: 80px; transform: translate(-50%, 120%);
-      background: linear-gradient(135deg, var(--accent), #16a34a); color: #04140a;
-      padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 14px;
-      z-index: 10000; transition: transform 0.4s; text-align: center;
-    }
+    .modal-card { background: linear-gradient(160deg, #1e293b, #0f2a1e); border: 1px solid rgba(34,197,94,0.4); border-radius: 20px; padding: 24px 20px; max-width: 360px; width: 100%; text-align: center; }
+    .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .modal-text { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
+    
+    /* ТОСТ */
+    .toast { position: fixed; left: 50%; bottom: 80px; transform: translate(-50%, 120%); background: linear-gradient(135deg, var(--accent), #16a34a); color: #04140a; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 14px; z-index: 10000; transition: transform 0.4s; }
     .toast.show { transform: translate(-50%, 0); }
-
-    .confetti-piece {
-      position: fixed; width: 8px; height: 8px; z-index: 9999; pointer-events: none; border-radius: 2px;
-      animation: confettiFall linear forwards;
-    }
-    @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -631,7 +293,7 @@
   <section id="onboarding">
     <div class="hero-art"></div>
     <div class="onboarding-content">
-      <div class="brand-badge">Антитабак · PWA</div>
+      <div class="brand-badge">🌿 Антитабак · PWA</div>
 
       <div id="welcome-step">
         <h1 class="hero-title">Начни дышать свободно</h1>
@@ -641,24 +303,24 @@
 
       <div id="form-step" class="hidden">
         <h1 class="hero-title" style="font-size: clamp(24px,7vw,32px);">Расскажи о себе</h1>
-        <p class="hero-subtitle" style="margin-bottom:20px;">Данные нужны только для расчёта прогресса и хранятся у тебя в телефоне.</p>
+        <p class="hero-subtitle" style="margin-bottom:20px;">Данные нужны только для расчёта прогресса.</p>
 
         <form id="onboarding-form" novalidate>
           <div class="field">
-            <label for="user-name">Как тебя зовут?</label>
+            <label>Как тебя зовут?</label>
             <input type="text" id="user-name" placeholder="Твоё имя" maxlength="40" required />
           </div>
           <div class="field">
-            <label for="quit-date">Когда бросил курить?</label>
+            <label>Когда бросил курить?</label>
             <input type="datetime-local" id="quit-date" required />
           </div>
           <div class="field">
-            <label for="cigs-per-day">Сигарет в день?</label>
-            <input type="number" id="cigs-per-day" placeholder="Например, 15" min="1" max="100" inputmode="numeric" required />
+            <label>Сигарет в день?</label>
+            <input type="number" id="cigs-per-day" placeholder="Например, 15" min="1" max="100" required />
           </div>
           <div class="field">
-            <label for="cig-price">Цена одной сигареты (₽)</label>
-            <input type="number" id="cig-price" placeholder="Например, 20" min="0.01" step="0.01" inputmode="decimal" required />
+            <label>Цена одной сигареты (₽)</label>
+            <input type="number" id="cig-price" placeholder="Например, 20" min="0.01" step="0.01" required />
           </div>
 
           <div class="error-msg" id="form-error"></div>
@@ -672,7 +334,6 @@
   <!-- ================== ГЛАВНЫЙ ЭКРАН ================== -->
   <main id="app-main" class="hidden">
     
-    <!-- Верхняя панель с уровнем и очками -->
     <div class="top-bar">
       <div class="greeting">
         Твой путь свободы
@@ -681,17 +342,17 @@
       <div class="stats-badge">
         <div class="badge-item" title="Уровень">🏅 Ур. <span id="user-level">1</span></div>
         <div class="badge-item" title="Очки">💎 <span id="user-points">0</span></div>
-        <button class="reset-btn" id="reset-btn" title="Сброс">⚙︎</button>
+        <button class="reset-btn" id="reset-btn">⚙︎</button>
       </div>
     </div>
 
-    <!-- ============ ВКЛАДКА: ПРОГРЕСС ============ -->
+    <!-- ПРОГРЕСС -->
     <div id="tab-progress" class="tab-content">
       <div class="compare-banner">
         <div class="compare-icon">🏅</div>
         <div class="compare-body">
-          <div class="compare-title">Сегодня ты обошёл</div>
-          <div class="compare-text"><strong id="compare-count">0</strong> человек, которые всё ещё курят</div>
+          <div class="compare-title" style="font-size:10px; color:#38bdf8;">Сегодня ты обошёл</div>
+          <div class="compare-text"><strong id="compare-count">0</strong> человек</div>
         </div>
       </div>
 
@@ -735,145 +396,78 @@
       </div>
 
       <div class="goal-card">
-        <div class="goal-head">
-          <span class="goal-icon" id="goal-icon">🎯</span>
-          <span class="goal-title" id="goal-title">Ближайшая цель</span>
-        </div>
+        <div class="goal-title">Ближайшая цель</div>
         <div class="goal-text" id="goal-text">Загрузка…</div>
         <div class="goal-countdown" id="goal-countdown"></div>
-        <div class="progress-bar"><div class="progress-bar-fill" id="goal-progress" style="width:0%"></div></div>
       </div>
 
       <div class="section-title">
         <span>Что происходит с организмом</span>
-        <span class="counter" id="milestones-counter"></span>
       </div>
       <div id="milestones-container"></div>
     </div>
 
-    <!-- ============ ВКЛАДКА: ЗАДАНИЯ ============ -->
+    <!-- ЗАДАНИЯ -->
     <div id="tab-tasks" class="tab-content hidden">
-      <div class="tasks-summary" style="background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.1)); padding: 14px; border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); margin-bottom: 12px;">
-        <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">Выполнено заданий: <strong id="tasks-count" style="color: var(--accent-2);">0 из 0</strong></div>
-        <button class="btn-ghost btn-small" id="reset-tasks-btn" type="button">↺ Сбросить задания</button>
-      </div>
-      <div class="section-title"><span>Отвлекись от тяги</span></div>
+      <div class="section-title"><span>Отвлекись от тяги (1 очко за задание)</span></div>
       <div id="tasks-container"></div>
     </div>
 
-    <!-- ============ ВКЛАДКА: МАГАЗИН ============ -->
+    <!-- МАГАЗИН -->
     <div id="tab-shop" class="tab-content hidden">
-      <div class="section-title" style="margin-top: 0;">
-        <span>Обменяй очки на вкусняшки</span>
-      </div>
+      <div class="section-title"><span>Обменяй очки на вкусняшки</span></div>
       <div class="shop-grid">
-        <div class="shop-item">
-          <div class="shop-emoji">🥛</div>
-          <div class="shop-name">Йогурт</div>
-          <div class="shop-cost">30 💎</div>
-          <button class="shop-btn" data-price="30" data-name="Йогурт">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">🍩</div>
-          <div class="shop-name">Сырок глазированный</div>
-          <div class="shop-cost">20 💎</div>
-          <button class="shop-btn" data-price="20" data-name="Сырок">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">🍊</div>
-          <div class="shop-name">Сок апельсиновый</div>
-          <div class="shop-cost">70 💎</div>
-          <button class="shop-btn" data-price="70" data-name="Сок">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">🥐</div>
-          <div class="shop-name">Сочник с творогом</div>
-          <div class="shop-cost">40 💎</div>
-          <button class="shop-btn" data-price="40" data-name="Сочник">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">🍰</div>
-          <div class="shop-name">Чизкейк</div>
-          <div class="shop-cost">100 💎</div>
-          <button class="shop-btn" data-price="100" data-name="Чизкейк">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">☕</div>
-          <div class="shop-name">Какао с молоком</div>
-          <div class="shop-cost">20 💎</div>
-          <button class="shop-btn" data-price="20" data-name="Какао">Купить</button>
-        </div>
-        <div class="shop-item">
-          <div class="shop-emoji">🧀</div>
-          <div class="shop-name">Scandic</div>
-          <div class="shop-cost">30 💎</div>
-          <button class="shop-btn" data-price="30" data-name="Scandic">Купить</button>
-        </div>
+        <div class="shop-item"><div class="shop-emoji">🥛</div><div class="shop-name">Йогурт</div><div class="shop-cost">30 💎</div><button class="shop-btn" data-price="30" data-name="Йогурт">Купить</button></div>
+        <div class="shop-item"><div class="shop-emoji">🍩</div><div class="shop-name">Сырок</div><div class="shop-cost">20 💎</div><button class="shop-btn" data-price="20" data-name="Сырок">Купить</button></div>
+        <div class="shop-item"><div class="shop-emoji">🍊</div><div class="shop-name">Сок</div><div class="shop-cost">70 💎</div><button class="shop-btn" data-price="70" data-name="Сок">Купить</button></div>
+        <div class="shop-item"><div class="shop-emoji">🥐</div><div class="shop-name">Сочник</div><div class="shop-cost">40 💎</div><button class="shop-btn" data-price="40" data-name="Сочник">Купить</button></div>
+        <div class="shop-item"><div class="shop-emoji">🍰</div><div class="shop-name">Чизкейк</div><div class="shop-cost">100 💎</div><button class="shop-btn" data-price="100" data-name="Чизкейк">Купить</button></div>
+        <div class="shop-item"><div class="shop-emoji">☕</div><div class="shop-name">Какао</div><div class="shop-cost">20 💎</div><button class="shop-btn" data-price="20" data-name="Какао">Купить</button></div>
       </div>
     </div>
 
-    <!-- ============ ВКЛАДКА: ИГРЫ ============ -->
+    <!-- ИГРЫ -->
     <div id="tab-games" class="tab-content hidden">
-      <div class="section-title" style="margin-top: 0;"><span>Отвлекись и подыши</span></div>
-
-      <div class="game-card">
-        <div class="game-head"><span class="game-emoji">🌬️</span><span class="game-name">Дыхание 4-4-4</span></div>
-        <div class="game-desc">Вдох 4 сек, задержка 4, выдох 4. Успокаивает нервную систему.</div>
-        <div class="breath-wrap">
-          <div class="breath-circle" id="breath-circle">Готов?</div>
-          <div class="breath-info" id="breath-info" style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;"></div>
-          <button class="btn btn-primary btn-small" id="breath-start" type="button">Начать дыхание</button>
+      <div class="section-title"><span>Отвлекись</span></div>
+      <div class="timer-card" style="text-align:left;">
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🌬️ Дыхание 4-4-4</div>
+        <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px;">Вдох 4с, задержка 4с, выдох 4с.</div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div id="breath-circle" style="width:100px; height:100px; border-radius:50%; background:rgba(34,197,94,0.2); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent-2); transition:transform 4s ease-in-out; margin-bottom:16px;">Готов?</div>
+          <button class="btn btn-primary btn-small" id="breath-start">Начать</button>
         </div>
       </div>
-
-      <div class="game-card">
-        <div class="game-head"><span class="game-emoji">🫧</span><span class="game-name">Лопай пузыри</span></div>
-        <div class="game-desc">Отвлекись от мыслей и набей рекорд.</div>
-        <div class="game-stats" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-          <span>Счёт: <strong id="bubble-score" style="color: var(--accent-2);">0</strong></span>
-          <span>Рекорд: <strong id="bubble-best" style="color: var(--accent-2);">0</strong></span>
-          <button class="btn btn-ghost btn-small" id="bubble-reset" type="button">Заново</button>
+      
+      <div class="timer-card" style="text-align:left;">
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🫧 Лопай пузыри</div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
+          <span>Счёт: <strong id="bubble-score" style="color:var(--accent-2);">0</strong></span>
+          <span>Рекорд: <strong id="bubble-best" style="color:var(--accent-2);">0</strong></span>
         </div>
-        <div id="bubble-game-area"></div>
-      </div>
-
-      <div class="game-card">
-        <div class="game-head"><span class="game-emoji">🧠</span><span class="game-name">Память</span></div>
-        <div class="game-desc">Найди пары карточек.</div>
-        <div class="game-stats" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
-          <span>Ходы: <strong id="memory-moves" style="color: var(--accent-2);">0</strong></span>
-          <span>Пары: <strong id="memory-pairs" style="color: var(--accent-2);">0 / 8</strong></span>
-          <button class="btn btn-ghost btn-small" id="memory-reset" type="button">Заново</button>
-        </div>
-        <div id="memory-grid"></div>
+        <div id="bubble-game-area" style="height:180px; border-radius:12px; background:rgba(15,23,42,0.6); position:relative; overflow:hidden;"></div>
       </div>
     </div>
 
-    <!-- Нижняя навигация -->
     <div class="tabs">
-      <button class="tab-btn active" data-tab="progress" type="button"><span style="font-size:16px;">📊</span>Прогресс</button>
-      <button class="tab-btn" data-tab="tasks" type="button"><span style="font-size:16px;">✅</span>Задания</button>
-      <button class="tab-btn" data-tab="shop" type="button"><span style="font-size:16px;">🛍️</span>Магазин</button>
-      <button class="tab-btn" data-tab="games" type="button"><span style="font-size:16px;">🎮</span>Игры</button>
+      <button class="tab-btn active" data-tab="progress"><span style="font-size:16px;">📊</span>Прогресс</button>
+      <button class="tab-btn" data-tab="tasks"><span style="font-size:16px;">✅</span>Задания</button>
+      <button class="tab-btn" data-tab="shop"><span style="font-size:16px;">🛍️</span>Магазин</button>
+      <button class="tab-btn" data-tab="games"><span style="font-size:16px;">🎮</span>Игры</button>
     </div>
   </main>
 
-  <!-- Модальное окно -->
-  <div class="modal-backdrop" id="welcome-modal">
+  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ -->
+  <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
-      <span id="modal-emoji" style="font-size: 40px; display: block; margin-bottom: 10px;">🎉</span>
-      <div class="modal-title" id="modal-title">С возвращением!</div>
-      <div class="modal-text" id="modal-text"></div>
-      <div class="modal-stat">
-        <div class="modal-stat-value" id="modal-stat-value">0</div>
-        <div style="font-size: 12px; color: #94a3b8;" id="modal-stat-label">человек обошли</div>
-      </div>
-      <button class="btn btn-primary" id="modal-close" type="button">Продолжить</button>
+      <div class="modal-title">Подтверди действие</div>
+      <div class="modal-text" id="verify-text">Чтобы получить очко, введи код, который видишь перед собой (например, на часах или в комнате):</div>
+      <input type="number" id="verify-input" placeholder="Введи код (например 2024)" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; font-size:16px; text-align:center; margin-bottom:16px; outline:none;" />
+      <button class="btn btn-primary" id="verify-submit" type="button">Подтвердить</button>
+      <button class="btn btn-ghost" id="verify-cancel" type="button" style="margin-top:8px;">Отмена</button>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
-  <div id="confetti-container"></div>
 
   <script>
     var HOUR = 60 * 60 * 1000;
@@ -882,42 +476,32 @@
     function peoplePassed(days) { return Math.floor(days * 24 * 2); }
 
     var MILESTONES = [
-      { ms: 20 * 60 * 1000,  title: '20 минут',   icon: '❤️', desc: 'Пульс и артериальное давление приходят в норму.' },
-      { ms: 8 * HOUR,        title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа в крови падает вдвое.' },
-      { ms: 24 * HOUR,       title: '24 часа',    icon: '🚭', desc: 'Никотин начинает активно выводиться.' },
-      { ms: 48 * HOUR,       title: '48 часов',   icon: '👃', desc: 'Организм освобождается от никотина. Возвращаются вкус и обоняние.' },
-      { ms: 72 * HOUR,       title: '72 часа',    icon: '⚡', desc: 'Дышать становится легче. Никотин полностью выведен.' },
-      { ms: 4 * DAY,         title: '4 дня',      icon: '💧', desc: 'Тяга ослабевает с каждым часом.' },
-      { ms: 5 * DAY,         title: '5 дней',     icon: '😴', desc: 'Сон становится глубже, утренний кашель уменьшается.' },
+      { ms: 20 * 60 * 1000,  title: '20 минут',   icon: '❤️', desc: 'Пульс и давление приходят в норму.' },
+      { ms: 8 * HOUR,        title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа падает вдвое.' },
+      { ms: 24 * HOUR,       title: '24 часа',    icon: '🚭', desc: 'Никотин начинает выводиться.' },
+      { ms: 48 * HOUR,       title: '48 часов',   icon: '👃', desc: 'Возвращаются вкус и обоняние.' },
+      { ms: 72 * HOUR,       title: '72 часа',    icon: '⚡', desc: 'Никотин полностью выведен.' },
       { ms: 7 * DAY,         title: '1 неделя',   icon: '🌟', desc: 'Вкусовые рецепторы работают лучше.' },
-      { ms: 10 * DAY,        title: '10 дней',    icon: '💪', desc: 'Одышка при ходьбе уменьшается.' },
-      { ms: 14 * DAY,        title: '2 недели',   icon: '🏃', desc: 'Кровообращение улучшается.' },
-      { ms: 21 * DAY,        title: '3 недели',   icon: '🧘', desc: 'Психологическая тяга слабеет.' },
-      { ms: 30 * DAY,        title: '1 месяц',    icon: '🌿', desc: 'Функция лёгких начинает восстанавливаться.' },
-      { ms: 45 * DAY,        title: '1,5 месяца', icon: '🫀', desc: 'Давление стабилизируется.' },
-      { ms: 60 * DAY,        title: '2 месяца',   icon: '🔥', desc: 'Энергия и выносливость растут.' },
+      { ms: 30 * DAY,        title: '1 месяц',    icon: '🌿', desc: 'Функция лёгких восстанавливается.' },
       { ms: 90 * DAY,        title: '3 месяца',   icon: '🦵', desc: 'Объём лёгких увеличивается до 10%.' },
-      { ms: 120 * DAY,       title: '4 месяца',   icon: '🛌', desc: 'Сон глубокий и стабильный.' },
-      { ms: 150 * DAY,       title: '5 месяцев',  icon: '🏋️', desc: 'Мышечный тонус растёт.' },
-      { ms: 180 * DAY,       title: '6 месяцев',  icon: '🌳', desc: 'Функция лёгких улучшается на 10% и более.' },
-      { ms: 270 * DAY,       title: '9 месяцев',  icon: '🫧', desc: 'Реснички в лёгких восстановились.' },
-      { ms: 365 * DAY,       title: '1 год',      icon: '🏆', desc: 'Риск ишемической болезни сердца снижается вдвое.' }
+      { ms: 180 * DAY,       title: '6 месяцев',  icon: '🌳', desc: 'Иммунитет крепче.' },
+      { ms: 365 * DAY,       title: '1 год',      icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.' }
     ];
 
     var TASKS = [
-      { id: 't1',  text: 'Выпей стакан воды',           hint: 'Жажда маскируется под тягу.', cat: 'Тело', points: 5 },
-      { id: 't2',  text: 'Сделай 10 глубоких вдохов',   hint: 'Свежий воздух снижает тревожность.', cat: 'Дыхание', points: 5 },
-      { id: 't_walk', text: 'Пройди 1000 метров',       hint: 'Геолокация включится сама.', cat: 'Движение', points: 50, gps: true, targetMeters: 1000 },
-      { id: 't4',  text: 'Напиши близкому человеку',    hint: 'Поддержка близких — сильный инструмент.', cat: 'Общение', points: 10 },
-      { id: 't5',  text: 'Почисти зубы',                hint: 'Свежесть во рту снижает желание.', cat: 'Гигиена', points: 5 },
-      { id: 't6',  text: 'Съешь фрукт или овощ',        hint: 'Полезный перекус.', cat: 'Питание', points: 10 },
-      { id: 't7',  text: 'Убери зажигалки',             hint: 'Убери триггеры с глаз долой.', cat: 'Среда', points: 10 },
-      { id: 't9',  text: 'Послушай любимую песню',      hint: 'Музыка снижает напряжение.', cat: 'Настроение', points: 5 },
-      { id: 't10', text: 'Сделай 20 приседаний',        hint: 'Нагрузка снимает стресс.', cat: 'Движение', points: 10 },
-      { id: 't11', text: 'Запиши, что тебя беспокоит',  hint: 'Выплесни мысли на бумагу.', cat: 'Психика', points: 10 }
+      { id: 't1',  text: 'Выпей стакан воды',           hint: 'Сделай 5 медленных глотков.', cat: 'Тело' },
+      { id: 't2',  text: 'Сделай 10 глубоких вдохов',   hint: 'Выйди на балкон или к окну.', cat: 'Дыхание' },
+      { id: 't3',  text: 'Пройди 100 метров',           hint: 'Просто прогуляйся по коридору или улице.', cat: 'Движение' },
+      { id: 't4',  text: 'Напиши сообщение близкому',   hint: 'Спроси, как у него дела.', cat: 'Общение' },
+      { id: 't5',  text: 'Почисти зубы',                hint: 'Свежесть во рту отбивает тягу.', cat: 'Гигиена' },
+      { id: 't6',  text: 'Съешь фрукт',                 hint: 'Например, яблоко или банан.', cat: 'Питание' },
+      { id: 't7',  text: 'Убери зажигалку с глаз',      hint: 'Спрячь ее в ящик.', cat: 'Среда' },
+      { id: 't8',  text: 'Помой руки',                  hint: 'Прохладная вода успокаивает.', cat: 'Гигиена' },
+      { id: 't9',  text: 'Сделай 10 приседаний',        hint: 'Кровь прильет к мышцам, а не к мозгу.', cat: 'Движение' },
+      { id: 't10', text: 'Запиши 1 причину бросить',    hint: 'Можно в заметки в телефоне.', cat: 'Психика' }
     ];
 
-    var STORAGE_KEY = 'antitabak_v3';
+    var STORAGE_KEY = 'antitabak_v4';
 
     function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return null; } }
     function saveData(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {} }
@@ -958,7 +542,6 @@
 
     var toastEl = $('#toast');
     var toastTimer = null;
-
     function showToast(msg) {
       toastEl.textContent = msg;
       toastEl.classList.add('show');
@@ -966,100 +549,61 @@
       toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 3500);
     }
 
-    function launchConfetti(count) {
-      var container = $('#confetti-container');
-      var colors = ['#22c55e', '#4ade80', '#fbbf24', '#38bdf8', '#f472b6', '#a78bfa'];
-      for (var i = 0; i < (count || 60); i++) {
-        var piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.left = Math.random() * 100 + 'vw';
-        piece.style.top = '-20px';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
-        piece.style.animationDelay = (Math.random() * 0.5) + 's';
-        piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
-        container.appendChild(piece);
-        (function (el) { setTimeout(function () { el.remove(); }, 5000); })(piece);
-      }
-    }
-
     // === ОНБОРДИНГ ===
     var onboarding = $('#onboarding');
     var appMain = $('#app-main');
-    var welcomeStep = $('#welcome-step');
-    var formStep = $('#form-step');
-    var form = $('#onboarding-form');
-    var nameInput = $('#user-name');
-    var dateInput = $('#quit-date');
-    var cigsInput = $('#cigs-per-day');
-    var priceInput = $('#cig-price');
-    var formError = $('#form-error');
 
     (function setMaxDate() {
       var now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       var iso = now.toISOString().slice(0, 16);
-      dateInput.max = iso;
-      dateInput.value = iso;
+      $('#quit-date').max = iso;
+      $('#quit-date').value = iso;
     })();
 
     $('#start-btn').addEventListener('click', function () {
-      welcomeStep.classList.add('hidden');
-      formStep.classList.remove('hidden');
-      setTimeout(function () { nameInput.focus(); }, 150);
+      $('#welcome-step').classList.add('hidden');
+      $('#form-step').classList.remove('hidden');
+      setTimeout(function () { $('#user-name').focus(); }, 150);
     });
 
     $('#back-btn').addEventListener('click', function () {
-      formStep.classList.add('hidden');
-      welcomeStep.classList.remove('hidden');
+      $('#form-step').classList.add('hidden');
+      $('#welcome-step').classList.remove('hidden');
     });
 
-    form.addEventListener('submit', function (e) {
+    $('#onboarding-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      formError.classList.remove('show');
+      var errorEl = $('#form-error');
+      errorEl.classList.remove('show');
 
-      var name = nameInput.value.trim();
-      var quitDate = dateInput.value;
-      var cigsPerDay = parseFloat(cigsInput.value);
-      var cigPrice = parseFloat(priceInput.value);
+      var name = $('#user-name').value.trim();
+      var quitDate = $('#quit-date').value;
+      var cigs = parseFloat($('#cigs-per-day').value);
+      var price = parseFloat($('#cig-price').value);
 
-      if (!name) { showError('Пожалуйста, введи своё имя.'); nameInput.focus(); return; }
-      if (!quitDate) { showError('Укажи дату.'); dateInput.focus(); return; }
-      if (!cigsPerDay || cigsPerDay <= 0 || cigsPerDay > 100) { showError('Укажи сигарет в день (1–100).'); cigsInput.focus(); return; }
-      if (!cigPrice || cigPrice <= 0) { showError('Укажи цену сигареты.'); priceInput.focus(); return; }
-
-      var quitTs = new Date(quitDate).getTime();
-      if (isNaN(quitTs)) { showError('Некорректная дата.'); return; }
-      if (quitTs > Date.now()) { showError('Дата не может быть в будущем.'); return; }
+      if (!name) { errorEl.textContent = 'Введи имя.'; errorEl.classList.add('show'); return; }
+      if (!quitDate) { errorEl.textContent = 'Укажи дату.'; errorEl.classList.add('show'); return; }
+      if (!cigs || cigs <= 0) { errorEl.textContent = 'Укажи сигарет в день.'; errorEl.classList.add('show'); return; }
+      if (!price || price <= 0) { errorEl.textContent = 'Укажи цену.'; errorEl.classList.add('show'); return; }
 
       var data = {
-        name: name, quitTs: quitTs, cigsPerDay: cigsPerDay, cigPrice: cigPrice,
-        createdAt: Date.now(), tasks: {}, reached: {}, bubbleBest: 0,
-        walkDone: false, lastWelcomeDay: -1,
-        points: 0, // Очки за задания
-        spentPoints: 0 // Потрачено в магазине
+        name: name, quitTs: new Date(quitDate).getTime(), cigsPerDay: cigs, cigPrice: price,
+        createdAt: Date.now(), tasks: {}, reached: {}, points: 0, spentPoints: 0
       };
       saveData(data);
       startApp(data);
     });
 
-    function showError(msg) {
-      formError.textContent = msg;
-      formError.classList.add('show');
-    }
-
     // === ГЛАВНЫЙ ЭКРАН ===
     var state = null;
     var tickInterval = null;
-    var ringCircumference = 2 * Math.PI * 60; // 376.99
+    var ringCirc = 2 * Math.PI * 60;
 
     function startApp(data) {
       state = data;
       if (!state.tasks) state.tasks = {};
       if (!state.reached) state.reached = {};
-      if (typeof state.bubbleBest !== 'number') state.bubbleBest = 0;
-      if (typeof state.walkDone !== 'boolean') state.walkDone = false;
-      if (typeof state.lastWelcomeDay !== 'number') state.lastWelcomeDay = -1;
       if (typeof state.points !== 'number') state.points = 0;
       if (typeof state.spentPoints !== 'number') state.spentPoints = 0;
 
@@ -1067,66 +611,20 @@
       appMain.classList.remove('hidden');
 
       $('#user-greeting').textContent = 'Привет, ' + state.name + '!';
-
       renderMilestones();
       renderTasks();
-      initMemoryGame();
-      initBubbleGame();
       updateAll();
-
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
-
-      setTimeout(showWelcomeIfNeeded, 600);
     }
 
     $$('.tab-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tab = btn.dataset.tab;
         $$('.tab-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
-        $('#tab-progress').classList.toggle('hidden', tab !== 'progress');
-        $('#tab-tasks').classList.toggle('hidden', tab !== 'tasks');
-        $('#tab-shop').classList.toggle('hidden', tab !== 'shop');
-        $('#tab-games').classList.toggle('hidden', tab !== 'games');
+        $$('.tab-content').forEach(function (c) { c.classList.add('hidden'); });
+        $('#tab-' + tab).classList.remove('hidden');
       });
-    });
-
-    function showWelcomeIfNeeded() {
-      if (!state) return;
-      var now = Date.now();
-      var elapsed = now - state.quitTs;
-      if (elapsed < 0) return;
-      var todayKey = Math.floor(elapsed / DAY);
-      if (elapsed < 60 * 1000) return;
-      if (state.lastWelcomeDay === todayKey) return;
-
-      state.lastWelcomeDay = todayKey;
-      saveData(state);
-
-      var days = elapsed / DAY;
-      var passed = peoplePassed(days);
-      var dayNum = Math.floor(days);
-
-      var modal = $('#welcome-modal');
-      if (dayNum === 0) {
-        $('#modal-emoji').textContent = '🌱';
-        $('#modal-title').textContent = 'Ты сделал первый шаг!';
-        $('#modal-text').innerHTML = 'Каждый час без сигареты — это победа. Продолжай в том же духе!';
-        $('#modal-stat-value').textContent = Math.floor(elapsed / HOUR) + ' ч';
-        $('#modal-stat-label').textContent = 'свободы позади';
-      } else {
-        $('#modal-emoji').textContent = '🏅';
-        $('#modal-title').textContent = 'День ' + dayNum + ' без сигарет';
-        $('#modal-text').innerHTML = 'Сегодня ты обошёл <strong>' + passed + '</strong> курящих людей. Продолжай!';
-        $('#modal-stat-value').textContent = passed;
-        $('#modal-stat-label').textContent = 'человек обошли';
-      }
-      modal.classList.add('show');
-    }
-
-    $('#modal-close').addEventListener('click', function () {
-      $('#welcome-modal').classList.remove('show');
-      launchConfetti(40);
     });
 
     function renderMilestones() {
@@ -1136,35 +634,14 @@
         var el = document.createElement('div');
         el.className = 'milestone';
         el.dataset.idx = idx;
-        el.innerHTML =
-          '<div class="ms-icon">' + m.icon + '</div>' +
-          '<div class="ms-body">' +
-            '<div class="ms-head"><div class="ms-time">' + m.title + '</div><div class="ms-status pending" data-status>впереди</div></div>' +
-            '<div class="ms-desc">' + m.desc + '</div>' +
-          '</div>';
+        el.innerHTML = '<div class="ms-icon">' + m.icon + '</div><div><div class="ms-time">' + m.title + '</div><div class="ms-desc">' + m.desc + '</div></div>';
         container.appendChild(el);
       });
-
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
-          });
-        }, { threshold: 0.01 });
-        container.querySelectorAll('.milestone').forEach(function (el) { io.observe(el); });
-      } else {
-        container.querySelectorAll('.milestone').forEach(function (el) { el.classList.add('visible'); });
-      }
     }
 
-    // === ОБНОВЛЕНИЕ ДАННЫХ ===
     function updateAll() {
       if (!state) return;
-
-      var now = Date.now();
-      var elapsed = now - state.quitTs;
-      if (elapsed < 0) elapsed = 0;
-
+      var elapsed = Math.max(0, Date.now() - state.quitTs);
       var totalSec = Math.floor(elapsed / 1000);
       var days = Math.floor(totalSec / 86400);
       var hours = Math.floor((totalSec % 86400) / 3600);
@@ -1177,107 +654,52 @@
       $('#t-seconds').textContent = pad(seconds);
 
       var daysFloat = elapsed / DAY;
-      
-      // УРОВЕНЬ И ОЧКИ
-      // Базовые очки за дни: 5 очков за каждый прожитый день
-      var pointsFromDays = Math.floor(daysFloat) * 5;
-      var totalEarned = pointsFromDays + state.points; // state.points - очки за задания
-      var currentLevel = Math.floor(totalEarned / 100) + 1; // 1 уровень = 100 очков опыта
-      
-      $('#user-level').textContent = currentLevel;
-      var availablePoints = totalEarned - state.spentPoints;
-      $('#user-points').textContent = availablePoints >= 0 ? availablePoints : 0;
-
-      // Прогресс здоровья
       var percent = healthPercent(daysFloat);
-      var percentInt = Math.floor(percent);
-      $('#health-percent').textContent = percentInt + '%';
-
-      var offset = ringCircumference - (percent / 100) * ringCircumference;
-      $('#ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(2));
+      $('#health-percent').textContent = Math.floor(percent) + '%';
+      $('#ring-fill').setAttribute('stroke-dashoffset', ringCirc - (percent / 100) * ringCirc);
 
       if (percent >= 50) document.body.setAttribute('data-progress', 'advanced');
       else document.body.removeAttribute('data-progress');
 
-      // Счетчики
       var passed = peoplePassed(daysFloat);
       $('#compare-count').textContent = passed;
-      var cigs = Math.floor(daysFloat * state.cigsPerDay);
-      $('#stat-cigs').textContent = cigs.toLocaleString('ru-RU');
-      var money = daysFloat * state.cigsPerDay * state.cigPrice;
-      $('#stat-money').textContent = formatMoney(money);
+      $('#stat-cigs').textContent = Math.floor(daysFloat * state.cigsPerDay).toLocaleString('ru-RU');
+      $('#stat-money').textContent = formatMoney(daysFloat * state.cigsPerDay * state.cigPrice);
 
-      updateNextGoal(elapsed);
-      updateMilestonesStatus(elapsed);
-      updateShopButtons(availablePoints);
-    }
+      // Очки и Уровень (1 уровень = 100 опыта)
+      var pointsFromDays = Math.floor(daysFloat) * 5; // 5 очков в день за дни
+      var totalEarned = pointsFromDays + state.points;
+      var currentLevel = Math.floor(totalEarned / 100) + 1;
+      
+      $('#user-level').textContent = currentLevel;
+      $('#user-points').textContent = Math.max(0, totalEarned - state.spentPoints);
 
-    function updateNextGoal(elapsed) {
+      // Цели
       var next = null;
-      for (var i = 0; i < MILESTONES.length; i++) {
-        if (elapsed < MILESTONES[i].ms) { next = MILESTONES[i]; break; }
-      }
-
-      if (!next) {
-        $('#goal-icon').textContent = '🏆';
-        $('#goal-title').textContent = 'Все цели достигнуты';
-        $('#goal-text').textContent = 'Поздравляем! Ты прошёл путь до года без сигарет.';
+      for (var i = 0; i < MILESTONES.length; i++) { if (elapsed < MILESTONES[i].ms) { next = MILESTONES[i]; break; } }
+      if (next) {
+        $('#goal-text').textContent = next.desc;
+        $('#goal-countdown').innerHTML = 'Осталось: <strong>' + formatDuration(next.ms - elapsed) + '</strong>';
+      } else {
+        $('#goal-text').textContent = 'Все цели достигнуты!';
         $('#goal-countdown').innerHTML = '';
-        $('#goal-progress').style.width = '100%';
-        return;
       }
 
-      $('#goal-icon').textContent = next.icon;
-      $('#goal-title').textContent = 'Ближайшая цель · ' + next.title;
-      $('#goal-text').textContent = next.desc;
-
-      var remaining = next.ms - elapsed;
-      $('#goal-countdown').innerHTML = 'Осталось: <strong>' + formatDuration(remaining) + '</strong>';
-
-      var prevMs = 0;
-      for (var j = 0; j < MILESTONES.length; j++) {
-        if (MILESTONES[j].ms === next.ms) { prevMs = j === 0 ? 0 : MILESTONES[j - 1].ms; break; }
-      }
-      var span = next.ms - prevMs;
-      var done = elapsed - prevMs;
-      var pct = Math.max(0, Math.min(100, (done / span) * 100));
-      $('#goal-progress').style.width = pct.toFixed(1) + '%';
-    }
-
-    function updateMilestonesStatus(elapsed) {
-      var nodes = $$('#milestones-container .milestone');
-      var doneCount = 0;
-      nodes.forEach(function (node) {
-        var idx = parseInt(node.dataset.idx, 10);
-        var m = MILESTONES[idx];
-        var statusEl = node.querySelector('[data-status]');
-        var done = elapsed >= m.ms;
-
-        if (done) {
-          doneCount++;
+      // Статусы вех
+      $$('#milestones-container .milestone').forEach(function(node) {
+        var m = MILESTONES[node.dataset.idx];
+        if (elapsed >= m.ms) {
           node.classList.add('done');
-          statusEl.className = 'ms-status done';
-          statusEl.textContent = 'достигнуто';
-
-          if (!state.reached[idx]) {
-            state.reached[idx] = true;
-            saveData(state);
-            if (elapsed > 0) {
-              showToast('🎉 Достигнута веха: ' + m.title + '!');
-              launchConfetti(idx >= 4 ? 90 : 50);
-            }
-          }
-        } else {
-          node.classList.remove('done');
-          statusEl.className = 'ms-status pending';
-          statusEl.textContent = 'впереди';
+          if (!state.reached[node.dataset.idx]) { state.reached[node.dataset.idx] = true; saveData(state); }
         }
       });
-      var counter = $('#milestones-counter');
-      if (counter) counter.textContent = doneCount + ' / ' + MILESTONES.length;
+
+      updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
     }
 
-    // === ЗАДАНИЯ ===
+    // === ЗАДАНИЯ (С ПОДТВЕРЖДЕНИЕМ) ===
+    var taskToVerify = null;
+
     function renderTasks() {
       var container = $('#tasks-container');
       container.innerHTML = '';
@@ -1285,368 +707,135 @@
         var isDone = !!state.tasks[task.id];
         var el = document.createElement('div');
         el.className = 'task' + (isDone ? ' completed' : '');
-        el.dataset.id = task.id;
-
-        var checkHtml = '<div class="task-check' + (task.gps ? ' disabled' : '') + '" data-check>✓</div>';
-        var bodyHtml =
-          '<div class="task-body">' +
-            '<div class="task-reward">+' + task.points + ' 💎</div>' +
-            '<div class="task-text">' + task.text + '</div>' +
-            '<div class="task-hint">' + task.hint + '</div>';
-
-        if (task.gps) {
-          bodyHtml +=
-            '<div class="task-progress-box" data-gps-box>' +
-              '<div class="task-progress-info"><span>Пройдено: <strong data-distance>0</strong> / ' + task.targetMeters + ' м</span><span data-gps-percent>0%</span></div>' +
-              '<div class="task-progress-bar"><div class="task-progress-bar-fill" data-gps-fill style="width:0%"></div></div>' +
-              '<div class="task-progress-actions">' +
-                '<button class="btn btn-primary btn-small" data-gps-start type="button">▶ Начать</button>' +
-                '<button class="btn btn-ghost btn-small hidden" data-gps-stop type="button">■ Стоп</button>' +
-              '</div>' +
-              '<div class="task-progress-status" data-gps-status>Геолокация выключена.</div>' +
-            '</div>';
-        }
-        bodyHtml += '</div>';
-        el.innerHTML = checkHtml + bodyHtml;
+        
+        el.innerHTML = 
+          '<div class="task-check" data-check>✓</div>' +
+          '<div><div class="task-reward">+1 💎</div><div class="task-text">' + task.text + '</div><div class="task-hint">' + task.hint + '</div></div>';
+        
         container.appendChild(el);
 
-        if (!task.gps) {
-          el.querySelector('[data-check]').addEventListener('click', function () {
-            toggleTask(task.id, el, task.points);
-          });
-        } else {
-          setupWalkTask(el, task);
-        }
-      });
-      updateTasksSummary();
-    }
-
-    function toggleTask(id, el, points) {
-      if (state.tasks[id]) {
-        delete state.tasks[id];
-        state.points -= points; // Забираем очки
-        el.classList.remove('completed');
-      } else {
-        state.tasks[id] = Date.now();
-        state.points += points; // Начисляем очки
-        el.classList.add('completed');
-        launchConfetti(20);
-        showToast('+' + points + ' очков!');
-      }
-      saveData(state);
-      updateTasksSummary();
-    }
-
-    function updateTasksSummary() {
-      var done = Object.keys(state.tasks).length;
-      $('#tasks-count').innerHTML = done + ' из ' + TASKS.length;
-    }
-
-    $('#reset-tasks-btn').addEventListener('click', function () {
-      if (confirm('Сбросить все выполненные задания? Очки будут списаны.')) {
-        Object.keys(state.tasks).forEach(function(id) {
-          var t = TASKS.find(function(x) { return x.id === id; });
-          if(t && t.points) state.points -= t.points;
+        el.querySelector('[data-check]').addEventListener('click', function () {
+          if (state.tasks[task.id]) {
+            // Отмена
+            delete state.tasks[task.id];
+            state.points -= 1;
+            saveData(state);
+            renderTasks();
+            updateAll();
+          } else {
+            // Запрос подтверждения
+            taskToVerify = { id: task.id, el: el };
+            $('#verify-modal').classList.add('show');
+            $('#verify-input').value = '';
+            setTimeout(function() { $('#verify-input').focus(); }, 100);
+          }
         });
-        state.tasks = {};
-        state.walkDone = false;
+      });
+    }
+
+    $('#verify-submit').addEventListener('click', function () {
+      var code = $('#verify-input').value.trim();
+      if (code.length < 2) { showToast('Введи хотя бы 2 цифры/буквы!'); return; }
+      
+      if (taskToVerify) {
+        state.tasks[taskToVerify.id] = Date.now();
+        state.points += 1; // Даем 1 очко
         saveData(state);
+        $('#verify-modal').classList.remove('show');
         renderTasks();
+        updateAll();
+        showToast('Задание подтверждено! +1 💎');
+        taskToVerify = null;
       }
+    });
+
+    $('#verify-cancel').addEventListener('click', function () {
+      $('#verify-modal').classList.remove('show');
+      taskToVerify = null;
     });
 
     // === МАГАЗИН ===
     function updateShopButtons(available) {
       $$('.shop-btn').forEach(function(btn) {
-        var price = parseInt(btn.dataset.price, 10);
-        if (available >= price) btn.disabled = false;
-        else btn.disabled = true;
+        btn.disabled = available < parseInt(btn.dataset.price, 10);
       });
     }
 
     $$('.shop-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var price = parseInt(btn.dataset.price, 10);
-        var name = btn.dataset.name;
-        if (state.spentPoints + price <= (Math.floor((Date.now() - state.quitTs) / DAY) * 5 + state.points)) {
+        var daysFloat = (Date.now() - state.quitTs) / DAY;
+        var totalEarned = Math.floor(daysFloat) * 5 + state.points;
+        
+        if (totalEarned - state.spentPoints >= price) {
           state.spentPoints += price;
           saveData(state);
-          launchConfetti(30);
-          showToast('🎉 Куплено: ' + name + '!');
+          showToast('🎉 Куплено: ' + btn.dataset.name + '!');
           updateAll();
         }
       });
     });
 
-    // === GPS ===
-    var walkWatchId = null;
-    var walkLastPos = null;
-    var walkDistance = 0;
-    var walkEl = null;
-    var walkTaskRef = null;
-
-    function setupWalkTask(el, task) {
-      walkEl = el;
-      walkTaskRef = task;
-      var startBtn = el.querySelector('[data-gps-start]');
-      var stopBtn = el.querySelector('[data-gps-stop]');
-
-      startBtn.addEventListener('click', startWalkTracking);
-      stopBtn.addEventListener('click', stopWalkTracking);
-
-      if (state.walkDone || state.tasks[task.id]) {
-        walkDistance = task.targetMeters;
-        updateWalkUI();
-        el.querySelector('[data-gps-status]').className = 'task-progress-status success';
-        el.querySelector('[data-gps-status]').textContent = '✅ Цель достигнута!';
-        startBtn.classList.add('hidden');
-        stopBtn.classList.add('hidden');
-        el.classList.add('completed');
-      }
-    }
-
-    function startWalkTracking() {
-      if (!navigator.geolocation) { setWalkStatus('Геолокация не поддерживается.', 'error'); return; }
-      walkDistance = 0;
-      walkLastPos = null;
-      updateWalkUI();
-      walkEl.querySelector('[data-gps-start]').classList.add('hidden');
-      walkEl.querySelector('[data-gps-stop]').classList.remove('hidden');
-      setWalkStatus('Определяем местоположение…', 'active');
-
-      walkWatchId = navigator.geolocation.watchPosition(onWalkPosition, onWalkError, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
-    }
-
-    function stopWalkTracking() {
-      if (walkWatchId !== null) navigator.geolocation.clearWatch(walkWatchId);
-      walkWatchId = null;
-      walkLastPos = null;
-      walkEl.querySelector('[data-gps-start]').classList.remove('hidden');
-      walkEl.querySelector('[data-gps-stop]').classList.add('hidden');
-      if (walkDistance < walkTaskRef.targetMeters) setWalkStatus('Стоп. Пройдено ' + Math.round(walkDistance) + ' м.', '');
-    }
-
-    function onWalkPosition(pos) {
-      var accuracy = pos.coords.accuracy || 999;
-      if (accuracy > 100) { setWalkStatus('Слабый GPS. Идём дальше…', 'active'); return; }
-
-      if (walkLastPos) {
-        var d = haversine(walkLastPos.lat, walkLastPos.lon, pos.coords.latitude, pos.coords.longitude);
-        if (d < 50 && d > 1) walkDistance += d;
-      }
-      walkLastPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-      updateWalkUI();
-
-      if (walkDistance >= walkTaskRef.targetMeters) { completeWalkTask(); return; }
-      setWalkStatus('Идём… ' + Math.round(walkDistance) + ' / ' + walkTaskRef.targetMeters + ' м.', 'active');
-    }
-
-    function onWalkError(err) {
-      setWalkStatus('Ошибка GPS: ' + err.message, 'error');
-      stopWalkTracking();
-    }
-
-    function updateWalkUI() {
-      if (!walkEl) return;
-      var pct = Math.min(100, (walkDistance / walkTaskRef.targetMeters) * 100);
-      walkEl.querySelector('[data-distance]').textContent = Math.round(walkDistance);
-      walkEl.querySelector('[data-gps-percent]').textContent = Math.round(pct) + '%';
-      walkEl.querySelector('[data-gps-fill]').style.width = pct + '%';
-    }
-
-    function completeWalkTask() {
-      stopWalkTracking();
-      state.walkDone = true;
-      if (!state.tasks[walkTaskRef.id]) {
-        state.tasks[walkTaskRef.id] = Date.now();
-        state.points += walkTaskRef.points; // Начисляем очки за GPS
-      }
-      saveData(state);
-      walkEl.classList.add('completed');
-      setWalkStatus('🎉 Цель достигнута!', 'success');
-      updateTasksSummary();
-      showToast('🏃 +' + walkTaskRef.points + ' очков за 1000 метров!');
-      launchConfetti(80);
-    }
-
-    function setWalkStatus(text, cls) {
-      if (!walkEl) return;
-      var statusEl = walkEl.querySelector('[data-gps-status]');
-      statusEl.textContent = text;
-      statusEl.className = 'task-progress-status' + (cls ? ' ' + cls : '');
-    }
-
-    function haversine(lat1, lon1, lat2, lon2) {
-      var R = 6371000, toRad = Math.PI / 180;
-      var dLat = (lat2 - lat1) * toRad, dLon = (lon2 - lon1) * toRad;
-      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    // === ИГРЫ ===
-    var breathTimeout = null;
-    var breathActive = false;
-
+    // === ДЫХАНИЕ ===
+    var breathActive = false, breathTimer = null;
     $('#breath-start').addEventListener('click', function () {
-      if (breathActive) { stopBreathing(); return; }
-      startBreathing();
-    });
-
-    function startBreathing() {
-      breathActive = true;
-      $('#breath-start').textContent = 'Остановить';
       var circle = $('#breath-circle');
-      var info = $('#breath-info');
-      var phases = [
-        { name: 'Вдох', cls: 'inhale', dur: 4000 },
-        { name: 'Задержка', cls: 'hold', dur: 4000 },
-        { name: 'Выдох', cls: 'exhale', dur: 4000 }
-      ];
-      var idx = 0, cycles = 0;
-      function nextPhase() {
+      if (breathActive) {
+        breathActive = false; clearTimeout(breathTimer);
+        circle.textContent = 'Готов?'; circle.style.transform = 'scale(1)';
+        this.textContent = 'Начать';
+        return;
+      }
+      breathActive = true; this.textContent = 'Остановить';
+      var phases = [{n:'Вдох', s:1.3, d:4000}, {n:'Задержка', s:1.3, d:4000}, {n:'Выдох', s:1, d:4000}];
+      var idx = 0;
+      function next() {
         if (!breathActive) return;
         var p = phases[idx];
-        circle.textContent = p.name;
-        circle.className = 'breath-circle ' + p.cls;
-        info.textContent = 'Цикл ' + (cycles + 1) + ' · ' + p.name;
-        breathTimeout = setTimeout(function () {
-          idx = (idx + 1) % phases.length;
-          if (idx === 0) cycles++;
-          nextPhase();
-        }, p.dur);
+        circle.textContent = p.n; circle.style.transform = 'scale(' + p.s + ')';
+        breathTimer = setTimeout(function() { idx = (idx+1)%3; next(); }, p.d);
       }
-      nextPhase();
-    }
+      next();
+    });
 
-    function stopBreathing() {
-      breathActive = false;
-      clearTimeout(breathTimeout);
-      $('#breath-circle').className = 'breath-circle';
-      $('#breath-circle').textContent = 'Готов?';
-      $('#breath-info').textContent = '';
-      $('#breath-start').textContent = 'Начать дыхание';
-    }
-
-    var bubbleScore = 0, bubbleSpawner = null, bubbleArea = null;
-
-    function initBubbleGame() {
-      bubbleArea = $('#bubble-game-area');
-      bubbleScore = 0;
-      updateBubbleScore();
-      $('#bubble-reset').addEventListener('click', function () { bubbleScore = 0; updateBubbleScore(); });
-      bubbleArea.addEventListener('click', function (e) {
-        var bubble = e.target.closest('.bubble');
-        if (bubble) popBubble(bubble);
-      });
-      startBubbleSpawner();
-    }
-
-    function startBubbleSpawner() {
-      if (bubbleSpawner) clearInterval(bubbleSpawner);
-      bubbleSpawner = setInterval(function () {
-        if (document.hidden) return;
-        if (!bubbleArea) return;
-        spawnBubble();
-      }, 700);
-    }
-
-    function spawnBubble() {
-      var areaW = bubbleArea.clientWidth;
-      if (!areaW) return;
-      var size = 40 + Math.random() * 30;
-      var colors = [
-        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(56,189,248,0.6))',
-        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(34,197,94,0.6))',
-        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(251,191,36,0.6))'
-      ];
-      var bubble = document.createElement('div');
-      bubble.className = 'bubble';
-      bubble.style.width = size + 'px';
-      bubble.style.height = size + 'px';
-      bubble.style.left = Math.random() * (areaW - size) + 'px';
-      bubble.style.bottom = '-60px';
-      bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
-      bubble.style.animationDuration = (3 + Math.random() * 2) + 's';
-      bubbleArea.appendChild(bubble);
-      setTimeout(function () { if (bubble.parentNode) bubble.remove(); }, 6000);
-    }
-
-    function popBubble(bubble) {
-      bubble.remove(); bubbleScore++;
-      updateBubbleScore();
-    }
-
-    function updateBubbleScore() {
-      $('#bubble-score').textContent = bubbleScore;
-      if (bubbleScore > (state.bubbleBest || 0)) { state.bubbleBest = bubbleScore; saveData(state); }
-      $('#bubble-best').textContent = state.bubbleBest || 0;
-    }
-
-    var memoryEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥'];
-    var memoryDeck = [], memoryFlipped = [], memoryMoves = 0, memoryMatched = 0, memoryLock = false;
-
-    function initMemoryGame() {
-      $('#memory-reset').addEventListener('click', resetMemoryGame);
-      resetMemoryGame();
-    }
-
-    function resetMemoryGame() {
-      memoryDeck = []; memoryFlipped = []; memoryMoves = 0; memoryMatched = 0; memoryLock = false;
-      var pairs = memoryEmojis.concat(memoryEmojis);
-      for (var i = pairs.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = pairs[i]; pairs[i] = pairs[j]; pairs[j] = tmp; }
-      memoryDeck = pairs;
-      var grid = $('#memory-grid'); grid.innerHTML = '';
-      memoryDeck.forEach(function (emoji) {
-        var card = document.createElement('div');
-        card.className = 'mem-card'; card.dataset.emoji = emoji;
-        card.addEventListener('click', function () { flipCard(card); });
-        grid.appendChild(card);
-      });
-      $('#memory-moves').textContent = '0'; $('#memory-pairs').textContent = '0 / 8';
-    }
-
-    function flipCard(card) {
-      if (memoryLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
-      card.classList.add('flipped'); card.textContent = card.dataset.emoji; memoryFlipped.push(card);
-      if (memoryFlipped.length === 2) {
-        memoryMoves++; $('#memory-moves').textContent = memoryMoves;
-        var a = memoryFlipped[0], b = memoryFlipped[1];
-        if (a.dataset.emoji === b.dataset.emoji) {
-          a.classList.add('matched'); b.classList.add('matched'); memoryFlipped = [];
-          memoryMatched++; $('#memory-pairs').textContent = memoryMatched + ' / 8';
-          if (memoryMatched === 8) { showToast('🎉 Все пары найдены!'); launchConfetti(40); }
-        } else {
-          memoryLock = true;
-          setTimeout(function () {
-            a.classList.remove('flipped'); b.classList.remove('flipped');
-            a.textContent = ''; b.textContent = ''; memoryFlipped = []; memoryLock = false;
-          }, 800);
+    // === ПУЗЫРИ ===
+    var bubbleScore = 0, bubbleSpawner = null;
+    function initBubbles() {
+      var area = $('#bubble-game-area');
+      if (!area) return;
+      area.addEventListener('click', function(e) {
+        if (e.target.classList.contains('bubble')) {
+          e.target.remove(); bubbleScore++;
+          $('#bubble-score').textContent = bubbleScore;
         }
-      }
+      });
+      if (bubbleSpawner) clearInterval(bubbleSpawner);
+      bubbleSpawner = setInterval(function() {
+        if (document.hidden) return;
+        var size = 40 + Math.random() * 30;
+        var b = document.createElement('div');
+        b.className = 'bubble';
+        b.style.cssText = 'width:'+size+'px; height:'+size+'px; left:'+Math.random()*(area.clientWidth-size)+'px; bottom:-60px; background:radial-gradient(circle, rgba(34,197,94,0.6), rgba(56,189,248,0.2)); border-radius:50%; position:absolute; animation: floatUp 3s linear forwards;';
+        area.appendChild(b);
+        setTimeout(function() { if (b.parentNode) b.remove(); }, 3000);
+      }, 600);
     }
+    
+    // Добавляем keyframes для пузырей через JS
+    var style = document.createElement('style');
+    style.innerHTML = '@keyframes floatUp { to { transform: translateY(-250px); opacity: 0; } }';
+    document.head.appendChild(style);
 
     // === СБРОС ===
     $('#reset-btn').addEventListener('click', function () {
-      if (confirm('Сбросить все данные и начать заново?')) {
-        clearData();
-        if (tickInterval) clearInterval(tickInterval);
-        if (bubbleSpawner) clearInterval(bubbleSpawner);
-        if (walkWatchId !== null) navigator.geolocation.clearWatch(walkWatchId);
-        location.reload();
-      }
+      if (confirm('Сбросить данные?')) { clearData(); location.reload(); }
     });
 
     (function init() {
       var saved = loadData();
-      if (saved && saved.name && saved.quitTs) startApp(saved);
+      if (saved && saved.name) { startApp(saved); initBubbles(); }
       else { onboarding.classList.remove('hidden'); appMain.classList.add('hidden'); }
     })();
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js').catch(function (err) { console.warn(err); });
-      });
-    }
   </script>
 </body>
 </html>
