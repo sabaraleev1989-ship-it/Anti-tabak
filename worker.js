@@ -16,10 +16,19 @@ export default {
       return new Response('Method not allowed', { status: 405 });
     }
 
+    // Функция для запроса с принудительным таймаутом
+    const fetchWithTimeout = (url, options, timeoutMs) => {
+      return Promise.race([
+        unsafeFetch(url, options),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Превышено время ожидания ответа от сервера')), timeoutMs)
+        )
+      ]);
+    };
+
     try {
       console.log("1. Авторизация...");
-      // Используем unsafeFetch, который игнорирует проверку сертификата
-      const authResponse = await unsafeFetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
+      const authResponse = await fetchWithTimeout('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -28,9 +37,7 @@ export default {
           'Authorization': 'Basic ' + env.GIGACHAT_KEY,
         },
         body: 'scope=GIGACHAT_API_PERS',
-        connectTimeout: 10000,
-        headersTimeout: 15000,
-      });
+      }, 12000);
 
       const authText = await authResponse.text();
       console.log("2. Ответ авторизации:", authText);
@@ -38,13 +45,12 @@ export default {
       let authData;
       try { authData = JSON.parse(authText); } catch(e) { throw new Error("Ошибка парсинга: " + authText); }
       if (!authData.access_token) throw new Error("Нет токена: " + authText);
-      
+
       console.log("3. Токен получен. Отправляем запрос...");
 
       const userBody = await request.json();
       
-      // Используем unsafeFetch для самого запроса к GigaChat
-      const gigaResponse = await unsafeFetch('https://api.giga.chat/v1/chat/completions', {
+      const gigaResponse = await fetchWithTimeout('https://api.giga.chat/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,9 +63,7 @@ export default {
           temperature: 0.7,
           max_tokens: 600
         }),
-        connectTimeout: 10000,
-        headersTimeout: 20000,
-      });
+      }, 15000);
 
       const gigaText = await gigaResponse.text();
       console.log("4. Ответ GigaChat:", gigaText);
