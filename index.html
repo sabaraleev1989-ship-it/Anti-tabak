@@ -1,1 +1,826 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Антитабак — PWA для отслеживания прогресса отказа от курения" />
+  <title>Антитабак — Начни дышать свободно</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
+  <style>
+    /* ================== БАЗА ================== */
+    :root {
+      --bg-1: #0f172a;
+      --bg-2: #1e293b;
+      --accent: #22c55e;
+      --accent-2: #4ade80;
+      --accent-glow: rgba(34, 197, 94, 0.4);
+      --danger: #f87171;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --card: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(148, 163, 184, 0.15);
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-1);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.15), transparent 60%),
+        radial-gradient(900px 500px at 90% 110%, rgba(56,189,248,0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+      transition: background 1.2s ease;
+    }
+
+    /* градиент фона по прогрессу (задаётся из JS через data-progress) */
+    body[data-progress="advanced"] {
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.25), transparent 60%),
+        radial-gradient(900px 500px at 90% 110%, rgba(74,222,128,0.18), transparent 60%),
+        linear-gradient(180deg, #0b1220, #14251d);
+    }
+
+    .hidden { display: none !important; }
+
+    /* ================== ОНБОРДИНГ ================== */
+    #onboarding {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Красивая «картинка против курения» (чистый CSS) */
+    .hero-art {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(74,222,128,0.35), transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(56,189,248,0.25), transparent 60%),
+        linear-gradient(160deg, #0b1220 0%, #0f2a1e 55%, #0b1220 100%);
+    }
+
+    /* Дым, который рассеивается */
+    .hero-art::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(148,163,184,0.22), transparent 40%),
+        radial-gradient(circle at 70% 60%, rgba(148,163,184,0.18), transparent 45%);
+      filter: blur(40px);
+      animation: smoke 12s ease-in-out infinite alternate;
+    }
+
+    /* Символ «свободы» — разорванная сигарета + рассвет */
+    .hero-art::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 38%;
+      width: 180px;
+      height: 180px;
+      transform: translate(-50%, -50%) rotate(-15deg);
+      background:
+        conic-gradient(from 0deg, #fbbf24, #f59e0b, #fbbf24);
+      border-radius: 50%;
+      box-shadow: 0 0 120px 40px rgba(251,191,36,0.35), inset 0 0 60px rgba(255,255,255,0.4);
+      opacity: 0.9;
+      animation: sunPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes smoke {
+      0%   { transform: translate(0,0) scale(1); opacity: 0.7; }
+      100% { transform: translate(30px,-30px) scale(1.15); opacity: 0.3; }
+    }
+
+    @keyframes sunPulse {
+      0%, 100% { box-shadow: 0 0 120px 40px rgba(251,191,36,0.35), inset 0 0 60px rgba(255,255,255,0.4); }
+      50%      { box-shadow: 0 0 160px 60px rgba(251,191,36,0.55), inset 0 0 80px rgba(255,255,255,0.6); }
+    }
+
+    .onboarding-content {
+      position: relative;
+      z-index: 2;
+      padding: 32px 24px 48px;
+      background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 30%);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.35);
+      color: var(--accent-2);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .brand-badge::before { content: "🌿"; font-size: 16px; }
+
+    .hero-title {
+      font-size: clamp(30px, 8vw, 44px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 0%, #4ade80 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+      max-width: 480px;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Кнопки */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 22px;
+      border-radius: 14px;
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.25s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      color: #04140a;
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px var(--accent-glow); }
+    .btn-primary:active { transform: translateY(0) scale(0.99); }
+
+    .btn-ghost {
+      background: rgba(148,163,184,0.12);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    .btn-ghost:hover { background: rgba(148,163,184,0.2); }
+
+    /* Форма */
+    #form-step {
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .field {
+      margin-bottom: 18px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .field input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: rgba(15,23,42,0.6);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
+    }
+    .field input::placeholder { color: #64748b; }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: -8px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* ================== ГЛАВНЫЙ ЭКРАН ================== */
+    #app-main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .greeting { font-size: 14px; color: var(--text-dim); }
+    .greeting strong { color: var(--text); font-size: 17px; display: block; margin-top: 2px; }
+
+    .reset-btn {
+      background: rgba(148,163,184,0.1);
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .reset-btn:hover { background: rgba(148,163,184,0.2); color: var(--text); }
+
+    /* Карточка таймера + прогресс */
+    .timer-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .timer-card::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(34,197,94,0.08), transparent 30%);
+      animation: rotate 12s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .progress-ring-wrap {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+    }
+    .progress-ring { transform: rotate(-90deg); }
+    .progress-ring .track { fill: none; stroke: rgba(148,163,184,0.15); stroke-width: 12; }
+    .progress-ring .fill {
+      fill: none;
+      stroke: url(#gradient);
+      stroke-width: 12;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
+      filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));
+    }
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .ring-percent {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .ring-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+
+    .timer-display {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .time-cell {
+      background: rgba(15,23,42,0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      min-width: 68px;
+      flex: 1;
+      max-width: 88px;
+    }
+    .time-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .time-unit {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 6px;
+    }
+
+    /* Карточка ближайшей цели */
+    .goal-card {
+      background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(56,189,248,0.12));
+      border: 1px solid rgba(34,197,94,0.35);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 24px rgba(34,197,94,0.12);
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 8px 24px rgba(34,197,94,0.12); }
+      50%      { box-shadow: 0 8px 36px rgba(34,197,94,0.3); }
+    }
+    .goal-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .goal-icon { font-size: 22px; }
+    .goal-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+    .goal-text {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .goal-countdown {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 10px: 4px;
+;
+       }
+    .goal-countdown strong { color: var(--accent-2); font-variant-numeric: tabular-nums; }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(15,23,42,0.6);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Секция вех */
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin: 28px 4px 14px;
+    }
+
+    .milestone {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .milestone.visible { opacity: 1; transform: translateY(0); }
+    .milestone.done {
+      border-color: rgba(34,197,94,0.5);
+      background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--card));
+    }
+    .milestone.done::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(74,222,128,0.15), transparent);
+      animation: shine 3s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%   { left: -100%; }
+      60%  { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    .ms-icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      background: rgba(148,163,184,0.12);
+      border: 1px solid var(--card-border);
+    }
+    .milestone.done .ms-icon {
+      background: rgba(34,197,94,0.2);
+      border-color: rgba(34,197,94,0.4);
+    }
+
+    .ms-body { flex: 1; min-width: 0; }
+    .ms-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom }
+    .ms-time { font-size: 15px; font-weight: 700; color: #fff; }
+    .ms-status {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .ms-status.done { background: rgba(34,197,94,0.2); color: var(--accent-2); }
+    .ms-status.progress { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .ms-status.pending { background: rgba(148,163,184,0.12); color: var(--text-dim); }
+
+    .ms-desc { font-size: 14px; line-height: 1.5; color: var(--text-dim); }
+    .ms-desc strong { color: var(--text); }
+
+    /* Конфетти */
+    .confetti-piece {
+      position: fixed;
+      width: 10px; height: 10px;
+      z-index: 9999;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Тост */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      transform: translate(-50%, 120%);
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      color: #04140a;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 10px 30px var(--accent-glow);
+      z-index: 10000;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show { transform: translate(-50%, 0); }
+
+    /* Футер */
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: #475569;
+      margin-top: 32px;
+      line-height: 1.6;
+    }
+
+    /* Адаптив */
+    @media (max-width: 380px) {
+      .time-cell { min-width: 56px; padding: 10px 4px; }
+      .time-num { font-size: 22px; }
+      .progress-ring-wrap { width: 170px; height: 170px; }
+      .ring-percent { font-size: 36px; }
+    }
+
+    /* Уменьшение анимаций */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================== ОНБОРДИНГ ================== -->
+  <section id="onboarding">
+    <div class="hero-art"></div>
+
+    <div class="onboarding-content">
+      <div class="brand-badge">Антитабак · PWA</div>
+
+      <div id="welcome-step">
+        <h1 class="hero-title">Начни дышать свободно</h1>
+        <p class="hero-subtitle">
+          Каждый час без сигарет — это шаг к новой жизни. Мы поможем отслеживать твой прогресс,
+          покажем, что происходит с организмом, и будем рядом до первого года свободы.
+        </p>
+        <button class="btn btn-primary" id="start-btn">Начать путь →</button>
+      </div>
+
+      <div id="form-step" class="hidden">
+        <h1 class="hero-title" style="font-size: clamp(26px,7vw,36px);">Расскажи о себе</h1>
+        <p class="hero-subtitle" style="margin-bottom:24px;">
+          Эти данные нужны только для расчёта твоего прогресса. Всё хранится локально на устройстве.
+        </p>
+
+        <form id="onboarding-form" novalidate>
+          <div class="field">
+            <label for="user-name">Как тебя зовут?</label>
+            <input type="text" id="user-name" name="name" placeholder="Например, Алексей" autocomplete="given-name" maxlength="40" required />
+          </div>
+
+          <div class="field">
+            <label for="quit-date">Когда ты бросил курить?</label>
+            <input type="datetime-local" id="quit-date" name="quitDate" required />
+          </div>
+
+          <div class="error-msg" id="form-error"></div>
+
+          <button type="submit" class="btn btn-primary">Сохранить и начать</button>
+          <button type="button" class="btn btn-ghost" id="back-btn" style="margin-top:10px;">← Назад</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== ГЛАВНЫЙ ЭКРАН ================== -->
+  <main id="app-main" class="hidden">
+    <div class="top-bar">
+      <div class="greeting">
+        Твой путь свободы
+        <strong id="user-greeting">Привет!</strong>
+      </div>
+      <button class="reset-btn" id="reset-btn" title="Сбросить данные">⚙︎</button>
+    </div>
+
+    <!-- Таймер + кольцо прогресса -->
+    <div class="timer-card">
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#4ade80" />
+              <stop offset="100%" stop-color="#22c55e" />
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="88" />
+          <circle class="fill" id="ring-fill" cx="100" cy="100" r="88"
+                  stroke-dasharray="552.92" stroke-dashoffset="552.92" />
+        </svg>
+        <div class="ring-center">
+          <div class="ring-percent" id="health-percent">0%</div>
+          <div class="ring-label">Здоровье</div>
+        </div>
+      </div>
+
+      <div class="timer-display" id="timer-display">
+        <div class="time-cell"><div class="time-num" id="t-days">0</div><div class="time-unit">дней</div></div>
+        <div class="time-cell"><div class="time-num" id="t-hours">0</div><div class="time-unit">часов</div></div>
+        <div class="time-cell"><div class="time-num" id="t-minutes">0</div><div class="time-unit">минут</div></div>
+        <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
+      </div>
+    </div>
+
+    <!-- Ближайшая цель -->
+    <div class="goal-card">
+      <div class="goal-head">
+        <span class="goal-icon" id="goal-icon">🎯</span>
+        <span class="goal-title" id="goal-title">Ближайшая цель</span>
+      </div>
+      <div class="goal-text" id="goal-text">Загрузка…</div>
+      <div class="goal-countdown" id="goal-countdown"></div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="goal-progress" style="width:0%"></div></div>
+    </div>
+
+    <!-- Вехи -->
+    <div class="section-title">Что происходит с организмом</div>
+    <div id="milestones-container"></div>
+
+    <p class="footer-note">
+      Данные о восстановлении организма основаны на публичных материалах NHS, WHO и Helsenorge.<br />
+      Приложение не заменяет консультацию врача.
+    </p>
+  </main>
+
+  <!-- Тост и контейнер конфетти -->
+  <div class="toast" id="toast"></div>
+  <div id="confetti-container"></div>
+
+  <script>
+    /* =========================================================
+       ДАННЫЕ ВЕХ
+       ========================================================= */
+    const MILESTONES = [
+      { ms: 20 * 60 * 1000,        title: '20 минут',   icon: '❤️', desc: 'Пульс и артериальное давление приходят в норму.' },
+      { ms: 8 * 60 * 60 * 1000,    title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа (CO) в крови падает вдвое, кислород возвращается к норме.' },
+      { ms: 24 * 60 * 60 * 1000,   title: '24 часа',    icon: '🚭', desc: 'Никотин начинает активно выводиться. Риск внезапного инфаркта снижается.' },
+      { ms: 48 * 60 * 60 * 1000,   title: '48 часов',   icon: '👃', desc: 'Организм освобождается от никотина. Возвращаются вкус и обоняние.' },
+      { ms: 72 * 60 * 60 * 1000,   title: '72 часа',    icon: '⚡', desc: 'Дышать становится легче. Уровень энергии растёт, никотин полностью выведен.' },
+      { ms: 14 * 24 * 60 * 60 * 1000, title: '2 недели', icon: '🏃', desc: 'Кровообращение улучшается, появляется больше сил для спорта и прогулок.' },
+      { ms: 30 * 24 * 60 * 60 * 1000, title: '1 месяц',  icon: '🌿', desc: 'Кашель и одышка уменьшаются, функция лёгких начинает восстанавливаться.' },
+      { ms: 90 * 24 * 60 * 60 * 1000, title: '3 месяца', icon: '💪', desc: 'Объём лёгких увеличивается до 10%. Кашель курильщика почти уходит.' },
+      { ms: 365 * 24 * 60 * 60 * 1000, title: '1 год',   icon: '🏆', desc: 'Риск ишемической болезни сердца снижается примерно вдвое по сравнению с курящими.' }
+    ];
+
+    /* =========================================================
+       ХРАНИЛИЩЕ
+       ========================================================= */
+    const STORAGE_KEY = 'antitabak_v1';
+
+    function loadData() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+      catch { return null; }
+    }
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    function clearData() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    /* =========================================================
+       УТИЛИТЫ
+       ========================================================= */
+    const $ = (sel) => document.querySelector(sel);
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function formatDuration(ms) {
+      if (ms <= 0) return '0 сек';
+      const totalSec = Math.floor(ms / 1000);
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const parts = [];
+      if (d) parts.push(`${d} дн`);
+      if (h) parts.push(`${h} ч`);
+      if (m) parts.push(`${m} мин`);
+      if (!d && !h) parts.push(`${s} сек`);
+      return parts.join(' ');
+    }
+
+    /* Расчёт процента здоровья (мотивирующая шкала 0–100) */
+    function healthPercent(days) {
+      if (days < 0) return 0;
+      if (days < 1)   return Math.min(days * 10, 10);
+      if (days < 3)   return 10 + (days - 1) * 5;
+      if (days < 30)  return 20 + ((days - 3) / 27) * 15;
+      if (days < 365) return 35 + ((days - 30) / 335) * 35;
+      return Math.min(70 + ((days - 365) / (365 * 9)) * 30, 100);
+    }
+
+    /* =========================================================
+       ОНБОРДИНГ
+       ========================================================= */
+    const onboarding = $('#onboarding');
+    const appMain = $('#app-main');
+    const welcomeStep = $('#welcome-step');
+    const formStep = $('#form-step');
+    const form = $('#onboarding-form');
+    const nameInput = $('#user-name');
+    const dateInput = $('#quit-date');
+    const formError = $('#form-error');
+
+    // Установить максимальную дату = сейчас
+    (function setMaxDate() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      dateInput.max = now.toISOString().slice(0, 16);
+      dateInput.value = now.toISOString().slice(0, 16);
+    })();
+
+    $('#start-btn').addEventListener('click', () => {
+      welcomeStep.classList.add('hidden');
+      formStep.classList.remove('hidden');
+      setTimeout(() => nameInput.focus(), 150);
+    });
+
+    $('#back-btn').addEventListener('click', () => {
+      formStep.classList.add('hidden');
+      welcomeStep.classList.remove('hidden');
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      formError.classList.remove('show');
+
+      const name = nameInput.value.trim();
+      const quitDate = dateInput.value;
+
+      if (!name) {
+        showError('Пожалуйста, введи своё имя.');
+        nameInput.focus();
+        return;
+      }
+      if (!quitDate) {
+        showError('Укажи дату и время отказа от курения.');
+        dateInput.focus();
+        return;
+      }
+
+      const quitTs = new Date(quitDate).getTime();
+      if (isNaN(quitTs)) {
+        showError('Некорректная дата.');
+        return;
+      }
+      if (quitTs > Date.now()) {
+        showError('Дата отказа не может быть в будущем.');
+        return;
+      }
+
+      saveData({ name, quitTs, createdAt: Date.now() });
+      startApp({ name, quitTs });
+    });
+
+    function showError(msg) {
+      formError.textContent = msg;
+      formError.classList.add('show');
+    }
+
+    /* =========================================================
+       ГЛАВНЫЙ ЭКРАН
+       ========================================================= */
+    let state = null;
+    let tickInterval = null;
+    let lastMilestoneReached = null;
+
+    function startApp(data) {
+      state = data;
+
+      onboarding.classList.add('hidden');
+      appMain.classList.remove('hidden');
+
+      $('#user-greeting').textContent = `Привет, ${state.name}!
