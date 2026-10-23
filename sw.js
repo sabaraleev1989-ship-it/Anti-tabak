@@ -2,14 +2,15 @@
    Service Worker — Дыши PWA
    ========================================================= */
 
-const VERSION = 'dyshi-v1.0.1'; // Обновил версию
+const VERSION = 'dyshi-v1.0.5'; // Обновил версию для сброса старого кэша
 const CACHE_NAME = 'dyshi-cache-' + VERSION;
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './1.png'
+  './1.png',
+  './2.png'
 ];
 
 /* ---------- INSTALL ---------- */
@@ -35,7 +36,7 @@ self.addEventListener('activate', function (event) {
     caches.keys().then(function (keys) {
       return Promise.all(
         keys.filter(function (key) {
-          // Удаляем все старые кэши
+          // Удаляем старые кэши, кроме текущего
           return (key.indexOf('antitabak-cache-') === 0 || key.indexOf('dyshi-cache-') === 0) && key !== CACHE_NAME;
         }).map(function (key) {
           return caches.delete(key);
