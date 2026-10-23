@@ -25,7 +25,6 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* ЖЕСТКАЯ ФИКСАЦИЯ ЭКРАНА */
     html, body {
       height: 100%;
       width: 100%;
@@ -73,22 +72,10 @@
       pointer-events: none;
     }
 
-    /* Убран артефакт-солнце из CSS, вместо него мягкий градиент */
-    .hero-art::before {
-      content: "";
-      position: absolute;
-      top: 20%; left: 50%;
-      width: 200px; height: 200px;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(20px);
-    }
-
     .onboarding-content {
       position: relative;
       z-index: 2;
-      padding: 32px 24px calc(48px + env(safe-area-inset-bottom));
+      padding: 32px 24px 60px; /* Отступ снизу для безопасной зоны */
       background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 30%);
       display: flex;
       flex-direction: column;
@@ -200,7 +187,7 @@
 
     .tab-content {
       flex: 1; overflow-y: auto; overflow-x: hidden;
-      padding: 0 18px 90px;
+      padding: 0 18px 100px; /* Отступ для нижней панели */
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
@@ -255,6 +242,13 @@
     .task-reward { font-size: 11px; color: #fbbf24; font-weight: 700; }
     .task-hint { font-size: 11px; color: var(--text-dim); }
 
+    /* GPS ЗАДАНИЕ */
+    .task-progress-box { margin-top: 10px; padding: 10px; background: rgba(15,23,42,0.6); border-radius: 10px; border: 1px solid var(--card-border); }
+    .task-progress-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--text-dim); }
+    .task-progress-bar { height: 6px; background: rgba(148,163,184,0.2); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+    .task-progress-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.5s; }
+    .task-progress-status { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+
     /* МАГАЗИН */
     .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .shop-item { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -266,9 +260,10 @@
 
     /* НИЖНЯЯ ПАНЕЛЬ */
     .tabs {
-      position: absolute; bottom: 0; left: 0; right: 0;
+      position: absolute; 
+      bottom: 0; left: 0; right: 0;
       display: flex; gap: 4px;
-      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); /* Учет безопасной зоны iPhone */
       background: rgba(15,23,42,0.95); border-top: 1px solid var(--card-border);
       z-index: 100;
     }
@@ -282,66 +277,62 @@
     .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
     .modal-text { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
     
-    /* ТОСТ */
-    .toast { position: fixed; left: 50%; bottom: 80px; transform: translate(-50%, 120%); background: linear-gradient(135deg, var(--accent), #16a34a); color: #04140a; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 14px; z-index: 10000; transition: transform 0.4s; }
-    .toast.show { transform: translate(-50%, 0); }
+    /* ТОСТ (ИСЧЕЗАЮЩИЙ) */
+    .toast { 
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.9); 
+      background: linear-gradient(135deg, var(--accent), #16a34a); color: #04140a; 
+      padding: 16px 24px; border-radius: 16px; font-weight: 700; font-size: 16px; 
+      z-index: 10000; transition: all 0.3s; opacity: 0; pointer-events: none; text-align: center; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* ИГРЫ */
+    .game-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+    #bubble-game-area { position: relative; height: 180px; border-radius: 12px; background: rgba(15,23,42,0.6); overflow: hidden; cursor: crosshair; }
+    .bubble { position: absolute; border-radius: 50%; cursor: pointer; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(34,197,94,0.6)); box-shadow: 0 0 10px rgba(34,197,94,0.4); animation: floatUp 3s linear forwards; }
+    @keyframes floatUp { to { transform: translateY(-200px) scale(1.2); opacity: 0; } }
+    
+    #memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .mem-card { aspect-ratio: 1; border-radius: 10px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15)); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+    .mem-card.flipped { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2)); border-color: rgba(34,197,94,0.5); }
+    .mem-card.matched { background: linear-gradient(135deg, var(--accent), #16a34a); border-color: var(--accent); cursor: default; }
   </style>
 </head>
 <body>
 
-  <!-- ================== ОНБОРДИНГ ================== -->
+  <!-- ОНБОРДИНГ -->
   <section id="onboarding">
     <div class="hero-art"></div>
     <div class="onboarding-content">
       <div class="brand-badge">🌿 Антитабак · PWA</div>
-
       <div id="welcome-step">
         <h1 class="hero-title">Начни дышать свободно</h1>
         <p class="hero-subtitle">Каждый час без сигарет — это шаг к новой жизни. Мы поможем отслеживать твой прогресс и будем рядом до первого года свободы.</p>
         <button class="btn btn-primary" id="start-btn" type="button">Начать путь →</button>
       </div>
-
       <div id="form-step" class="hidden">
         <h1 class="hero-title" style="font-size: clamp(24px,7vw,32px);">Расскажи о себе</h1>
-        <p class="hero-subtitle" style="margin-bottom:20px;">Данные нужны только для расчёта прогресса.</p>
-
         <form id="onboarding-form" novalidate>
-          <div class="field">
-            <label>Как тебя зовут?</label>
-            <input type="text" id="user-name" placeholder="Твоё имя" maxlength="40" required />
-          </div>
-          <div class="field">
-            <label>Когда бросил курить?</label>
-            <input type="datetime-local" id="quit-date" required />
-          </div>
-          <div class="field">
-            <label>Сигарет в день?</label>
-            <input type="number" id="cigs-per-day" placeholder="Например, 15" min="1" max="100" required />
-          </div>
-          <div class="field">
-            <label>Цена одной сигареты (₽)</label>
-            <input type="number" id="cig-price" placeholder="Например, 20" min="0.01" step="0.01" required />
-          </div>
-
+          <div class="field"><label>Как тебя зовут?</label><input type="text" id="user-name" placeholder="Твоё имя" maxlength="40" required /></div>
+          <div class="field"><label>Когда бросил курить?</label><input type="datetime-local" id="quit-date" required /></div>
+          <div class="field"><label>Сигарет в день?</label><input type="number" id="cigs-per-day" placeholder="Например, 15" min="1" max="100" required /></div>
+          <div class="field"><label>Цена одной сигареты (₽)</label><input type="number" id="cig-price" placeholder="Например, 20" min="0.01" step="0.01" required /></div>
           <div class="error-msg" id="form-error"></div>
-          <button type="submit" class="btn btn-primary">Сохранить и начать</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
           <button type="button" class="btn btn-ghost" id="back-btn" style="margin-top:10px;">← Назад</button>
         </form>
       </div>
     </div>
   </section>
 
-  <!-- ================== ГЛАВНЫЙ ЭКРАН ================== -->
+  <!-- ГЛАВНЫЙ ЭКРАН -->
   <main id="app-main" class="hidden">
-    
     <div class="top-bar">
-      <div class="greeting">
-        Твой путь свободы
-        <strong id="user-greeting">Привет!</strong>
-      </div>
+      <div class="greeting">Твой путь свободы<strong id="user-greeting">Привет!</strong></div>
       <div class="stats-badge">
-        <div class="badge-item" title="Уровень">🏅 Ур. <span id="user-level">1</span></div>
-        <div class="badge-item" title="Очки">💎 <span id="user-points">0</span></div>
+        <div class="badge-item">🏅 Ур. <span id="user-level">1</span></div>
+        <div class="badge-item">💎 <span id="user-points">0</span></div>
         <button class="reset-btn" id="reset-btn">⚙︎</button>
       </div>
     </div>
@@ -355,38 +346,18 @@
           <div class="compare-text"><strong id="compare-count">0</strong> человек</div>
         </div>
       </div>
-
       <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-emoji">🚭</div>
-          <div class="stat-value" id="stat-cigs">0</div>
-          <div class="stat-label">сигарет не выкурено</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-emoji">💰</div>
-          <div class="stat-value money" id="stat-money">0 ₽</div>
-          <div class="stat-label">сэкономлено</div>
-        </div>
+        <div class="stat-card"><div class="stat-emoji">🚭</div><div class="stat-value" id="stat-cigs">0</div><div class="stat-label">не выкурено</div></div>
+        <div class="stat-card"><div class="stat-emoji">💰</div><div class="stat-value money" id="stat-money">0 ₽</div><div class="stat-label">сэкономлено</div></div>
       </div>
-
       <div class="timer-card">
         <div class="progress-ring-wrap">
           <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
-            <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#4ade80" />
-                <stop offset="100%" stop-color="#22c55e" />
-              </linearGradient>
-            </defs>
-            <circle class="track" cx="70" cy="70" r="60" />
-            <circle class="fill" id="ring-fill" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="376.99" />
+            <defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4ade80" /><stop offset="100%" stop-color="#22c55e" /></linearGradient></defs>
+            <circle class="track" cx="70" cy="70" r="60" /><circle class="fill" id="ring-fill" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="376.99" />
           </svg>
-          <div class="ring-center">
-            <div class="ring-percent" id="health-percent">0%</div>
-            <div class="ring-label">Здоровье</div>
-          </div>
+          <div class="ring-center"><div class="ring-percent" id="health-percent">0%</div><div class="ring-label">Здоровье</div></div>
         </div>
-
         <div class="timer-display">
           <div class="time-cell"><div class="time-num" id="t-days">0</div><div class="time-unit">дней</div></div>
           <div class="time-cell"><div class="time-num" id="t-hours">0</div><div class="time-unit">часов</div></div>
@@ -394,22 +365,18 @@
           <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
         </div>
       </div>
-
       <div class="goal-card">
         <div class="goal-title">Ближайшая цель</div>
         <div class="goal-text" id="goal-text">Загрузка…</div>
         <div class="goal-countdown" id="goal-countdown"></div>
       </div>
-
-      <div class="section-title">
-        <span>Что происходит с организмом</span>
-      </div>
+      <div class="section-title"><span>Что происходит с организмом</span></div>
       <div id="milestones-container"></div>
     </div>
 
     <!-- ЗАДАНИЯ -->
     <div id="tab-tasks" class="tab-content hidden">
-      <div class="section-title"><span>Отвлекись от тяги (1 очко за задание)</span></div>
+      <div class="section-title"><span>Отвлекись от тяги (+1 💎)</span></div>
       <div id="tasks-container"></div>
     </div>
 
@@ -429,25 +396,36 @@
     <!-- ИГРЫ -->
     <div id="tab-games" class="tab-content hidden">
       <div class="section-title"><span>Отвлекись</span></div>
-      <div class="timer-card" style="text-align:left;">
+      
+      <div class="game-card">
         <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🌬️ Дыхание 4-4-4</div>
-        <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px;">Вдох 4с, задержка 4с, выдох 4с.</div>
         <div style="display:flex; flex-direction:column; align-items:center;">
           <div id="breath-circle" style="width:100px; height:100px; border-radius:50%; background:rgba(34,197,94,0.2); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent-2); transition:transform 4s ease-in-out; margin-bottom:16px;">Готов?</div>
           <button class="btn btn-primary btn-small" id="breath-start">Начать</button>
         </div>
       </div>
       
-      <div class="timer-card" style="text-align:left;">
+      <div class="game-card">
         <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🫧 Лопай пузыри</div>
         <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
           <span>Счёт: <strong id="bubble-score" style="color:var(--accent-2);">0</strong></span>
           <span>Рекорд: <strong id="bubble-best" style="color:var(--accent-2);">0</strong></span>
         </div>
-        <div id="bubble-game-area" style="height:180px; border-radius:12px; background:rgba(15,23,42,0.6); position:relative; overflow:hidden;"></div>
+        <div id="bubble-game-area"></div>
+      </div>
+
+      <div class="game-card">
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🧠 Память</div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
+          <span>Ходы: <strong id="memory-moves" style="color:var(--accent-2);">0</strong></span>
+          <span>Пары: <strong id="memory-pairs" style="color:var(--accent-2);">0 / 8</strong></span>
+          <button class="btn btn-ghost btn-small" id="memory-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
+        </div>
+        <div id="memory-grid"></div>
       </div>
     </div>
 
+    <!-- НИЖНЯЯ ПАНЕЛЬ -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="progress"><span style="font-size:16px;">📊</span>Прогресс</button>
       <button class="tab-btn" data-tab="tasks"><span style="font-size:16px;">✅</span>Задания</button>
@@ -460,8 +438,8 @@
   <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
       <div class="modal-title">Подтверди действие</div>
-      <div class="modal-text" id="verify-text">Чтобы получить очко, введи код, который видишь перед собой (например, на часах или в комнате):</div>
-      <input type="number" id="verify-input" placeholder="Введи код (например 2024)" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; font-size:16px; text-align:center; margin-bottom:16px; outline:none;" />
+      <div class="modal-text" id="verify-text">Введи любые 2 цифры, которые видишь перед собой (например, на часах), чтобы подтвердить, что ты это сделал.</div>
+      <input type="text" id="verify-input" placeholder="Например, 42" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; font-size:16px; text-align:center; margin-bottom:16px; outline:none;" />
       <button class="btn btn-primary" id="verify-submit" type="button">Подтвердить</button>
       <button class="btn btn-ghost" id="verify-cancel" type="button" style="margin-top:8px;">Отмена</button>
     </div>
@@ -476,22 +454,22 @@
     function peoplePassed(days) { return Math.floor(days * 24 * 2); }
 
     var MILESTONES = [
-      { ms: 20 * 60 * 1000,  title: '20 минут',   icon: '❤️', desc: 'Пульс и давление приходят в норму.' },
-      { ms: 8 * HOUR,        title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа падает вдвое.' },
-      { ms: 24 * HOUR,       title: '24 часа',    icon: '🚭', desc: 'Никотин начинает выводиться.' },
-      { ms: 48 * HOUR,       title: '48 часов',   icon: '👃', desc: 'Возвращаются вкус и обоняние.' },
-      { ms: 72 * HOUR,       title: '72 часа',    icon: '⚡', desc: 'Никотин полностью выведен.' },
-      { ms: 7 * DAY,         title: '1 неделя',   icon: '🌟', desc: 'Вкусовые рецепторы работают лучше.' },
-      { ms: 30 * DAY,        title: '1 месяц',    icon: '🌿', desc: 'Функция лёгких восстанавливается.' },
-      { ms: 90 * DAY,        title: '3 месяца',   icon: '🦵', desc: 'Объём лёгких увеличивается до 10%.' },
-      { ms: 180 * DAY,       title: '6 месяцев',  icon: '🌳', desc: 'Иммунитет крепче.' },
-      { ms: 365 * DAY,       title: '1 год',      icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.' }
+      { ms: 20 * 60 * 1000,  title: '20 минут', icon: '❤️', desc: 'Пульс и давление приходят в норму.' },
+      { ms: 8 * HOUR,        title: '8 часов', icon: '🫁', desc: 'Уровень угарного газа падает вдвое.' },
+      { ms: 24 * HOUR,       title: '24 часа', icon: '🚭', desc: 'Никотин начинает выводиться.' },
+      { ms: 48 * HOUR,       title: '48 часов', icon: '👃', desc: 'Возвращаются вкус и обоняние.' },
+      { ms: 72 * HOUR,       title: '72 часа', icon: '⚡', desc: 'Никотин полностью выведен.' },
+      { ms: 7 * DAY,         title: '1 неделя', icon: '🌟', desc: 'Вкусовые рецепторы работают лучше.' },
+      { ms: 30 * DAY,        title: '1 месяц', icon: '🌿', desc: 'Функция лёгких восстанавливается.' },
+      { ms: 90 * DAY,        title: '3 месяца', icon: '🦵', desc: 'Объём лёгких увеличивается до 10%.' },
+      { ms: 180 * DAY,       title: '6 месяцев', icon: '🌳', desc: 'Иммунитет крепче.' },
+      { ms: 365 * DAY,       title: '1 год', icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.' }
     ];
 
     var TASKS = [
       { id: 't1',  text: 'Выпей стакан воды',           hint: 'Сделай 5 медленных глотков.', cat: 'Тело' },
       { id: 't2',  text: 'Сделай 10 глубоких вдохов',   hint: 'Выйди на балкон или к окну.', cat: 'Дыхание' },
-      { id: 't3',  text: 'Пройди 100 метров',           hint: 'Просто прогуляйся по коридору или улице.', cat: 'Движение' },
+      { id: 't_walk', text: 'Пройди 1000 метров',       hint: 'Включи GPS и иди пешком.', cat: 'Движение', gps: true, targetMeters: 1000 },
       { id: 't4',  text: 'Напиши сообщение близкому',   hint: 'Спроси, как у него дела.', cat: 'Общение' },
       { id: 't5',  text: 'Почисти зубы',                hint: 'Свежесть во рту отбивает тягу.', cat: 'Гигиена' },
       { id: 't6',  text: 'Съешь фрукт',                 hint: 'Например, яблоко или банан.', cat: 'Питание' },
@@ -501,7 +479,7 @@
       { id: 't10', text: 'Запиши 1 причину бросить',    hint: 'Можно в заметки в телефоне.', cat: 'Психика' }
     ];
 
-    var STORAGE_KEY = 'antitabak_v4';
+    var STORAGE_KEY = 'antitabak_v5';
 
     function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return null; } }
     function saveData(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {} }
@@ -514,10 +492,7 @@
     function formatDuration(ms) {
       if (ms <= 0) return '0 сек';
       var totalSec = Math.floor(ms / 1000);
-      var d = Math.floor(totalSec / 86400);
-      var h = Math.floor((totalSec % 86400) / 3600);
-      var m = Math.floor((totalSec % 3600) / 60);
-      var s = totalSec % 60;
+      var d = Math.floor(totalSec / 86400), h = Math.floor((totalSec % 86400) / 3600), m = Math.floor((totalSec % 3600) / 60), s = totalSec % 60;
       var parts = [];
       if (d) parts.push(d + ' дн');
       if (h) parts.push(h + ' ч');
@@ -525,12 +500,7 @@
       if (!d && !h) parts.push(s + ' сек');
       return parts.join(' ');
     }
-
-    function formatMoney(amount) {
-      var rounded = Math.round(amount);
-      return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
-    }
-
+    function formatMoney(amount) { return Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽'; }
     function healthPercent(days) {
       if (days < 0) return 0;
       if (days < 1)   return Math.min(days * 10, 10);
@@ -546,27 +516,23 @@
       toastEl.textContent = msg;
       toastEl.classList.add('show');
       if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 3500);
+      toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2500); // Исчезает через 2.5 секунды
     }
 
     // === ОНБОРДИНГ ===
-    var onboarding = $('#onboarding');
-    var appMain = $('#app-main');
+    var onboarding = $('#onboarding'), appMain = $('#app-main');
 
     (function setMaxDate() {
       var now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      var iso = now.toISOString().slice(0, 16);
-      $('#quit-date').max = iso;
-      $('#quit-date').value = iso;
+      $('#quit-date').max = now.toISOString().slice(0, 16);
+      $('#quit-date').value = now.toISOString().slice(0, 16);
     })();
 
     $('#start-btn').addEventListener('click', function () {
       $('#welcome-step').classList.add('hidden');
       $('#form-step').classList.remove('hidden');
-      setTimeout(function () { $('#user-name').focus(); }, 150);
     });
-
     $('#back-btn').addEventListener('click', function () {
       $('#form-step').classList.add('hidden');
       $('#welcome-step').classList.remove('hidden');
@@ -574,31 +540,20 @@
 
     $('#onboarding-form').addEventListener('submit', function (e) {
       e.preventDefault();
+      var name = $('#user-name').value.trim(), quitDate = $('#quit-date').value;
+      var cigs = parseFloat($('#cigs-per-day').value), price = parseFloat($('#cig-price').value);
       var errorEl = $('#form-error');
       errorEl.classList.remove('show');
 
-      var name = $('#user-name').value.trim();
-      var quitDate = $('#quit-date').value;
-      var cigs = parseFloat($('#cigs-per-day').value);
-      var price = parseFloat($('#cig-price').value);
+      if (!name || !quitDate || !cigs || !price) { errorEl.textContent = 'Заполни все поля.'; errorEl.classList.add('show'); return; }
 
-      if (!name) { errorEl.textContent = 'Введи имя.'; errorEl.classList.add('show'); return; }
-      if (!quitDate) { errorEl.textContent = 'Укажи дату.'; errorEl.classList.add('show'); return; }
-      if (!cigs || cigs <= 0) { errorEl.textContent = 'Укажи сигарет в день.'; errorEl.classList.add('show'); return; }
-      if (!price || price <= 0) { errorEl.textContent = 'Укажи цену.'; errorEl.classList.add('show'); return; }
-
-      var data = {
-        name: name, quitTs: new Date(quitDate).getTime(), cigsPerDay: cigs, cigPrice: price,
-        createdAt: Date.now(), tasks: {}, reached: {}, points: 0, spentPoints: 0
-      };
+      var data = { name: name, quitTs: new Date(quitDate).getTime(), cigsPerDay: cigs, cigPrice: price, createdAt: Date.now(), tasks: {}, reached: {}, points: 0, spentPoints: 0 };
       saveData(data);
       startApp(data);
     });
 
     // === ГЛАВНЫЙ ЭКРАН ===
-    var state = null;
-    var tickInterval = null;
-    var ringCirc = 2 * Math.PI * 60;
+    var state = null, tickInterval = null, ringCirc = 2 * Math.PI * 60;
 
     function startApp(data) {
       state = data;
@@ -609,11 +564,14 @@
 
       onboarding.classList.add('hidden');
       appMain.classList.remove('hidden');
-
       $('#user-greeting').textContent = 'Привет, ' + state.name + '!';
+      
       renderMilestones();
       renderTasks();
+      initBubbles();
+      initMemory();
       updateAll();
+      
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
     }
@@ -630,10 +588,9 @@
     function renderMilestones() {
       var container = $('#milestones-container');
       container.innerHTML = '';
-      MILESTONES.forEach(function (m, idx) {
+      MILESTONES.forEach(function (m) {
         var el = document.createElement('div');
         el.className = 'milestone';
-        el.dataset.idx = idx;
         el.innerHTML = '<div class="ms-icon">' + m.icon + '</div><div><div class="ms-time">' + m.title + '</div><div class="ms-desc">' + m.desc + '</div></div>';
         container.appendChild(el);
       });
@@ -643,61 +600,36 @@
       if (!state) return;
       var elapsed = Math.max(0, Date.now() - state.quitTs);
       var totalSec = Math.floor(elapsed / 1000);
-      var days = Math.floor(totalSec / 86400);
-      var hours = Math.floor((totalSec % 86400) / 3600);
-      var minutes = Math.floor((totalSec % 3600) / 60);
-      var seconds = totalSec % 60;
+      var days = Math.floor(totalSec / 86400), hours = Math.floor((totalSec % 86400) / 3600), minutes = Math.floor((totalSec % 3600) / 60), seconds = totalSec % 60;
 
-      $('#t-days').textContent = pad(days);
-      $('#t-hours').textContent = pad(hours);
-      $('#t-minutes').textContent = pad(minutes);
-      $('#t-seconds').textContent = pad(seconds);
+      $('#t-days').textContent = pad(days); $('#t-hours').textContent = pad(hours); $('#t-minutes').textContent = pad(minutes); $('#t-seconds').textContent = pad(seconds);
 
       var daysFloat = elapsed / DAY;
       var percent = healthPercent(daysFloat);
       $('#health-percent').textContent = Math.floor(percent) + '%';
       $('#ring-fill').setAttribute('stroke-dashoffset', ringCirc - (percent / 100) * ringCirc);
+      if (percent >= 50) document.body.setAttribute('data-progress', 'advanced'); else document.body.removeAttribute('data-progress');
 
-      if (percent >= 50) document.body.setAttribute('data-progress', 'advanced');
-      else document.body.removeAttribute('data-progress');
-
-      var passed = peoplePassed(daysFloat);
-      $('#compare-count').textContent = passed;
+      $('#compare-count').textContent = peoplePassed(daysFloat);
       $('#stat-cigs').textContent = Math.floor(daysFloat * state.cigsPerDay).toLocaleString('ru-RU');
       $('#stat-money').textContent = formatMoney(daysFloat * state.cigsPerDay * state.cigPrice);
 
-      // Очки и Уровень (1 уровень = 100 опыта)
-      var pointsFromDays = Math.floor(daysFloat) * 5; // 5 очков в день за дни
+      var pointsFromDays = Math.floor(daysFloat) * 5;
       var totalEarned = pointsFromDays + state.points;
-      var currentLevel = Math.floor(totalEarned / 100) + 1;
-      
-      $('#user-level').textContent = currentLevel;
+      $('#user-level').textContent = Math.floor(totalEarned / 100) + 1;
       $('#user-points').textContent = Math.max(0, totalEarned - state.spentPoints);
 
-      // Цели
       var next = null;
       for (var i = 0; i < MILESTONES.length; i++) { if (elapsed < MILESTONES[i].ms) { next = MILESTONES[i]; break; } }
       if (next) {
         $('#goal-text').textContent = next.desc;
         $('#goal-countdown').innerHTML = 'Осталось: <strong>' + formatDuration(next.ms - elapsed) + '</strong>';
-      } else {
-        $('#goal-text').textContent = 'Все цели достигнуты!';
-        $('#goal-countdown').innerHTML = '';
       }
-
-      // Статусы вех
-      $$('#milestones-container .milestone').forEach(function(node) {
-        var m = MILESTONES[node.dataset.idx];
-        if (elapsed >= m.ms) {
-          node.classList.add('done');
-          if (!state.reached[node.dataset.idx]) { state.reached[node.dataset.idx] = true; saveData(state); }
-        }
-      });
 
       updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
     }
 
-    // === ЗАДАНИЯ (С ПОДТВЕРЖДЕНИЕМ) ===
+    // === ЗАДАНИЯ ===
     var taskToVerify = null;
 
     function renderTasks() {
@@ -708,68 +640,146 @@
         var el = document.createElement('div');
         el.className = 'task' + (isDone ? ' completed' : '');
         
-        el.innerHTML = 
+        var innerHtml = 
           '<div class="task-check" data-check>✓</div>' +
-          '<div><div class="task-reward">+1 💎</div><div class="task-text">' + task.text + '</div><div class="task-hint">' + task.hint + '</div></div>';
+          '<div style="flex:1;">' +
+            '<div class="task-reward">+1 💎</div>' +
+            '<div class="task-text">' + task.text + '</div>' +
+            '<div class="task-hint">' + task.hint + '</div>';
         
+        if (task.gps) {
+          innerHtml += 
+            '<div class="task-progress-box">' +
+              '<div class="task-progress-info"><span>Пройдено: <strong data-dist>0</strong> / ' + task.targetMeters + ' м</span><span data-pct>0%</span></div>' +
+              '<div class="task-progress-bar"><div class="task-progress-bar-fill" data-fill style="width:0%"></div></div>' +
+              '<div style="display:flex; gap:6px; margin-top:8px;">' +
+                '<button class="btn btn-primary btn-small" data-gps-start>▶ Начать GPS</button>' +
+                '<button class="btn btn-ghost btn-small hidden" data-gps-stop>■ Стоп</button>' +
+              '</div>' +
+              '<div class="task-progress-status" data-status>Геолокация выключена.</div>' +
+            '</div>';
+        }
+        innerHtml += '</div>';
+        
+        el.innerHTML = innerHtml;
         container.appendChild(el);
 
-        el.querySelector('[data-check]').addEventListener('click', function () {
-          if (state.tasks[task.id]) {
-            // Отмена
-            delete state.tasks[task.id];
-            state.points -= 1;
-            saveData(state);
-            renderTasks();
-            updateAll();
-          } else {
-            // Запрос подтверждения
-            taskToVerify = { id: task.id, el: el };
-            $('#verify-modal').classList.add('show');
-            $('#verify-input').value = '';
-            setTimeout(function() { $('#verify-input').focus(); }, 100);
-          }
-        });
+        if (task.gps) {
+          setupWalkTask(el, task);
+        } else {
+          el.querySelector('[data-check]').addEventListener('click', function () {
+            if (state.tasks[task.id]) {
+              delete state.tasks[task.id]; state.points -= 1;
+              saveData(state); renderTasks(); updateAll();
+            } else {
+              taskToVerify = { id: task.id };
+              $('#verify-modal').classList.add('show');
+              $('#verify-input').value = '';
+              setTimeout(function() { $('#verify-input').focus(); }, 100);
+            }
+          });
+        }
       });
     }
 
     $('#verify-submit').addEventListener('click', function () {
-      var code = $('#verify-input').value.trim();
-      if (code.length < 2) { showToast('Введи хотя бы 2 цифры/буквы!'); return; }
-      
+      if ($('#verify-input').value.trim().length < 1) { showToast('Введи хотя бы 1 символ!'); return; }
       if (taskToVerify) {
         state.tasks[taskToVerify.id] = Date.now();
-        state.points += 1; // Даем 1 очко
-        saveData(state);
-        $('#verify-modal').classList.remove('show');
-        renderTasks();
-        updateAll();
-        showToast('Задание подтверждено! +1 💎');
+        state.points += 1;
+        saveData(state); $('#verify-modal').classList.remove('show');
+        renderTasks(); updateAll(); showToast('Подтверждено! +1 💎');
         taskToVerify = null;
       }
     });
+    $('#verify-cancel').addEventListener('click', function () { $('#verify-modal').classList.remove('show'); taskToVerify = null; });
 
-    $('#verify-cancel').addEventListener('click', function () {
-      $('#verify-modal').classList.remove('show');
-      taskToVerify = null;
-    });
+    // === GPS ЗАДАНИЕ ===
+    var walkWatchId = null, walkLastPos = null, walkDistance = 0, walkEl = null, walkTask = null;
 
-    // === МАГАЗИН ===
-    function updateShopButtons(available) {
-      $$('.shop-btn').forEach(function(btn) {
-        btn.disabled = available < parseInt(btn.dataset.price, 10);
+    function setupWalkTask(el, task) {
+      walkEl = el; walkTask = task;
+      var startBtn = el.querySelector('[data-gps-start]');
+      var stopBtn = el.querySelector('[data-gps-stop]');
+      var statusEl = el.querySelector('[data-status]');
+
+      if (state.tasks[task.id]) {
+        el.classList.add('completed');
+        el.querySelector('[data-dist]').textContent = task.targetMeters;
+        el.querySelector('[data-pct]').textContent = '100%';
+        el.querySelector('[data-fill]').style.width = '100%';
+        statusEl.textContent = '✅ Цель достигнута!';
+        statusEl.style.color = 'var(--accent-2)';
+        startBtn.classList.add('hidden'); stopBtn.classList.add('hidden');
+        el.querySelector('[data-check]').style.background = 'var(--accent)';
+        el.querySelector('[data-check]').style.color = '#000';
+        el.querySelector('[data-check]').style.borderColor = 'var(--accent)';
+        return;
+      }
+
+      startBtn.addEventListener('click', function() {
+        if (!navigator.geolocation) { statusEl.textContent = 'GPS не поддерживается.'; return; }
+        walkDistance = 0; walkLastPos = null;
+        startBtn.classList.add('hidden'); stopBtn.classList.remove('hidden');
+        statusEl.textContent = 'Определяем...';
+        statusEl.style.color = '#fbbf24';
+
+        walkWatchId = navigator.geolocation.watchPosition(
+          function(pos) {
+            var acc = pos.coords.accuracy || 999;
+            if (acc > 100) { statusEl.textContent = 'Слабый GPS...'; return; }
+            if (walkLastPos) {
+              var d = haversine(walkLastPos.lat, walkLastPos.lon, pos.coords.latitude, pos.coords.longitude);
+              if (d < 50 && d > 1) walkDistance += d;
+            }
+            walkLastPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+            
+            var pct = Math.min(100, (walkDistance / task.targetMeters) * 100);
+            el.querySelector('[data-dist]').textContent = Math.round(walkDistance);
+            el.querySelector('[data-pct]').textContent = Math.round(pct) + '%';
+            el.querySelector('[data-fill]').style.width = pct + '%';
+            statusEl.textContent = 'Идём... ' + Math.round(walkDistance) + ' из ' + task.targetMeters + ' м';
+            statusEl.style.color = '#fbbf24';
+
+            if (walkDistance >= task.targetMeters) {
+              navigator.geolocation.clearWatch(walkWatchId);
+              state.tasks[task.id] = Date.now(); state.points += 1;
+              saveData(state); renderTasks(); updateAll();
+              showToast('🏃 1000 метров пройдено! +1 💎');
+            }
+          },
+          function(err) { statusEl.textContent = 'Ошибка GPS: ' + err.message; statusEl.style.color = 'var(--danger)'; },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+      });
+
+      stopBtn.addEventListener('click', function() {
+        if (walkWatchId !== null) navigator.geolocation.clearWatch(walkWatchId);
+        walkWatchId = null; walkLastPos = null;
+        startBtn.classList.remove('hidden'); stopBtn.classList.add('hidden');
+        statusEl.textContent = 'Трекинг остановлен. Пройдено ' + Math.round(walkDistance) + ' м.';
+        statusEl.style.color = 'var(--text-dim)';
       });
     }
 
+    function haversine(lat1, lon1, lat2, lon2) {
+      var R = 6371000, toRad = Math.PI / 180;
+      var dLat = (lat2 - lat1) * toRad, dLon = (lon2 - lon1) * toRad;
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // === МАГАЗИН ===
+    function updateShopButtons(available) {
+      $$('.shop-btn').forEach(function(btn) { btn.disabled = available < parseInt(btn.dataset.price, 10); });
+    }
     $$('.shop-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var price = parseInt(btn.dataset.price, 10);
         var daysFloat = (Date.now() - state.quitTs) / DAY;
         var totalEarned = Math.floor(daysFloat) * 5 + state.points;
-        
         if (totalEarned - state.spentPoints >= price) {
-          state.spentPoints += price;
-          saveData(state);
+          state.spentPoints += price; saveData(state);
           showToast('🎉 Куплено: ' + btn.dataset.name + '!');
           updateAll();
         }
@@ -780,15 +790,9 @@
     var breathActive = false, breathTimer = null;
     $('#breath-start').addEventListener('click', function () {
       var circle = $('#breath-circle');
-      if (breathActive) {
-        breathActive = false; clearTimeout(breathTimer);
-        circle.textContent = 'Готов?'; circle.style.transform = 'scale(1)';
-        this.textContent = 'Начать';
-        return;
-      }
-      breathActive = true; this.textContent = 'Остановить';
-      var phases = [{n:'Вдох', s:1.3, d:4000}, {n:'Задержка', s:1.3, d:4000}, {n:'Выдох', s:1, d:4000}];
-      var idx = 0;
+      if (breathActive) { breathActive = false; clearTimeout(breathTimer); circle.textContent = 'Готов?'; circle.style.transform = 'scale(1)'; this.textContent = 'Начать'; return; }
+      breathActive = true; this.textContent = 'Стоп';
+      var phases = [{n:'Вдох', s:1.3, d:4000}, {n:'Держим', s:1.3, d:4000}, {n:'Выдох', s:1, d:4000}], idx = 0;
       function next() {
         if (!breathActive) return;
         var p = phases[idx];
@@ -798,16 +802,13 @@
       next();
     });
 
-    // === ПУЗЫРИ ===
+    // === ИГРА ПУЗЫРИ ===
     var bubbleScore = 0, bubbleSpawner = null;
     function initBubbles() {
       var area = $('#bubble-game-area');
       if (!area) return;
       area.addEventListener('click', function(e) {
-        if (e.target.classList.contains('bubble')) {
-          e.target.remove(); bubbleScore++;
-          $('#bubble-score').textContent = bubbleScore;
-        }
+        if (e.target.classList.contains('bubble')) { e.target.remove(); bubbleScore++; $('#bubble-score').textContent = bubbleScore; }
       });
       if (bubbleSpawner) clearInterval(bubbleSpawner);
       bubbleSpawner = setInterval(function() {
@@ -815,16 +816,51 @@
         var size = 40 + Math.random() * 30;
         var b = document.createElement('div');
         b.className = 'bubble';
-        b.style.cssText = 'width:'+size+'px; height:'+size+'px; left:'+Math.random()*(area.clientWidth-size)+'px; bottom:-60px; background:radial-gradient(circle, rgba(34,197,94,0.6), rgba(56,189,248,0.2)); border-radius:50%; position:absolute; animation: floatUp 3s linear forwards;';
+        b.style.width = size + 'px'; b.style.height = size + 'px';
+        b.style.left = Math.random() * (area.clientWidth - size) + 'px';
+        b.style.bottom = '-60px';
         area.appendChild(b);
         setTimeout(function() { if (b.parentNode) b.remove(); }, 3000);
       }, 600);
     }
-    
-    // Добавляем keyframes для пузырей через JS
-    var style = document.createElement('style');
-    style.innerHTML = '@keyframes floatUp { to { transform: translateY(-250px); opacity: 0; } }';
-    document.head.appendChild(style);
+
+    // === ИГРА ПАМЯТЬ ===
+    var memEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥'];
+    var memDeck = [], memFlipped = [], memMoves = 0, memMatched = 0, memLock = false;
+
+    function initMemory() {
+      $('#memory-reset').addEventListener('click', resetMemory);
+      resetMemory();
+    }
+    function resetMemory() {
+      memDeck = []; memFlipped = []; memMoves = 0; memMatched = 0; memLock = false;
+      var pairs = memEmojis.concat(memEmojis);
+      for (var i = pairs.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = pairs[i]; pairs[i] = pairs[j]; pairs[j] = tmp; }
+      var grid = $('#memory-grid'); grid.innerHTML = '';
+      pairs.forEach(function(emoji) {
+        var card = document.createElement('div');
+        card.className = 'mem-card'; card.dataset.emoji = emoji;
+        card.addEventListener('click', function() { flipCard(card); });
+        grid.appendChild(card);
+      });
+      $('#memory-moves').textContent = '0'; $('#memory-pairs').textContent = '0 / 8';
+    }
+    function flipCard(card) {
+      if (memLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped'); card.textContent = card.dataset.emoji; memFlipped.push(card);
+      if (memFlipped.length === 2) {
+        memMoves++; $('#memory-moves').textContent = memMoves;
+        var a = memFlipped[0], b = memFlipped[1];
+        if (a.dataset.emoji === b.dataset.emoji) {
+          a.classList.add('matched'); b.classList.add('matched'); memFlipped = []; memMatched++;
+          $('#memory-pairs').textContent = memMatched + ' / 8';
+          if (memMatched === 8) { showToast('🎉 Все пары найдены!'); }
+        } else {
+          memLock = true;
+          setTimeout(function() { a.classList.remove('flipped'); b.classList.remove('flipped'); a.textContent = ''; b.textContent = ''; memFlipped = []; memLock = false; }, 800);
+        }
+      }
+    }
 
     // === СБРОС ===
     $('#reset-btn').addEventListener('click', function () {
@@ -833,7 +869,7 @@
 
     (function init() {
       var saved = loadData();
-      if (saved && saved.name) { startApp(saved); initBubbles(); }
+      if (saved && saved.name) startApp(saved);
       else { onboarding.classList.remove('hidden'); appMain.classList.add('hidden'); }
     })();
   </script>
