@@ -33,7 +33,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--bg-1);
       color: var(--text);
-      overflow-x: hidden;
+      overflow: hidden; /* Отключаем прокрутку body */
       -webkit-font-smoothing: antialiased;
     }
 
@@ -42,7 +42,6 @@
         radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.15), transparent 60%),
         radial-gradient(900px 500px at 90% 110%, rgba(56,189,248,0.12), transparent 60%),
         linear-gradient(180deg, var(--bg-1), var(--bg-2));
-      min-height: 100vh;
       transition: background 1.2s ease;
     }
 
@@ -57,12 +56,13 @@
 
     /* ================== ОНБОРДИНГ ================== */
     #onboarding {
-      min-height: 100vh;
+      position: fixed;
+      inset: 0;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      z-index: 10;
     }
 
     .hero-art {
@@ -117,7 +117,6 @@
       padding: 32px 24px 48px;
       background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 30%);
       max-height: 100vh;
-      overflow-y: auto;
     }
 
     .brand-badge {
@@ -188,11 +187,7 @@
     }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px var(--accent-glow); }
     .btn-primary:active { transform: translateY(0) scale(0.99); }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .btn-ghost {
       background: rgba(148,163,184,0.12);
@@ -255,17 +250,23 @@
 
     /* ================== ГЛАВНЫЙ ЭКРАН ================== */
     #app-main {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
       max-width: 640px;
       margin: 0 auto;
-      padding: 24px 18px 64px;
+      padding: 24px 18px 0;
       animation: fadeUp 0.6s ease both;
+      overflow: hidden;
     }
 
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
     }
     .greeting { font-size: 14px; color: var(--text-dim); }
     .greeting strong { color: var(--text); font-size: 17px; display: block; margin-top: 2px; }
@@ -283,64 +284,63 @@
     }
     .reset-btn:hover { background: rgba(148,163,184,0.2); color: var(--text); }
 
+    /* Обертка для контента вкладок со скроллом */
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 100px; /* Отступ для табов */
+      -webkit-overflow-scrolling: touch;
+    }
+
     /* Баннер сравнения */
     .compare-banner {
       background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(34,197,94,0.14));
       border: 1px solid rgba(56,189,248,0.35);
       border-radius: var(--radius);
-      padding: 16px 18px;
-      margin-bottom: 18px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       animation: fadeUp 0.5s ease both;
     }
-    .compare-icon { font-size: 32px; flex-shrink: 0; }
+    .compare-icon { font-size: 28px; flex-shrink: 0; }
     .compare-body { flex: 1; min-width: 0; }
     .compare-title {
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #38bdf8;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .compare-text {
-      font-size: 15px;
-      line-height: 1.4;
+      font-size: 14px;
+      line-height: 1.3;
       color: var(--text);
       font-weight: 600;
     }
-    .compare-text strong { color: var(--accent-2); font-size: 17px; }
+    .compare-text strong { color: var(--accent-2); font-size: 16px; }
 
     /* Статистика экономии */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .stat-card {
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 14px;
       backdrop-filter: blur(10px);
       position: relative;
       overflow: hidden;
     }
-    .stat-card::before {
-      content: "";
-      position: absolute;
-      top: -20px; right: -20px;
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(34,197,94,0.25), transparent 70%);
-      pointer-events: none;
-    }
-    .stat-emoji { font-size: 22px; margin-bottom: 8px; }
+    .stat-emoji { font-size: 20px; margin-bottom: 6px; }
     .stat-value {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 800;
       color: #fff;
       line-height: 1;
@@ -349,46 +349,36 @@
     }
     .stat-value.money { color: var(--accent-2); }
     .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
-      line-height: 1.35;
+      line-height: 1.3;
     }
 
     .timer-card {
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 28px 20px;
+      padding: 20px 16px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       text-align: center;
       position: relative;
       overflow: hidden;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
-    .timer-card::before {
-      content: "";
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: conic-gradient(from 0deg, transparent, rgba(34,197,94,0.08), transparent 30%);
-      animation: rotate 12s linear infinite;
-      pointer-events: none;
-    }
-    @keyframes rotate { to { transform: rotate(360deg); } }
-
+    
     .progress-ring-wrap {
       position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 0 auto 20px;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 16px;
     }
     .progress-ring { transform: rotate(-90deg); }
-    .progress-ring .track { fill: none; stroke: rgba(148,163,184,0.15); stroke-width: 12; }
+    .progress-ring .track { fill: none; stroke: rgba(148,163,184,0.15); stroke-width: 10; }
     .progress-ring .fill {
       fill: none;
       stroke: url(#gradient);
-      stroke-width: 12;
+      stroke-width: 10;
       stroke-linecap: round;
       transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
       filter: drop-shadow(0 0 8px rgba(34,197,94,0.6));
@@ -402,7 +392,7 @@
       justify-content: center;
     }
     .ring-percent {
-      font-size: 42px;
+      font-size: 36px;
       font-weight: 800;
       background: linear-gradient(135deg, #fff, var(--accent-2));
       -webkit-background-clip: text;
@@ -411,85 +401,80 @@
       line-height: 1;
     }
     .ring-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .timer-display {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-top: 6px;
+      gap: 8px;
+      margin-top: 4px;
     }
     .time-cell {
       background: rgba(15,23,42,0.6);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px 8px;
-      min-width: 68px;
+      border-radius: 10px;
+      padding: 10px 4px;
+      min-width: 60px;
       flex: 1;
-      max-width: 88px;
+      max-width: 80px;
     }
     .time-num {
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 800;
       color: #fff;
       font-variant-numeric: tabular-nums;
       line-height: 1;
     }
     .time-unit {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .goal-card {
       background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(56,189,248,0.12));
       border: 1px solid rgba(34,197,94,0.35);
       border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 22px;
+      padding: 16px;
+      margin-bottom: 16px;
       box-shadow: 0 8px 24px rgba(34,197,94,0.12);
-      animation: pulseGlow 3s ease-in-out infinite;
-    }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 8px 24px rgba(34,197,94,0.12); }
-      50%      { box-shadow: 0 8px 36px rgba(34,197,94,0.3); }
     }
     .goal-head {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
-    .goal-icon { font-size: 22px; }
+    .goal-icon { font-size: 20px; }
     .goal-title {
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--accent-2);
       font-weight: 700;
     }
     .goal-text {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 12px;
+      line-height: 1.35;
+      margin-bottom: 10px;
     }
     .goal-countdown {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-dim);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .goal-countdown strong { color: var(--accent-2); font-variant-numeric: tabular-nums; }
 
     .progress-bar {
-      height: 8px;
+      height: 6px;
       background: rgba(15,23,42,0.6);
       border-radius: 999px;
       overflow: hidden;
@@ -503,18 +488,18 @@
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 1.2px;
       color: var(--text-dim);
       font-weight: 700;
-      margin: 28px 4px 14px;
+      margin: 20px 4px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .section-title .counter {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--accent-2);
       text-transform: none;
       letter-spacing: 0;
@@ -525,45 +510,30 @@
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       align-items: flex-start;
       backdrop-filter: blur(10px);
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
-      position: relative;
-      overflow: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.3s;
     }
     .milestone.visible { opacity: 1; transform: translateY(0); }
     .milestone.done {
       border-color: rgba(34,197,94,0.5);
       background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--card));
     }
-    .milestone.done::after {
-      content: "";
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(74,222,128,0.15), transparent);
-      animation: shine 3s ease-in-out infinite;
-    }
-    @keyframes shine {
-      0%   { left: -100%; }
-      60%  { left: 100%; }
-      100% { left: 100%; }
-    }
 
     .ms-icon {
       flex-shrink: 0;
-      width: 44px; height: 44px;
-      border-radius: 12px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
       background: rgba(148,163,184,0.12);
       border: 1px solid var(--card-border);
     }
@@ -580,50 +550,58 @@
       gap: 8px;
       margin-bottom: 4px;
     }
-    .ms-time { font-size: 15px; font-weight: 700; color: #fff; }
+    .ms-time { font-size: 14px; font-weight: 700; color: #fff; }
     .ms-status {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 3px 8px;
+      padding: 2px 6px;
       border-radius: 999px;
       white-space: nowrap;
     }
     .ms-status.done { background: rgba(34,197,94,0.2); color: var(--accent-2); }
     .ms-status.pending { background: rgba(148,163,184,0.12); color: var(--text-dim); }
 
-    .ms-desc { font-size: 14px; line-height: 1.5; color: var(--text-dim); }
-    .ms-desc strong { color: var(--text); }
+    .ms-desc { font-size: 13px; line-height: 1.45; color: var(--text-dim); }
 
     /* ---- Вкладки ---- */
     .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-width: 640px;
+      margin: 0 auto;
       display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      background: rgba(15,23,42,0.5);
-      padding: 6px;
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
+      gap: 6px;
+      padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border);
+      z-index: 100;
     }
     .tab-btn {
       flex: 1;
-      padding: 12px 8px;
-      border-radius: 10px;
+      padding: 12px 4px;
+      border-radius: 12px;
       border: none;
       background: transparent;
       color: var(--text-dim);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
       transition: all 0.2s;
       white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--accent), #16a34a);
-      color: #04140a;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      background: rgba(34,197,94,0.15);
+      color: var(--accent-2);
     }
 
     /* ---- Задания ---- */
@@ -631,15 +609,14 @@
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 16px 18px;
-      margin-bottom: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
       display: flex;
-      gap: 14px;
+      gap: 12px;
       align-items: flex-start;
       backdrop-filter: blur(10px);
-      transition: border-color 0.3s, background 0.3s, transform 0.15s;
+      transition: border-color 0.3s, background 0.3s;
     }
-    .task:hover { border-color: rgba(148,163,184,0.3); }
     .task.completed {
       border-color: rgba(34,197,94,0.5);
       background: linear-gradient(135deg, rgba(34,197,94,0.1), var(--card));
@@ -648,7 +625,7 @@
 
     .task-check {
       flex-shrink: 0;
-      width: 28px; height: 28px;
+      width: 26px; height: 26px;
       border-radius: 8px;
       border: 2px solid var(--card-border);
       display: flex;
@@ -656,7 +633,7 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
-      font-size: 16px;
+      font-size: 14px;
       color: transparent;
       background: rgba(15,23,42,0.5);
       margin-top: 2px;
@@ -675,69 +652,68 @@
 
     .task-body { flex: 1; min-width: 0; }
     .task-text {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text);
       line-height: 1.4;
       margin-bottom: 4px;
     }
     .task-hint {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
-      line-height: 1.45;
+      line-height: 1.4;
     }
     .task-cat {
       display: inline-block;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 999px;
-      margin-top: 8px;
+      margin-top: 6px;
       background: rgba(56,189,248,0.15);
       color: #38bdf8;
     }
 
     /* GPS-задание */
     .task-progress-box {
-      margin-top: 12px;
-      padding: 12px;
+      margin-top: 10px;
+      padding: 10px;
       background: rgba(15,23,42,0.6);
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px solid var(--card-border);
     }
     .task-progress-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      font-size: 13px;
+      margin-bottom: 6px;
+      font-size: 12px;
       color: var(--text-dim);
     }
     .task-progress-info strong { color: var(--accent-2); font-variant-numeric: tabular-nums; }
     .task-progress-bar {
-      height: 6px;
+      height: 5px;
       background: rgba(148,163,184,0.2);
       border-radius: 999px;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .task-progress-bar-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       border-radius: 999px;
       transition: width 0.5s ease;
-      box-shadow: 0 0 8px var(--accent-glow);
     }
     .task-progress-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
     .task-progress-status {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
-      margin-top: 8px;
+      margin-top: 6px;
       line-height: 1.4;
     }
     .task-progress-status.error { color: var(--danger); }
@@ -748,51 +724,49 @@
       background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.1));
       border: 1px solid rgba(56,189,248,0.3);
       border-radius: var(--radius);
-      padding: 16px 18px;
-      margin-bottom: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
     }
     .tasks-summary-text {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-dim);
-      line-height: 1.5;
-      margin-bottom: 10px;
+      line-height: 1.4;
+      margin-bottom: 8px;
     }
-    .tasks-summary-text strong { color: var(--accent-2); }
     .reset-tasks-btn {
       background: transparent;
       border: 1px solid var(--card-border);
       color: var(--text-dim);
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       cursor: pointer;
       font-family: inherit;
       transition: all 0.2s;
     }
-    .reset-tasks-btn:hover { background: rgba(148,163,184,0.15); color: var(--text); }
 
     /* ---- Мини-игры ---- */
     .game-card {
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
       backdrop-filter: blur(10px);
     }
     .game-head {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 10px;
+      margin-bottom: 6px;
     }
-    .game-emoji { font-size: 26px; }
-    .game-name { font-size: 17px; font-weight: 700; color: #fff; }
+    .game-emoji { font-size: 22px; }
+    .game-name { font-size: 15px; font-weight: 700; color: #fff; }
     .game-desc {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
-      line-height: 1.5;
-      margin-bottom: 16px;
+      line-height: 1.4;
+      margin-bottom: 12px;
     }
 
     /* Дыхательное упражнение */
@@ -800,44 +774,43 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 0;
+      padding: 12px 0;
     }
     .breath-circle {
-      width: 140px;
-      height: 140px;
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(74,222,128,0.3), rgba(34,197,94,0.1));
       border: 2px solid rgba(74,222,128,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--accent-2);
       transition: transform 4s ease-in-out;
-      margin-bottom: 20px;
-      box-shadow: 0 0 60px rgba(34,197,94,0.3);
+      margin-bottom: 16px;
     }
-    .breath-circle.inhale { transform: scale(1.5); transition: transform 4s ease-in-out; }
+    .breath-circle.inhale { transform: scale(1.3); transition: transform 4s ease-in-out; }
     .breath-circle.exhale { transform: scale(1); transition: transform 4s ease-in-out; }
-    .breath-circle.hold  { transform: scale(1.5); transition: transform 4s ease-in-out; }
+    .breath-circle.hold  { transform: scale(1.3); transition: transform 4s ease-in-out; }
     .breath-info {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-dim);
       text-align: center;
-      margin-bottom: 16px;
-      min-height: 20px;
+      margin-bottom: 12px;
+      min-height: 18px;
     }
 
     /* Игра «Пузырьки» */
     #bubble-game-area {
       position: relative;
-      height: 260px;
-      border-radius: 14px;
+      height: 200px;
+      border-radius: 12px;
       overflow: hidden;
       background: radial-gradient(circle at 50% 120%, rgba(56,189,248,0.15), rgba(15,23,42,0.8));
       border: 1px solid var(--card-border);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       cursor: crosshair;
       user-select: none;
     }
@@ -853,45 +826,43 @@
       animation: bubbleFloat linear infinite;
       user-select: none;
     }
-    .bubble:active { transform: scale(0.8); }
     @keyframes bubbleFloat {
       from { transform: translateY(0) scale(1); opacity: 1; }
-      to   { transform: translateY(-300px) scale(1.1); opacity: 0; }
+      to   { transform: translateY(-250px) scale(1.1); opacity: 0; }
     }
 
     .game-stats {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      font-size: 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
       color: var(--text-dim);
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
-    .game-stats strong { color: var(--accent-2); font-size: 16px; }
+    .game-stats strong { color: var(--accent-2); font-size: 15px; }
 
     /* Игра «Память» */
     #memory-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      margin-bottom: 10px;
     }
     .mem-card {
       aspect-ratio: 1;
-      border-radius: 10px;
+      border-radius: 8px;
       background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15));
       border: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 20px;
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
       user-select: none;
     }
-    .mem-card:hover { transform: scale(1.05); }
     .mem-card.flipped {
       background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2));
       border-color: rgba(34,197,94,0.5);
@@ -901,7 +872,6 @@
       border-color: var(--accent);
       cursor: default;
     }
-    .mem-card.matched:hover { transform: none; }
 
     /* ---- Приветственный модал ---- */
     .modal-backdrop {
@@ -923,8 +893,8 @@
       background: linear-gradient(160deg, #1e293b, #0f2a1e);
       border: 1px solid rgba(34,197,94,0.4);
       border-radius: 22px;
-      padding: 28px 24px;
-      max-width: 420px;
+      padding: 24px 20px;
+      max-width: 380px;
       width: 100%;
       text-align: center;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(34,197,94,0.15);
@@ -933,41 +903,30 @@
     }
     .modal-backdrop.show .modal-card { transform: scale(1); }
     .modal-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
-    .modal-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 10px;
-      line-height: 1.25;
-    }
-    .modal-text {
-      font-size: 15px;
-      color: var(--text-dim);
-      line-height: 1.5;
-      margin-bottom: 18px;
-    }
-    .modal-text strong { color: var(--accent-2); font-size: 17px; }
+    .modal-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.25; }
+    .modal-text { font-size: 14px; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; }
+    .modal-text strong { color: var(--accent-2); font-size: 16px; }
     .modal-stat {
       background: rgba(34,197,94,0.12);
       border: 1px solid rgba(34,197,94,0.3);
       border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 18px;
+      padding: 12px;
+      margin-bottom: 16px;
     }
     .modal-stat-value {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 800;
       color: var(--accent-2);
       line-height: 1;
       font-variant-numeric: tabular-nums;
       margin-bottom: 4px;
     }
-    .modal-stat-label { font-size: 13px; color: var(--text-dim); }
+    .modal-stat-label { font-size: 12px; color: var(--text-dim); }
 
     /* ---- Тост и конфетти ---- */
     .confetti-piece {
       position: fixed;
-      width: 10px; height: 10px;
+      width: 8px; height: 8px;
       z-index: 9999;
       pointer-events: none;
       border-radius: 2px;
@@ -980,14 +939,14 @@
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 32px;
+      bottom: 90px;
       transform: translate(-50%, 120%);
       background: linear-gradient(135deg, var(--accent), #16a34a);
       color: #04140a;
       padding: 14px 22px;
       border-radius: 14px;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14px;
       box-shadow: 0 10px 30px var(--accent-glow);
       z-index: 10000;
       transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
@@ -998,20 +957,10 @@
 
     .footer-note {
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: #475569;
-      margin-top: 32px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 380px) {
-      .time-cell { min-width: 56px; padding: 10px 4px; }
-      .time-num { font-size: 22px; }
-      .progress-ring-wrap { width: 170px; height: 170px; }
-      .ring-percent { font-size: 36px; }
-      .tab-btn { font-size: 11px; padding: 10px 4px; }
-      .stat-value { font-size: 22px; }
-      .stat-label { font-size: 11px; }
+      margin: 20px 0 10px;
+      line-height: 1.5;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1042,8 +991,8 @@
 
       <div id="form-step" class="hidden">
         <h1 class="hero-title" style="font-size: clamp(26px,7vw,36px);">Расскажи о себе</h1>
-        <p class="hero-subtitle" style="margin-bottom:24px;">
-          Эти данные нужны только для расчёта твоего прогресса. Всё хранится локально на устройстве.
+        <p class="hero-subtitle" style="margin-bottom:20px;">
+          Эти данные нужны только для расчёта твоего прогресса.
         </p>
 
         <form id="onboarding-form" novalidate>
@@ -1060,13 +1009,12 @@
           <div class="field">
             <label for="cigs-per-day">Сколько сигарет ты выкуривал в день?</label>
             <input type="number" id="cigs-per-day" name="cigsPerDay" placeholder="Например, 15" min="1" max="100" step="1" inputmode="numeric" required />
-            <div class="field-hint">Нужно для подсчёта, сколько сигарет ты уже не выкурил.</div>
           </div>
 
           <div class="field">
-            <label for="cig-price">Сколько стоила одна сигарета (в рублях)?</label>
+            <label for="cig-price">Стоимость одной сигареты (₽)</label>
             <input type="number" id="cig-price" name="cigPrice" placeholder="Например, 20" min="0.01" max="10000" step="0.01" inputmode="decimal" required />
-            <div class="field-hint">Можно посчитать: цена пачки ÷ количество сигарет в пачке.</div>
+            <div class="field-hint">Цена пачки ÷ количество сигарет в пачке.</div>
           </div>
 
           <div class="error-msg" id="form-error"></div>
@@ -1088,15 +1036,8 @@
       <button class="reset-btn" id="reset-btn" title="Сбросить данные" type="button">⚙︎</button>
     </div>
 
-    <!-- Вкладки -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="progress" type="button">📊 Прогресс</button>
-      <button class="tab-btn" data-tab="tasks" type="button">✅ Задания</button>
-      <button class="tab-btn" data-tab="games" type="button">🎮 Игры</button>
-    </div>
-
     <!-- ============ ВКЛАДКА: ПРОГРЕСС ============ -->
-    <div id="tab-progress">
+    <div id="tab-progress" class="tab-content">
       <!-- Баннер сравнения -->
       <div class="compare-banner">
         <div class="compare-icon">🏅</div>
@@ -1122,16 +1063,16 @@
 
       <div class="timer-card">
         <div class="progress-ring-wrap">
-          <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+          <svg class="progress-ring" width="160" height="160" viewBox="0 0 160 160">
             <defs>
               <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#4ade80" />
                 <stop offset="100%" stop-color="#22c55e" />
               </linearGradient>
             </defs>
-            <circle class="track" cx="100" cy="100" r="88" />
-            <circle class="fill" id="ring-fill" cx="100" cy="100" r="88"
-                    stroke-dasharray="552.92" stroke-dashoffset="552.92" />
+            <circle class="track" cx="80" cy="80" r="70" />
+            <circle class="fill" id="ring-fill" cx="80" cy="80" r="70"
+                    stroke-dasharray="439.82" stroke-dashoffset="439.82" />
           </svg>
           <div class="ring-center">
             <div class="ring-percent" id="health-percent">0%</div>
@@ -1162,10 +1103,15 @@
         <span class="counter" id="milestones-counter"></span>
       </div>
       <div id="milestones-container"></div>
+
+      <p class="footer-note">
+        Данные о восстановлении организма основаны на публичных материалах NHS, WHO и Helsenorge.<br />
+        Приложение не заменяет консультацию врача.
+      </p>
     </div>
 
     <!-- ============ ВКЛАДКА: ЗАДАНИЯ ============ -->
-    <div id="tab-tasks" class="hidden">
+    <div id="tab-tasks" class="tab-content hidden">
       <div class="tasks-summary">
         <div class="tasks-summary-text" id="tasks-summary-text">
           Выполнено заданий: <strong>0 из 0</strong>
@@ -1180,7 +1126,7 @@
     </div>
 
     <!-- ============ ВКЛАДКА: ИГРЫ ============ -->
-    <div id="tab-games" class="hidden">
+    <div id="tab-games" class="tab-content hidden">
       <div class="section-title"><span>Отвлекись и подыши</span></div>
 
       <div class="game-card">
@@ -1189,8 +1135,7 @@
           <span class="game-name">Дыхание 4-4-4</span>
         </div>
         <div class="game-desc">
-          Тяга длится всего 3–5 минут. Дыши вместе с кругом: вдох 4 секунды, задержка 4, выдох 4.
-          Это успокаивает нервную систему и снижает желание закурить.
+          Тяга длится всего 3–5 минут. Дыши вместе с кругом: вдох 4 сек, задержка 4, выдох 4.
         </div>
         <div class="breath-wrap">
           <div class="breath-circle" id="breath-circle">Готов?</div>
@@ -1205,7 +1150,7 @@
           <span class="game-name">Лопай пузыри</span>
         </div>
         <div class="game-desc">
-          Лопай пузырьки, чтобы отвлечься от навязчивых мыслей. Каждый лопнувший пузырь — секунда свободы.
+          Лопай пузырьки, чтобы отвлечься от навязчивых мыслей.
         </div>
         <div class="game-stats">
           <span>Счёт: <strong id="bubble-score">0</strong></span>
@@ -1213,7 +1158,6 @@
           <button class="btn btn-ghost btn-small" id="bubble-reset" type="button">Заново</button>
         </div>
         <div id="bubble-game-area"></div>
-        <div class="game-desc" style="text-align:center;margin:0;">Нажимай на пузыри — они лопаются</div>
       </div>
 
       <div class="game-card">
@@ -1222,7 +1166,7 @@
           <span class="game-name">Память</span>
         </div>
         <div class="game-desc">
-          Найди все пары карточек. Тренировка внимания помогает переключить мозг с мыслей о сигарете.
+          Найди все пары карточек.
         </div>
         <div class="game-stats">
           <span>Ходы: <strong id="memory-moves">0</strong></span>
@@ -1233,10 +1177,18 @@
       </div>
     </div>
 
-    <p class="footer-note">
-      Данные о восстановлении организма основаны на публичных материалах NHS, WHO и Helsenorge.<br />
-      Приложение не заменяет консультацию врача.
-    </p>
+    <!-- Вкладки внизу -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="progress" type="button">
+        <span>📊</span><span>Прогресс</span>
+      </button>
+      <button class="tab-btn" data-tab="tasks" type="button">
+        <span>✅</span><span>Задания</span>
+      </button>
+      <button class="tab-btn" data-tab="games" type="button">
+        <span>🎮</span><span>Игры</span>
+      </button>
+    </div>
   </main>
 
   <!-- ================== ПРИВЕТСТВЕННЫЙ МОДАЛ ================== -->
@@ -1257,24 +1209,14 @@
   <div id="confetti-container"></div>
 
   <script>
-    /* =========================================================
-       КОНСТАНТЫ
-       ========================================================= */
     var HOUR = 60 * 60 * 1000;
     var DAY = 24 * HOUR;
 
-    /* Средний курильщик делает ~15 сигарет/день.
-       Значит, за сутки «обгоняем» примерно 15 «человеко-сигарет»,
-       но людей считаем так: 1 день без курения = 1 обойдённый курильщик
-       (для наглядности). Через год = ~365 человек.
-       Формула: floor(дни) — мотивирует видеть рост каждый день. */
+    /* Новая формула: дни × 24 × 2 */
     function peoplePassed(days) {
-      return Math.floor(days);
+      return Math.floor(days * 24 * 2);
     }
 
-    /* =========================================================
-       ДАННЫЕ ВЕХ
-       ========================================================= */
     var MILESTONES = [
       { ms: 20 * 60 * 1000,  title: '20 минут',   icon: '❤️', desc: 'Пульс и артериальное давление приходят в норму.' },
       { ms: 8 * HOUR,        title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа (CO) в крови падает вдвое, кислород возвращается к норме.' },
@@ -1298,56 +1240,37 @@
       { ms: 365 * DAY,       title: '1 год',      icon: '🏆', desc: 'Риск ишемической болезни сердца снижается примерно вдвое по сравнению с курящими.' }
     ];
 
-    /* =========================================================
-       ЗАДАНИЯ
-       ========================================================= */
     var TASKS = [
-      { id: 't1',  text: 'Выпей стакан воды маленькими глотками',           hint: 'Жажда часто маскируется под тягу к сигарете. Медленные глотки помогают переключиться.',      cat: 'Тело' },
-      { id: 't2',  text: 'Сделай 10 глубоких вдохов у открытого окна',        hint: 'Свежий воздух и глубокое дыхание снижают уровень тревожности за 1–2 минуты.',            cat: 'Дыхание' },
-      { id: 't_walk', text: 'Пройди 1000 метров',                            hint: 'Геолокация включится сама. Иди пешком — приложение считает метры через GPS.',             cat: 'Движение', gps: true, targetMeters: 1000 },
-      { id: 't4',  text: 'Позвони или напиши близкому человеку',             hint: 'Поддержка близких — один из самых сильных инструментов против срыва.',                  cat: 'Общение' },
-      { id: 't5',  text: 'Почисти зубы или пожуй жвачку',                     hint: 'Свежесть во рту снижает желание закурить и меняет вкусовые ощущения.',                  cat: 'Гигиена' },
-      { id: 't6',  text: 'Съешь фрукт или овощ',                             hint: 'Замени сигарету полезным перекусом. Организм получит витамины вместо никотина.',        cat: 'Питание' },
-      { id: 't7',  text: 'Убери все зажигалки и пепельницы',                 hint: 'Убери триггеры с глаз долой — это снижает вероятность импульсивного срыва.',            cat: 'Среда' },
-      { id: 't8',  text: 'Помой посуду или протри стол',                      hint: 'Мелкая физическая активность отвлекает руки и ум от привычного ритуала.',              cat: 'Дом' },
-      { id: 't9',  text: 'Послушай любимую песню целиком',                    hint: 'Музыка переключает эмоции и снижает напряжение.',                                      cat: 'Настроение' },
-      { id: 't10', text: 'Сделай 20 приседаний',                              hint: 'Физическая нагрузка снимает стресс и уменьшает тягу.',                                  cat: 'Движение' },
-      { id: 't11', text: 'Запиши в дневник, что тебя беспокоит',             hint: 'Выплеснув мысли на бумагу, ты снижаешь их власть над собой.',                          cat: 'Психика' },
-      { id: 't12', text: 'Полий цветы или растение',                         hint: 'Забота о живом отвлекает и напоминает, зачем ты это делаешь.',                          cat: 'Забота' },
-      { id: 't13', text: 'Надень наушники и включи белый шум',               hint: 'Спокойный звук помогает успокоить нервную систему.',                                    cat: 'Расслабление' },
-      { id: 't14', text: 'Проверь, что съел за день (белок и витамины)',      hint: 'Дефицит белка усиливает тягу к сигаретам. Проверь рацион.',                            cat: 'Питание' },
-      { id: 't15', text: 'Сделай растяжку 3 минуты',                          hint: 'Растяжка снимает мышечное напряжение, связанное со стрессом.',                          cat: 'Тело' },
-      { id: 't16', text: 'Выйди на улицу и посмотри на небо',                 hint: 'Смена обстановки и вид неба снижают тревожность.',                                     cat: 'Среда' },
-      { id: 't17', text: 'Перечитай свою цель «почему я бросил»',            hint: 'Напоминание о мотивации укрепляет решимость.',                                          cat: 'Мотивация' },
-      { id: 't18', text: 'Не бери телефон 5 минут',                          hint: 'Короткая цифровая пауза снижает тревожный фон.',                                        cat: 'Расслабление' },
-      { id: 't19', text: 'Погладь кошку или собаку',                          hint: 'Контакт с животными снижает кортизол.',                                                cat: 'Забота' },
-      { id: 't20', text: 'Попробуй новый вкус: чай, специя, фрукт',          hint: 'Новые вкусы возвращают радость от еды и отвлекают от тяги.',                            cat: 'Питание' }
+      { id: 't1',  text: 'Выпей стакан воды маленькими глотками',           hint: 'Жажда часто маскируется под тягу к сигарете.',      cat: 'Тело' },
+      { id: 't2',  text: 'Сделай 10 глубоких вдохов у открытого окна',        hint: 'Свежий воздух снижает уровень тревожности.',        cat: 'Дыхание' },
+      { id: 't_walk', text: 'Пройди 1000 метров',                            hint: 'Геолокация включится сама. Иди пешком.',            cat: 'Движение', gps: true, targetMeters: 1000 },
+      { id: 't4',  text: 'Позвони или напиши близкому человеку',             hint: 'Поддержка близких — сильный инструмент против срыва.', cat: 'Общение' },
+      { id: 't5',  text: 'Почисти зубы или пожуй жвачку',                     hint: 'Свежесть во рту снижает желание закурить.',          cat: 'Гигиена' },
+      { id: 't6',  text: 'Съешь фрукт или овощ',                             hint: 'Замени сигарету полезным перекусом.',                cat: 'Питание' },
+      { id: 't7',  text: 'Убери все зажигалки и пепельницы',                 hint: 'Убери триггеры с глаз долой.',                       cat: 'Среда' },
+      { id: 't8',  text: 'Помой посуду или протри стол',                      hint: 'Мелкая активность отвлекает руки и ум.',            cat: 'Дом' },
+      { id: 't9',  text: 'Послушай любимую песню целиком',                    hint: 'Музыка переключает эмоции и снижает напряжение.',    cat: 'Настроение' },
+      { id: 't10', text: 'Сделай 20 приседаний',                              hint: 'Физическая нагрузка снимает стресс.',                cat: 'Движение' },
+      { id: 't11', text: 'Запиши в дневник, что тебя беспокоит',             hint: 'Выплеснув мысли на бумагу, ты снижаешь их власть.', cat: 'Психика' },
+      { id: 't12', text: 'Полий цветы или растение',                         hint: 'Забота о живом отвлекает.',                          cat: 'Забота' },
+      { id: 't13', text: 'Надень наушники и включи белый шум',               hint: 'Спокойный звук помогает успокоить нервную систему.', cat: 'Расслабление' },
+      { id: 't14', text: 'Проверь, что съел за день (белок и витамины)',      hint: 'Дефицит белка усиливает тягу к сигаретам.',          cat: 'Питание' },
+      { id: 't15', text: 'Сделай растяжку 3 минуты',                          hint: 'Растяжка снимает мышечное напряжение.',              cat: 'Тело' },
+      { id: 't16', text: 'Выйди на улицу и посмотри на небо',                 hint: 'Смена обстановки снижает тревожность.',              cat: 'Среда' },
+      { id: 't17', text: 'Перечитай свою цель «почему я бросил»',            hint: 'Напоминание о мотивации укрепляет решимость.',       cat: 'Мотивация' },
+      { id: 't18', text: 'Не бери телефон 5 минут',                          hint: 'Короткая цифровая пауза снижает тревожный фон.',     cat: 'Расслабление' },
+      { id: 't19', text: 'Погладь кошку или собаку',                          hint: 'Контакт с животными снижает кортизол.',              cat: 'Забота' },
+      { id: 't20', text: 'Попробуй новый вкус: чай, специя, фрукт',          hint: 'Новые вкусы возвращают радость от еды.',             cat: 'Питание' }
     ];
 
-    /* =========================================================
-       ХРАНИЛИЩЕ
-       ========================================================= */
     var STORAGE_KEY = 'antitabak_v2';
 
-    function loadData() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
-      catch (e) { return null; }
-    }
-    function saveData(data) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-      catch (e) {}
-    }
-    function clearData() {
-      try { localStorage.removeItem(STORAGE_KEY); }
-      catch (e) {}
-    }
+    function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch (e) { return null; } }
+    function saveData(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {} }
+    function clearData() { try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} }
 
-    /* =========================================================
-       УТИЛИТЫ
-       ========================================================= */
     function $(sel) { return document.querySelector(sel); }
     function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-
     function pad(n) { return String(n).padStart(2, '0'); }
 
     function formatDuration(ms) {
@@ -1366,7 +1289,6 @@
     }
 
     function formatMoney(amount) {
-      // Округляем до целого для аккуратности и разделяем пробелами
       var rounded = Math.round(amount);
       return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
     }
@@ -1380,9 +1302,6 @@
       return Math.min(70 + ((days - 365) / (365 * 9)) * 30, 100);
     }
 
-    /* =========================================================
-       ТОСТ И КОНФЕТТИ
-       ========================================================= */
     var toastEl = $('#toast');
     var toastTimer = null;
 
@@ -1414,9 +1333,6 @@
       }
     }
 
-    /* =========================================================
-       ОНБОРДИНГ
-       ========================================================= */
     var onboarding = $('#onboarding');
     var appMain = $('#app-main');
     var welcomeStep = $('#welcome-step');
@@ -1459,14 +1375,10 @@
       if (!name) { showError('Пожалуйста, введи своё имя.'); nameInput.focus(); return; }
       if (!quitDate) { showError('Укажи дату и время отказа от курения.'); dateInput.focus(); return; }
       if (!cigsPerDay || cigsPerDay <= 0 || cigsPerDay > 100) {
-        showError('Укажи, сколько сигарет в день ты выкуривал (1–100).');
-        cigsInput.focus();
-        return;
+        showError('Укажи, сколько сигарет в день ты выкуривал (1–100).'); cigsInput.focus(); return;
       }
       if (!cigPrice || cigPrice <= 0) {
-        showError('Укажи стоимость одной сигареты (больше 0).');
-        priceInput.focus();
-        return;
+        showError('Укажи стоимость одной сигареты (больше 0).'); priceInput.focus(); return;
       }
 
       var quitTs = new Date(quitDate).getTime();
@@ -1474,16 +1386,9 @@
       if (quitTs > Date.now()) { showError('Дата отказа не может быть в будущем.'); return; }
 
       var data = {
-        name: name,
-        quitTs: quitTs,
-        cigsPerDay: cigsPerDay,
-        cigPrice: cigPrice,
-        createdAt: Date.now(),
-        tasks: {},
-        reached: {},
-        bubbleBest: 0,
-        walkDone: false,
-        lastWelcomeDay: -1
+        name: name, quitTs: quitTs, cigsPerDay: cigsPerDay, cigPrice: cigPrice,
+        createdAt: Date.now(), tasks: {}, reached: {}, bubbleBest: 0,
+        walkDone: false, lastWelcomeDay: -1
       };
       saveData(data);
       startApp(data);
@@ -1494,12 +1399,9 @@
       formError.classList.add('show');
     }
 
-    /* =========================================================
-       ГЛАВНЫЙ ЭКРАН
-       ========================================================= */
     var state = null;
     var tickInterval = null;
-    var ringCircumference = 2 * Math.PI * 88;
+    var ringCircumference = 2 * Math.PI * 70; // 439.82
 
     function startApp(data) {
       state = data;
@@ -1525,11 +1427,9 @@
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
 
-      // Показываем приветственный модал раз в день
       setTimeout(showWelcomeIfNeeded, 600);
     }
 
-    /* ---- Вкладки ---- */
     $$('.tab-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tab = btn.dataset.tab;
@@ -1540,17 +1440,13 @@
       });
     });
 
-    /* ---- Приветственный модал ---- */
     function showWelcomeIfNeeded() {
       if (!state) return;
       var now = Date.now();
       var elapsed = now - state.quitTs;
       if (elapsed < 0) return;
-
       var days = Math.floor(elapsed / DAY);
       var todayKey = Math.floor(elapsed / DAY);
-
-      // Показываем один раз в день; пропускаем первый запуск (elapsed < 1 мин)
       if (elapsed < 60 * 1000) return;
       if (state.lastWelcomeDay === todayKey) return;
 
@@ -1563,7 +1459,6 @@
       var days = elapsed / DAY;
       var passed = peoplePassed(days);
       var cigs = Math.floor(days * state.cigsPerDay);
-      var money = days * state.cigsPerDay * state.cigPrice;
 
       var modal = $('#welcome-modal');
       var emoji = $('#modal-emoji');
@@ -1583,14 +1478,8 @@
         emoji.textContent = '🏅';
         title.textContent = 'День ' + dayNum + ' без сигарет';
         text.innerHTML = 'Сегодня ты обошёл <strong>' + passed + '</strong> курящих людей. Продолжай!';
-
-        if (cigs > 0) {
-          statVal.textContent = passed;
-          statLabel.textContent = 'человек обошли';
-        } else {
-          statVal.textContent = '0';
-          statLabel.textContent = 'человек обошли';
-        }
+        statVal.textContent = passed;
+        statLabel.textContent = 'человек обошли';
       }
 
       modal.classList.add('show');
@@ -1601,7 +1490,6 @@
       launchConfetti(40);
     });
 
-    /* ---- Вехи ---- */
     function renderMilestones() {
       var container = $('#milestones-container');
       container.innerHTML = '';
@@ -1629,7 +1517,7 @@
               io.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.05 });
+        }, { threshold: 0.01 });
         container.querySelectorAll('.milestone').forEach(function (el) { io.observe(el); });
       } else {
         container.querySelectorAll('.milestone').forEach(function (el) { el.classList.add('visible'); });
@@ -1665,22 +1553,16 @@
       if (percent >= 50) document.body.setAttribute('data-progress', 'advanced');
       else document.body.removeAttribute('data-progress');
 
-      // Счётчики
       updateCounters(daysFloat);
       updateNextGoal(elapsed);
       updateMilestonesStatus(elapsed);
     }
 
     function updateCounters(daysFloat) {
-      // Обойдено людей
       var passed = peoplePassed(daysFloat);
       $('#compare-count').textContent = passed;
-
-      // Не выкурено сигарет
       var cigs = Math.floor(daysFloat * state.cigsPerDay);
       $('#stat-cigs').textContent = cigs.toLocaleString('ru-RU');
-
-      // Сэкономлено денег
       var money = daysFloat * state.cigsPerDay * state.cigPrice;
       $('#stat-money').textContent = formatMoney(money);
     }
@@ -1759,7 +1641,6 @@
       if (counter) counter.textContent = doneCount + ' / ' + MILESTONES.length;
     }
 
-    /* ---- Задания ---- */
     function renderTasks() {
       var container = $('#tasks-container');
       container.innerHTML = '';
@@ -1787,10 +1668,10 @@
                 '<div class="task-progress-bar-fill" data-gps-fill style="width:0%"></div>' +
               '</div>' +
               '<div class="task-progress-actions">' +
-                '<button class="btn btn-primary btn-small" data-gps-start type="button">▶ Начать трекинг</button>' +
+                '<button class="btn btn-primary btn-small" data-gps-start type="button">▶ Начать</button>' +
                 '<button class="btn btn-ghost btn-small hidden" data-gps-stop type="button">■ Стоп</button>' +
               '</div>' +
-              '<div class="task-progress-status" data-gps-status>Геолокация выключена. Нажми «Начать трекинг».</div>' +
+              '<div class="task-progress-status" data-gps-status>Геолокация выключена.</div>' +
             '</div>';
         }
 
@@ -1837,9 +1718,6 @@
       }
     });
 
-    /* =========================================================
-       GPS-ЗАДАНИЕ: ПРОЙДИ 1000 МЕТРОВ
-       ========================================================= */
     var walkWatchId = null;
     var walkLastPos = null;
     var walkDistance = 0;
@@ -1857,7 +1735,6 @@
       startBtn.addEventListener('click', startWalkTracking);
       stopBtn.addEventListener('click', stopWalkTracking);
 
-      // Если GPS-задание уже выполнено ранее — показываем результат
       if (state.walkDone || state.tasks[task.id]) {
         walkDistance = task.targetMeters;
         updateWalkUI();
@@ -1871,7 +1748,7 @@
 
     function startWalkTracking() {
       if (!navigator.geolocation) {
-        setWalkStatus('Геолокация не поддерживается этим браузером.', 'error');
+        setWalkStatus('Геолокация не поддерживается.', 'error');
         return;
       }
 
@@ -1887,12 +1764,11 @@
 
       try {
         walkWatchId = navigator.geolocation.watchPosition(
-          onWalkPosition,
-          onWalkError,
+          onWalkPosition, onWalkError,
           { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
         );
       } catch (e) {
-        setWalkStatus('Не удалось запустить геолокацию: ' + e.message, 'error');
+        setWalkStatus('Ошибка геолокации.', 'error');
         startBtn.classList.remove('hidden');
         stopBtn.classList.add('hidden');
       }
@@ -1918,15 +1794,13 @@
       var lon = pos.coords.longitude;
       var accuracy = pos.coords.accuracy || 999;
 
-      // Если точность слишком плохая (>100 м) — не учитываем шаг
       if (accuracy > 100) {
-        setWalkStatus('Слабый сигнал GPS (точность ' + Math.round(accuracy) + ' м). Идём дальше…', 'active');
+        setWalkStatus('Слабый сигнал GPS. Идём дальше…', 'active');
         return;
       }
 
       if (walkLastPos) {
         var d = haversine(walkLastPos.lat, walkLastPos.lon, lat, lon);
-        // Отбрасываем «прыжки» больше 50 м за один апдейт
         if (d < 50 && d > 1) {
           walkDistance += d;
         }
@@ -1938,14 +1812,14 @@
         completeWalkTask();
         return;
       }
-      setWalkStatus('Идём… Пройдено ' + Math.round(walkDistance) + ' м из ' + walkTaskRef.targetMeters + ' м.', 'active');
+      setWalkStatus('Идём… ' + Math.round(walkDistance) + ' из ' + walkTaskRef.targetMeters + ' м.', 'active');
     }
 
     function onWalkError(err) {
       var msg = 'Ошибка геолокации.';
-      if (err.code === 1) msg = 'Доступ к геолокации запрещён. Разреши его в настройках браузера.';
-      else if (err.code === 2) msg = 'Не удалось определить местоположение. Попробуй на улице.';
-      else if (err.code === 3) msg = 'Таймаут геолокации. Попробуй снова.';
+      if (err.code === 1) msg = 'Доступ к геолокации запрещён.';
+      else if (err.code === 2) msg = 'Не удалось определить местоположение.';
+      else if (err.code === 3) msg = 'Таймаут геолокации.';
       setWalkStatus(msg, 'error');
 
       if (walkWatchId !== null) {
@@ -2007,15 +1881,11 @@
       return R * c;
     }
 
-    /* ---- Дыхательное упражнение ---- */
     var breathTimeout = null;
     var breathActive = false;
 
     $('#breath-start').addEventListener('click', function () {
-      if (breathActive) {
-        stopBreathing();
-        return;
-      }
+      if (breathActive) { stopBreathing(); return; }
       startBreathing();
     });
 
@@ -2057,7 +1927,6 @@
       $('#breath-start').textContent = 'Начать дыхание';
     }
 
-    /* ---- Игра «Пузырьки» ---- */
     var bubbleScore = 0;
     var bubbleSpawner = null;
     var bubbleArea = null;
@@ -2158,7 +2027,6 @@
       $('#bubble-best').textContent = state.bubbleBest || 0;
     }
 
-    /* ---- Игра «Память» ---- */
     var memoryEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥'];
     var memoryDeck = [];
     var memoryFlipped = [];
@@ -2240,9 +2108,6 @@
       }
     }
 
-    /* =========================================================
-       СБРОС
-       ========================================================= */
     $('#reset-btn').addEventListener('click', function () {
       if (confirm('Сбросить все данные и начать заново?')) {
         clearData();
@@ -2267,13 +2132,8 @@
       }
     });
 
-    /* =========================================================
-       ИНИЦИАЛИЗАЦИЯ
-       ========================================================= */
     (function init() {
       var saved = loadData();
-      // Миграция со старой версии (v1): если у пользователя были данные без новых полей —
-      // предлагаем заполнить заново, чтобы корректно посчитать экономию.
       if (saved && saved.name && saved.quitTs && typeof saved.cigsPerDay === 'number' && typeof saved.cigPrice === 'number') {
         startApp(saved);
       } else {
@@ -2282,9 +2142,6 @@
       }
     })();
 
-    /* =========================================================
-       SERVICE WORKER
-       ========================================================= */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('sw.js').catch(function (err) {
