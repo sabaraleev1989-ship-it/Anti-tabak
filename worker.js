@@ -14,11 +14,18 @@ export default {
       return new Response('Method not allowed', { status: 405 });
     }
 
+    const fetchWithTimeout = (url, options = {}, timeout = 20000) => {
+      return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+      ]);
+    };
+
     try {
-      console.log("1. Начинаем авторизацию...");
-      
-      // Запрос на авторизацию с игнорированием проверки сертификата
-      const authResponse = await fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
+      console.log("1. Авторизация...");
+      const authResponse = await fetchWithTimeout('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -27,29 +34,19 @@ export default {
           'Authorization': 'Basic ' + env.GIGACHAT_KEY,
         },
         body: 'scope=GIGACHAT_API_PERS',
-        cf: { insecure: true } // <--- ОБХОД ОШИБКИ 526
-      });
+        cf: { insecure: true }
+      }, 10000);
 
       const authText = await authResponse.text();
-      console.log("2. Ответ авторизации:", authText);
-
       let authData;
-      try { 
-        authData = JSON.parse(authText); 
-      } catch(e) { 
-        throw new Error("Ошибка парсинга авторизации: " + authText); 
-      }
-
-      if (!authData.access_token) {
-        throw new Error("Нет токена. Ответ: " + authText);
-      }
-      console.log("3. Токен получен!");
+      try { authData = JSON.parse(authText); } catch(e) { throw new Error("Ошибка авторизации: " + authText); }
+      if (!authData.access_token) throw new Error("Нет токена: " + authText);
+      
+      console.log("2. Токен получен. Отправляем запрос...");
 
       const userBody = await request.json();
-      console.log("4. Отправляем запрос в GigaChat...");
       
-      // Запрос к GigaChat с игнорированием проверки сертификата
-      const gigaResponse = await fetch('https://api.giga.chat/v1/chat/completions', {
+      const gigaResponse = await fetchWithTimeout('https://api.giga.chat/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,13 +57,13 @@ export default {
           model: 'GigaChat',
           messages: userBody.messages,
           temperature: 0.7,
-          max_tokens: 300
+          max_tokens: 600 // Увеличили, чтобы ИИ мог давать развернутые ответы
         }),
-        cf: { insecure: true } // <--- ОБХОД ОШИБКИ 526
-      });
+        cf: { insecure: true }
+      }, 20000);
 
       const gigaText = await gigaResponse.text();
-      console.log("5. Ответ GigaChat:", gigaText);
+      console.log("3. Успех!");
 
       return new Response(gigaText, {
         headers: {
@@ -76,8 +73,10 @@ export default {
       });
 
     } catch (err) {
-      console.error("КРИТИЧЕСКАЯ ОШИБКА:", err.message);
-      return new Response(JSON.stringify({ error: err.message }), {
+      console.error("ОШИБКА:", err.message);
+      return new Response(JSON.stringify({ 
+        error: err.message === 'Timeout' ? 'GigaChat отвечает слишком долго' : err.message 
+      }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
