@@ -1155,59 +1155,36 @@
           });
         }
 
-        // Добавляем системный промпт
+        // --- НАСТРОЙКА ЛИЧНОСТИ (СИСТЕМНЫЙ ПРОМПТ) ---
         historyForAI.unshift({
           role: 'system',
-          content: "Ты — Дыши, психолог и помощник по отказу от курения. Отвечай ТОЛЬКО на русском, грамотно, без ошибок. Твоя цель — поддерживать диалог. Обязательно учитывай контекст предыдущих сообщений. Не пиши шаблонные фразы. Если пользователь задает вопрос, отвечай на него конкретно и предлагай практические действия (например, чем занять руки, как пережить стресс). Будь эмпатичным. Пиши от 2 до 5 предложений."
+          content: "Ты — Дыши, профессиональный психолог и помощник по отказу от курения. Отвечай ТОЛЬКО на русском языке, грамотно, без ошибок. Твоя единственная цель — поддерживать пользователя в отказе от никотина. Ты не обсуждаешь другие темы, не даешь медицинских диагнозов и не пишешь длинные лекции. Если пользователь пишет о тяге, предложи конкретное действие (вода, дыхание, прогулка). Будь эмпатичным, кратким (2-4 предложения) и всегда фокусируйся на здоровье и свободе от зависимости."
         });
 
-        // ВСТАВЬ СВОЙ КЛЮЧ СЮДА
-        const GIGACHAT_KEY = "MDFhMTY4ZDMtZmY5ZS03ZmFjLTk0OTAtODdhNzRhYWUwMTcyOjkxOWZlNjk1LTFlNzMtNDRiZi1iMzMyLTJmZTc3NTc0MjMyZA==";
-
-        // 1. Получаем токен
-        fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
+        // Запрос к Pollinations.ai (модель openai или mistral)
+        fetch('https://text.pollinations.ai/', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json',
-            'RqUID': crypto.randomUUID(),
-            'Authorization': 'Basic ' + GIGACHAT_KEY,
-          },
-          body: 'scope=GIGACHAT_API_PERS'
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: historyForAI,
+            model: 'openai', // или 'mistral', если openai будет капризничать
+            private: true
+          })
         })
-        .then(res => res.json())
-        .then(authData => {
-          if (!authData.access_token) throw new Error("Нет токена: " + JSON.stringify(authData));
-          
-          // 2. Отправляем запрос в GigaChat
-          return fetch('https://api.giga.chat/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + authData.access_token,
-            },
-            body: JSON.stringify({
-              model: 'GigaChat',
-              messages: historyForAI,
-              temperature: 0.7,
-              max_tokens: 600
-            })
-          });
-        })
-        .then(res => res.json())
-        .then(data => {
+        .then(res => res.text()) // Pollinations возвращает просто текст
+        .then(text => {
           hideTyping();
-          if (data.choices && data.choices[0] && data.choices[0].message) {
-            addMessage(data.choices[0].message.content, true, true);
+          // Иногда модель может вернуть JSON-строку с ошибкой, проверяем это
+          if (text.includes('"error"') || text.includes('Rate limit')) {
+            addMessage("Я немного задумался. Попробуй переформулировать вопрос или напиши еще раз чуть позже.", true, true);
           } else {
-            addMessage("Ошибка ответа ИИ: " + JSON.stringify(data), true, true);
+            addMessage(text.trim(), true, true);
           }
         })
         .catch(err => {
           hideTyping();
           console.error(err);
-          addMessage("Ошибка сети или сертификата (CORS). Попробуй еще раз.", true, true);
+          addMessage("Связь прервалась. Попробуй написать еще раз.", true, true);
         });
       }
 
