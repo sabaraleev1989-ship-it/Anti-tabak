@@ -234,6 +234,22 @@
     .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .ring-percent { font-size: 32px; font-weight: 800; color: var(--accent-2); }
     .ring-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+    
+    /* ПЛАШКА С ОПИСАНИЕМ ЗДОРОВЬЯ */
+    .health-info-box {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      text-align: left;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .health-info-icon { font-size: 20px; flex-shrink: 0; }
+    .health-info-text { font-size: 13px; line-height: 1.45; color: #e2e8f0; }
+    .health-info-text strong { color: var(--accent-2); font-weight: 700; }
 
     .timer-display { display: flex; justify-content: center; gap: 6px; }
     .time-cell { background: rgba(15,23,42,0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px 4px; flex: 1; max-width: 70px; }
@@ -402,8 +418,8 @@
     <div class="top-bar">
       <div class="greeting">Твой путь свободы<strong id="user-greeting">Привет!</strong></div>
       <div class="stats-badge">
-        <div class="badge-item">🏅 Ур. <span id="user-level">1</span></div>
-        <div class="badge-item">💎 <span id="user-points">0</span></div>
+        <div class="badge-item" title="1 день = 1 уровень">🏅 Ур. <span id="user-level">1</span></div>
+        <div class="badge-item" title="Очки для магазина">💎 <span id="user-points">0</span></div>
         <button class="reset-btn" id="reset-btn">⚙︎</button>
       </div>
     </div>
@@ -420,21 +436,35 @@
         <div class="stat-card"><div class="stat-emoji">🚭</div><div class="stat-value" id="stat-cigs">0</div><div class="stat-label">не выкурено</div></div>
         <div class="stat-card"><div class="stat-emoji">💰</div><div class="stat-value money" id="stat-money">0 ₽</div><div class="stat-label">сэкономлено</div></div>
       </div>
+      
       <div class="timer-card">
         <div class="progress-ring-wrap">
           <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
             <defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4ade80" /><stop offset="100%" stop-color="#22c55e" /></linearGradient></defs>
             <circle class="track" cx="70" cy="70" r="60" /><circle class="fill" id="ring-fill" cx="70" cy="70" r="60" stroke-dasharray="376.99" stroke-dashoffset="376.99" />
           </svg>
-          <div class="ring-center"><div class="ring-percent" id="health-percent">0%</div><div class="ring-label">Здоровье</div></div>
+          <div class="ring-center">
+            <div class="ring-percent" id="health-percent">0%</div>
+            <div class="ring-label">Здоровье</div>
+          </div>
         </div>
+        
         <div class="timer-display">
           <div class="time-cell"><div class="time-num" id="t-days">0</div><div class="time-unit">дней</div></div>
           <div class="time-cell"><div class="time-num" id="t-hours">0</div><div class="time-unit">часов</div></div>
           <div class="time-cell"><div class="time-num" id="t-minutes">0</div><div class="time-unit">минут</div></div>
           <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
         </div>
+        
+        <!-- ПЛАШКА С ОПИСАНИЕМ -->
+        <div class="health-info-box" style="margin-top: 14px; margin-bottom: 0;">
+          <div class="health-info-icon">🩺</div>
+          <div class="health-info-text" id="health-detailed-text">
+            Загрузка данных...
+          </div>
+        </div>
       </div>
+
       <div class="goal-card">
         <div class="goal-title">Ближайшая цель</div>
         <div class="goal-text" id="goal-text">Загрузка…</div>
@@ -497,7 +527,6 @@
       </div>
     </div>
 
-    <!-- НИЖНЯЯ ПАНЕЛЬ С КНОПКОЙ ДЫШИ -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="progress"><span style="font-size:16px;">📊</span>Прогресс</button>
       <button class="tab-btn" data-tab="tasks"><span style="font-size:16px;">✅</span>Задания</button>
@@ -507,7 +536,6 @@
     </div>
   </main>
 
-  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ЗАДАНИЙ -->
   <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
       <div class="modal-title">Подтверди действие</div>
@@ -518,23 +546,17 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА ДЫШИ (УМНЫЙ ЧАТ) -->
   <div class="modal-backdrop" id="breathe-modal">
     <div class="modal-card" style="padding: 16px;">
       <div class="modal-title" style="margin-bottom: 4px; color: #4ade80;">🌿 Дыши</div>
-      <div class="modal-text" style="margin-bottom: 12px; font-size: 12px;">Твой личный ИИ-помощник. Пиши ему о своих чувствах.</div>
-      
+      <div class="modal-text" style="margin-bottom: 12px; font-size: 12px;">Твой личный ИИ-помощник.</div>
       <div class="chat-container">
-        <div class="chat-messages" id="chat-messages">
-          <!-- Начальное сообщение добавится из JS -->
-        </div>
-        
+        <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input-row">
           <input type="text" id="chat-input" placeholder="Напиши мне..." autocomplete="off" />
           <button id="chat-send">➤</button>
         </div>
       </div>
-      
       <button class="btn btn-primary" id="breathe-close" type="button" style="margin-top: 12px; padding: 12px;">Закрыть</button>
     </div>
   </div>
@@ -637,6 +659,7 @@
       return parts.join(' ');
     }
     function formatMoney(amount) { return Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽'; }
+    
     function healthPercent(days) {
       if (days < 0) return 0;
       if (days < 1)   return Math.min(days * 10, 10);
@@ -644,6 +667,23 @@
       if (days < 30)  return 20 + ((days - 3) / 27) * 15;
       if (days < 365) return 35 + ((days - 30) / 335) * 35;
       return Math.min(70 + ((days - 365) / (365 * 9)) * 30, 100);
+    }
+
+    // ПОДРОБНОЕ ОПИСАНИЕ ЗДОРОВЬЯ
+    function getDetailedHealthText(days) {
+      if (days < 0.013) return "<strong>Только что:</strong> Пульс и давление начали снижаться. Организм понял, что яда больше не будет.";
+      if (days < 0.33) return "<strong>Первые часы:</strong> Уровень угарного газа в крови падает. Кислород начинает поступать к органам в полном объеме. По данным ВОЗ, это первый шаг к чистой крови.";
+      if (days < 1) return "<strong>До суток:</strong> Никотин активно выводится. Сердце работает с меньшей нагрузкой. Риск внезапного инфаркта уже начал снижаться.";
+      if (days < 2) return "<strong>1 день:</strong> Угарный газ полностью выведен. Легкие начинают очищаться от слизи. По статистике NHS, риск сердечного приступа заметно падает.";
+      if (days < 3) return "<strong>2 дня:</strong> Вкусовые и обонятельные рецепторы восстанавливаются. Еда кажется вкуснее, запахи — ярче. Никотин почти полностью вышел.";
+      if (days < 7) return "<strong>3-6 дней:</strong> Никотин полностью выведен из организма. Бронхи расслабляются, дышать становится легче. Уровень энергии растет с каждым днем.";
+      if (days < 14) return "<strong>1-2 недели:</strong> Кровообращение улучшается. Руки и ноги согреваются. По данным Американского онкологического общества, кашель начинает уменьшаться.";
+      if (days < 30) return "<strong>2-4 недели:</strong> Объем легких увеличивается. Одышка при ходьбе уходит. Психологическая тяга ослабевает: мозг привыкает жить без никотина.";
+      if (days < 90) return "<strong>1-3 месяца:</strong> Функция легких улучшается до 30%. Реснички в бронхах восстанавливаются и выводят слизь. Иммунитет крепнет.";
+      if (days < 180) return "<strong>3-6 месяцев:</strong> Кожа становится чище, цвет лица выравнивается. По данным ВОЗ, риск инфекций дыхательных путей снижается.";
+      if (days < 365) return "<strong>6-12 месяцев:</strong> Кашель курильщика полностью уходит. Уровень энергии сопоставим с некурящими. Сердечно-сосудистая система стабилизировалась.";
+      if (days < 1825) return "<strong>1-5 лет:</strong> Риск ишемической болезни сердца снижается вдвое. Это подтверждено масштабными исследованиями в США и Европе.";
+      return "<strong>5+ лет:</strong> Риск инсульта падает до уровня некурящего человека. Организм полностью восстановился от последствий никотина.";
     }
 
     var toastEl = $('#toast');
@@ -750,6 +790,10 @@
       var daysFloat = elapsed / DAY;
       var percent = healthPercent(daysFloat);
       $('#health-percent').textContent = Math.floor(percent) + '%';
+      
+      // Обновляем подробный текст о здоровье
+      $('#health-detailed-text').innerHTML = getDetailedHealthText(daysFloat);
+      
       $('#ring-fill').setAttribute('stroke-dashoffset', ringCirc - (percent / 100) * ringCirc);
       if (percent >= 50) document.body.setAttribute('data-progress', 'advanced'); else document.body.removeAttribute('data-progress');
 
@@ -757,9 +801,13 @@
       $('#stat-cigs').textContent = Math.floor(daysFloat * state.cigsPerDay).toLocaleString('ru-RU');
       $('#stat-money').textContent = formatMoney(daysFloat * state.cigsPerDay * state.cigPrice);
 
+      // УРОВЕНЬ (1 уровень = 1 день без курения)
+      var currentLevel = Math.floor(daysFloat) + 1;
+      $('#user-level').textContent = currentLevel;
+
+      // ОЧКИ (5 очков за каждый день)
       var pointsFromDays = Math.floor(daysFloat) * 5;
       var totalEarned = pointsFromDays + state.points;
-      $('#user-level').textContent = Math.floor(totalEarned / 100) + 1;
       $('#user-points').textContent = Math.max(0, totalEarned - state.spentPoints);
 
       var next = null;
@@ -1056,7 +1104,6 @@
       var sendBtn = $('#chat-send');
       var messages = $('#chat-messages');
       
-      // Восстанавливаем историю чата
       function renderHistory() {
         messages.innerHTML = '';
         if (state.chatHistory.length === 0) {
@@ -1074,7 +1121,6 @@
       chatBtn.addEventListener('click', function() {
         modal.classList.add('show');
         messages.scrollTop = messages.scrollHeight;
-        // Если давно не общались, ИИ пишет первым
         if (state.chatHistory.length > 0) {
           var lastMsg = state.chatHistory[state.chatHistory.length - 1];
           if (Date.now() - lastMsg.time > 12 * 60 * 60 * 1000) {
@@ -1103,7 +1149,6 @@
         
         if (save) {
           state.chatHistory.push({ text: text, role: isAi ? 'ai' : 'user', time: Date.now() });
-          // Ограничиваем историю 20 сообщениями
           if (state.chatHistory.length > 20) state.chatHistory.shift();
           saveData(state);
         }
@@ -1127,7 +1172,6 @@
         var val = input.value.trim();
         if (!val) return;
         
-        // Если это триггер тяги, сразу даем алгоритм
         var lowVal = val.toLowerCase();
         if (lowVal.includes('хочу курить') || lowVal.includes('тяга') || lowVal.includes('сорвался')) {
           addMessage(val, false, true);
@@ -1144,10 +1188,8 @@
         input.value = '';
         showTyping();
 
-        // Запрос к бесплатному ИИ Pollinations
         var systemPrompt = "Ты — заботливый психолог и помощник по отказу от курения по имени Дыши. Твоя задача — поддерживать пользователя, давать короткие (до 3 предложений), мотивирующие и практичные советы. Если он жалуется на тягу, предлагай конкретные действия (вода, дыхание, прогулка). Будь теплым, эмпатичным, иногда задавай встречные вопросы, чтобы поддержать диалог. Не пиши длинные лекции. Твой стиль: дружелюбный, но твердый.";
-        
-        var userContext = "Пользователь: " + state.name + ". Курит стаж: неизвестен. Не курит уже: " + Math.floor((Date.now() - state.quitTs) / DAY) + " дней.";
+        var userContext = "Пользователь: " + state.name + ". Не курит уже: " + Math.floor((Date.now() - state.quitTs) / DAY) + " дней.";
 
         fetch('https://text.pollinations.ai/', {
           method: 'POST',
@@ -1167,7 +1209,6 @@
         })
         .catch(err => {
           hideTyping();
-          // Если ИИ недоступен (нет интернета), даем локальный ответ
           var fallback = [
             "Я рядом. Сделай глубокий вдох. Ты справишься с этим.",
             "Каждая минута без сигарет делает тебя сильнее. Продолжай!",
