@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0f172a" />
-  <title>Антитабак — Начни дышать свободно</title>
+  <title>Дыши</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="1.png" />
+  <link rel="apple-touch-icon" href="1.png" />
 
   <style>
     :root {
@@ -60,6 +61,7 @@
       flex-direction: column;
       justify-content: flex-end;
       z-index: 10;
+      overflow-y: auto;
     }
 
     .hero-art {
@@ -70,13 +72,26 @@
                   radial-gradient(ellipse at 80% 80%, rgba(56,189,248,0.25), transparent 60%),
                   linear-gradient(160deg, #0b1220 0%, #0f2a1e 55%, #0b1220 100%);
       pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Добавляем твою картинку 1.png на фон */
+    .hero-art img {
+      width: 80%;
+      max-width: 350px;
+      border-radius: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(34,197,94,0.3);
+      margin-top: -15vh;
+      object-fit: cover;
     }
 
     .onboarding-content {
       position: relative;
       z-index: 2;
       padding: 32px 24px 60px;
-      background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 30%);
+      background: linear-gradient(180deg, transparent, rgba(15,23,42,0.95) 20%);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -289,18 +304,18 @@
     .mem-card.flipped { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2)); border-color: rgba(34,197,94,0.5); }
     .mem-card.matched { background: linear-gradient(135deg, var(--accent), #16a34a); border-color: var(--accent); cursor: default; }
 
-    /* Стили для кнопок сохранения */
     .settings-buttons { display: flex; gap: 8px; margin-top: 20px; }
     .settings-buttons .btn { padding: 10px; font-size: 12px; }
   </style>
 </head>
 <body>
 
-  <!-- ОНБОРДИНГ -->
   <section id="onboarding">
-    <div class="hero-art"></div>
+    <div class="hero-art">
+      <img src="1.png" alt="Дыши" />
+    </div>
     <div class="onboarding-content">
-      <div class="brand-badge">🌿 Антитабак · PWA</div>
+      <div class="brand-badge">🌿 Дыши</div>
       <div id="welcome-step">
         <h1 class="hero-title">Начни дышать свободно</h1>
         <p class="hero-subtitle">Каждый час без сигарет — это шаг к новой жизни. Мы поможем отслеживать твой прогресс и будем рядом до первого года свободы.</p>
@@ -321,7 +336,6 @@
     </div>
   </section>
 
-  <!-- ГЛАВНЫЙ ЭКРАН -->
   <main id="app-main" class="hidden">
     <div class="top-bar">
       <div class="greeting">Твой путь свободы<strong id="user-greeting">Привет!</strong></div>
@@ -332,7 +346,6 @@
       </div>
     </div>
 
-    <!-- ПРОГРЕСС -->
     <div id="tab-progress" class="tab-content">
       <div class="compare-banner">
         <div class="compare-icon">🏅</div>
@@ -369,13 +382,11 @@
       <div id="milestones-container"></div>
     </div>
 
-    <!-- ЗАДАНИЯ -->
     <div id="tab-tasks" class="tab-content hidden">
       <div class="section-title"><span>Отвлекись от тяги (+1 💎)</span></div>
       <div id="tasks-container"></div>
     </div>
 
-    <!-- МАГАЗИН -->
     <div id="tab-shop" class="tab-content hidden">
       <div class="section-title"><span>Обменяй очки на вкусняшки</span></div>
       <div class="shop-grid">
@@ -388,10 +399,8 @@
       </div>
     </div>
 
-    <!-- ИГРЫ -->
     <div id="tab-games" class="tab-content hidden">
       <div class="section-title"><span>Отвлекись</span></div>
-      
       <div class="game-card">
         <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🌬️ Дыхание 4-4-4</div>
         <div style="display:flex; flex-direction:column; align-items:center;">
@@ -420,7 +429,6 @@
       </div>
     </div>
 
-    <!-- НИЖНЯЯ ПАНЕЛЬ -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="progress"><span style="font-size:16px;">📊</span>Прогресс</button>
       <button class="tab-btn" data-tab="tasks"><span style="font-size:16px;">✅</span>Задания</button>
@@ -429,7 +437,6 @@
     </div>
   </main>
 
-  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ -->
   <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
       <div class="modal-title">Подтверди действие</div>
@@ -440,19 +447,15 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА НАСТРОЕК (СОХРАНЕНИЕ) -->
   <div class="modal-backdrop" id="settings-modal">
     <div class="modal-card">
       <div class="modal-title">Настройки</div>
       <div class="modal-text">Управление данными прогресса.</div>
-      
       <div class="settings-buttons">
         <button class="btn btn-primary" id="export-btn">📤 Экспорт</button>
         <button class="btn btn-ghost" id="import-btn">📥 Импорт</button>
       </div>
-      
       <input type="file" id="import-file" accept=".json" style="display:none;" />
-      
       <button class="btn btn-ghost" id="reset-btn-modal" style="margin-top:12px; color:var(--danger); border-color:rgba(248,113,113,0.3);">Сбросить всё</button>
       <button class="btn btn-ghost" id="close-settings" style="margin-top:8px;">Закрыть</button>
     </div>
@@ -492,15 +495,13 @@
       { id: 't10', text: 'Запиши 1 причину бросить',    hint: 'Можно в заметки в телефоне.', cat: 'Психика' }
     ];
 
-    // Единый ключ хранилища без версий — данные не потеряются при обновлении кода
-    var STORAGE_KEY = 'antitabak_data_v1';
+    var STORAGE_KEY = 'dyshi_app_data_v1';
 
     function loadData() { 
       try { 
         var raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return null;
         var parsed = JSON.parse(raw);
-        // Валидация: убеждаемся, что обязательные поля на месте
         if (!parsed || typeof parsed.name !== 'string' || typeof parsed.quitTs !== 'number') return null;
         return parsed;
       } catch (e) { return null; } 
@@ -509,7 +510,6 @@
     function saveData(data) { 
       try { 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); 
-        // Дублируем в sessionStorage как «горячий» резерв
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (e) { console.warn('Не удалось сохранить', e); } 
     }
@@ -555,7 +555,6 @@
       toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2500);
     }
 
-    // === ОНБОРДИНГ ===
     var onboarding = $('#onboarding'), appMain = $('#app-main');
 
     (function setMaxDate() {
@@ -588,7 +587,6 @@
       startApp(data);
     });
 
-    // === ГЛАВНЫЙ ЭКРАН ===
     var state = null, tickInterval = null, ringCirc = 2 * Math.PI * 60;
 
     function startApp(data) {
@@ -665,7 +663,6 @@
       updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
     }
 
-    // === ЗАДАНИЯ ===
     var taskToVerify = null;
 
     function renderTasks() {
@@ -730,7 +727,6 @@
     });
     $('#verify-cancel').addEventListener('click', function () { $('#verify-modal').classList.remove('show'); taskToVerify = null; });
 
-    // === GPS ЗАДАНИЕ ===
     var walkWatchId = null, walkLastPos = null, walkDistance = 0, walkEl = null, walkTask = null;
 
     function setupWalkTask(el, task) {
@@ -805,7 +801,6 @@
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // === МАГАЗИН ===
     function updateShopButtons(available) {
       $$('.shop-btn').forEach(function(btn) { btn.disabled = available < parseInt(btn.dataset.price, 10); });
     }
@@ -822,7 +817,6 @@
       });
     });
 
-    // === ДЫХАНИЕ ===
     var breathActive = false, breathTimer = null;
     $('#breath-start').addEventListener('click', function () {
       var circle = $('#breath-circle');
@@ -838,7 +832,6 @@
       next();
     });
 
-    // === ИГРА ПУЗЫРИ ===
     var bubbleScore = 0, bubbleSpawner = null;
     function initBubbles() {
       var area = $('#bubble-game-area');
@@ -860,7 +853,6 @@
       }, 600);
     }
 
-    // === ИГРА ПАМЯТЬ ===
     var memEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥'];
     var memDeck = [], memFlipped = [], memMoves = 0, memMatched = 0, memLock = false;
 
@@ -898,7 +890,6 @@
       }
     }
 
-    // === НАСТРОЙКИ (ЭКСПОРТ / ИМПОРТ / СБРОС) ===
     $('#reset-btn').addEventListener('click', function() {
       $('#settings-modal').classList.add('show');
     });
@@ -920,7 +911,7 @@
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'antitabak_progress_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.download = 'dyshi_progress_' + new Date().toISOString().slice(0, 10) + '.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -953,13 +944,11 @@
       reader.readAsText(file);
     });
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
     (function init() {
       var saved = loadData();
       if (saved && saved.name) {
         startApp(saved);
       } else {
-        // Пробуем восстановить из sessionStorage (например, если localStorage очистился, но вкладка ещё открыта)
         try {
           var sess = sessionStorage.getItem(STORAGE_KEY);
           if (sess) {
