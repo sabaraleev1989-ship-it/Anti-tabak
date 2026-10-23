@@ -55,7 +55,6 @@
 
     .hidden { display: none !important; }
 
-    /* ================== ОНБОРДИНГ ================== */
     #onboarding {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -172,7 +171,6 @@
     .error-msg { color: var(--danger); font-size: 13px; margin-bottom: 14px; display: none; }
     .error-msg.show { display: block; }
 
-    /* ================== ГЛАВНЫЙ ЭКРАН ================== */
     #app-main {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -933,14 +931,14 @@
               showToast('🏃 1000 метров пройдено! +1 💎');
             }
           },
-          function(err) { statusEl.textContent = 'Ошибка GPS: ' + err.message; statusEl.style.color = 'var(--danger)'; },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          function(err) { statusEl.textContent = 'Ошибcloseка GPS: ' + err-s.message; statusEl.style.color =ettings 'var(--danger)';'). },
+          { enableHighAccuracy: true,add timeout: 15000, maximumAge: 0 }
         );
       });
 
       stopBtn.addEventListener('click', function() {
         if (walkWatchId !== null) navigator.geolocation.clearWatch(walkWatchId);
-        walkWatchId = null; walkLastPos = null;
+        walkWatchId = null;EventListener walkLastPos = null;
         startBtn.classList.remove('hidden'); stopBtn.classList.add('hidden');
         statusEl.textContent = 'Трекинг остановлен. Пройдено ' + Math.round(walkDistance) + ' м.';
         statusEl.style.color = 'var(--text-dim)';
@@ -1081,7 +1079,7 @@
     }
 
     /* =========================================================
-       УМНЫЙ ЧАТ-ПОМОЩНИК "ДЫШИ" (GigaChat через Cloudflare Worker)
+       УМНЫЙ ЧАТ-ПОМОЩНИК "ДЫШИ" (GigaChat)
        ========================================================= */
     function initChat() {
       var chatBtn = $('#breathe-modal-btn');
@@ -1108,19 +1106,6 @@
       chatBtn.addEventListener('click', function() {
         modal.classList.add('show');
         messages.scrollTop = messages.scrollHeight;
-        if (state.chatHistory.length > 0) {
-          var lastMsg = state.chatHistory[state.chatHistory.length - 1];
-          if (Date.now() - lastMsg.time > 12 * 60 * 60 * 1000) {
-            setTimeout(function() {
-              var greetings = [
-                "С возвращением! Как проходит твой день без сигарет?",
-                "Я скучал! Как твои успехи? Держишься?",
-                "Привет! Ты сегодня молодец, что зашел. Как настроение?"
-              ];
-              addMessage(greetings[Math.floor(Math.random() * greetings.length)], true, true);
-            }, 1000);
-          }
-        }
       });
 
       closeBtn.addEventListener('click', function() {
@@ -1159,38 +1144,30 @@
         var val = input.value.trim();
         if (!val) return;
         
-        var lowVal = val.toLowerCase();
-        if (lowVal.includes('хочу курить') || lowVal.includes('тяга') || lowVal.includes('сорвался')) {
-          addMessage(val, false, true);
-          input.value = '';
-          showTyping();
-          setTimeout(function() {
-            hideTyping();
-            addMessage('СТОП! Тяга длится всего 3-5 минут. Сделай прямо сейчас: 1. Выпей стакан холодной воды. 2. Выйди на свежий воздух. 3. Сделай 5 глубоких вдохов. Не дай никотину обмануть тебя. Ты сильнее!', true, true);
-          }, 1000);
-          return;
-        }
-
         addMessage(val, false, true);
         input.value = '';
         showTyping();
 
-        // ОТПРАВЛЯЕМ ЗАПРОС В НАШ CLOUDFLARE WORKER (GIGACHAT)
+        // Собираем историю для контекста (последние 5 сообщений)
+        var historyForAI = [];
+        var startIdx = Math.max(0, state.chatHistory.length - 5);
+        for (var i = startIdx; i < state.chatHistory.length; i++) {
+          historyForAI.push({
+            role: state.chatHistory[i].role === 'ai' ? 'assistant' : 'user',
+            content: state.chatHistory[i].text
+          });
+        }
+
+        // Добавляем системный промпт
+        historyForAI.unshift({
+          role: 'system',
+          content: "Ты — Дыши, психолог и помощник по отказу от курения. Отвечай ТОЛЬКО на русском, грамотно, без ошибок. Твоя цель — поддерживать диалог. Обязательно учитывай контекст предыдущих сообщений. Не пиши шаблонные фразы. Если пользователь задает вопрос, отвечай на него конкретно и предлагай практические действия (например, чем занять руки, как пережить стресс). Будь эмпатичным. Пиши от 2 до 5 предложений."
+        });
+
         fetch('https://anti-tabak.g9nhprpvgm.workers.dev', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [
-              { 
-                role: 'system', 
-                content: "Ты — Дыши, заботливый помощник по отказу от курения. Отвечай ТОЛЬКО на русском языке, грамотно, без ошибок. Будь кратким (2-3 предложения), поддерживающим. Если пользователь пишет о тяге, предложи конкретное действие (вода, дыхание, прогулка). Не выдумывай факты." 
-              },
-              { 
-                role: 'user', 
-                content: "Пользователя зовут " + state.name + ". Он не курит уже " + Math.floor((Date.now() - state.quitTs) / DAY) + " дней. Он говорит: " + val 
-              }
-            ]
-          })
+          body: JSON.stringify({ messages: historyForAI })
         })
         .then(response => response.json())
         .then(data => {
@@ -1198,19 +1175,13 @@
           if (data.choices && data.choices[0] && data.choices[0].message) {
             addMessage(data.choices[0].message.content, true, true);
           } else {
-            console.error('Ошибка ответа от GigaChat:', data);
-            addMessage("Извини, я не смог ответить. Попробуй ещё раз.", true, true);
+            addMessage("Я пытаюсь сосредоточиться, но связь немного барахлит. Не мог бы ты повторить свой вопрос?", true, true);
           }
         })
         .catch(err => {
           hideTyping();
-          console.error('Ошибка fetch:', err);
-          var fallback = [
-            "Я рядом. Сделай глубокий вдох. Ты справишься с этим.",
-            "Каждая минута без сигарет делает тебя сильнее. Продолжай!",
-            "Отвлекись: выпей воды или сделай 10 приседаний. Тяга пройдет."
-          ];
-          addMessage(fallback[Math.floor(Math.random() * fallback.length)], true, true);
+          console.error(err);
+          addMessage("Я пытаюсь сосредоточиться, но связь немного барахлит. Не мог бы ты повторить свой вопрос?", true, true);
         });
       }
 
@@ -1224,7 +1195,7 @@
        НАСТРОЙКИ / СБРОС
        ========================================================= */
     $('#reset-btn').addEventListener('click', function() { $('#settings-modal').classList.add('show'); });
-    $('#close-settings').addEventListener('click', function() { $('#settings-modal').classList.remove('show'); });
+    $('#('click', function() { $('#settings-modal').classList.remove('show'); });
     $('#reset-btn-modal').addEventListener('click', function () { if (confirm('Сбросить?')) { clearData(); location.reload(); } });
 
     $('#export-btn').addEventListener('click', function () {
