@@ -1,17 +1,15 @@
 /* =========================================================
-   Service Worker — Антитабак PWA
-   Просто скопируй этот файл как sw.js
+   Service Worker — Дыши PWA
    ========================================================= */
 
-const VERSION = 'antitabak-v1.0.0';
-const CACHE_NAME = 'antitabak-cache-' + VERSION;
+const VERSION = 'dyshi-v1.0.1'; // Обновил версию
+const CACHE_NAME = 'dyshi-cache-' + VERSION;
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './1.png'
 ];
 
 /* ---------- INSTALL ---------- */
@@ -37,7 +35,8 @@ self.addEventListener('activate', function (event) {
     caches.keys().then(function (keys) {
       return Promise.all(
         keys.filter(function (key) {
-          return key.indexOf('antitabak-cache-') === 0 && key !== CACHE_NAME;
+          // Удаляем все старые кэши
+          return (key.indexOf('antitabak-cache-') === 0 || key.indexOf('dyshi-cache-') === 0) && key !== CACHE_NAME;
         }).map(function (key) {
           return caches.delete(key);
         })
