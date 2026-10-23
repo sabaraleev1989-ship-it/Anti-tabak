@@ -41,7 +41,8 @@ export default {
       const userBody = await request.json();
       console.log("4. Отправляем запрос в GigaChat...");
       
-      const gigaResponse = await fetch('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', {
+      // Заменили адрес на новый шлюз api.giga.chat
+      const gigaResponse = await fetch('https://api.giga.chat/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
