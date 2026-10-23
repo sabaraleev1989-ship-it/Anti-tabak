@@ -1161,12 +1161,21 @@
           content: "Ты — Дыши, психолог и помощник по отказу от курения. Отвечай ТОЛЬКО на русском, грамотно, без ошибок. Твоя цель — поддерживать диалог. Обязательно учитывай контекст предыдущих сообщений. Не пиши шаблонные фразы. Если пользователь задает вопрос, отвечай на него конкретно и предлагай практические действия (например, чем занять руки, как пережить стресс). Будь эмпатичным. Пиши от 2 до 5 предложений."
         });
 
+        // Таймаут для fetch (20 секунд)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
         fetch('https://anti-tabak.g9nhprpvgm.workers.dev', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: historyForAI })
+          body: JSON.stringify({ messages: historyForAI }),
+          signal: controller.signal
         })
-        .then(response => response.json())
+        .then(response => {
+          clearTimeout(timeoutId);
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
         .then(data => {
           hideTyping();
           if (data.choices && data.choices[0] && data.choices[0].message) {
@@ -1176,9 +1185,14 @@
           }
         })
         .catch(err => {
+          clearTimeout(timeoutId);
           hideTyping();
           console.error(err);
-          addMessage("Я пытаюсь сосредоточиться, но связь немного барахлит. Не мог бы ты повторить свой вопрос?", true, true);
+          if (err.name === 'AbortError') {
+            addMessage("Связь с сервером потерялась. Попробуй написать еще раз через минуту.", true, true);
+          } else {
+            addMessage("Я пытаюсь сосредоточиться, но связь немного барахлит. Не мог бы ты повторить свой вопрос?", true, true);
+          }
         });
       }
 
