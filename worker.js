@@ -15,6 +15,7 @@ export default {
     }
 
     try {
+      console.log("1. Начинаем авторизацию...");
       const authResponse = await fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
         method: 'POST',
         headers: {
@@ -26,15 +27,20 @@ export default {
         body: 'scope=GIGACHAT_API_PERS'
       });
 
-      const authData = await authResponse.json();
+      const authText = await authResponse.text();
+      console.log("2. Ответ авторизации:", authText);
+
+      let authData;
+      try { authData = JSON.parse(authText); } catch(e) { throw new Error("Ошибка парсинга авторизации: " + authText); }
+
       if (!authData.access_token) {
-        return new Response(JSON.stringify({ error: 'Auth failed', details: authData }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-        });
+        throw new Error("Нет токена. Ответ: " + authText);
       }
+      console.log("3. Токен получен!");
 
       const userBody = await request.json();
+      console.log("4. Отправляем запрос в GigaChat...");
+      
       const gigaResponse = await fetch('https://gigachat.devices.sberbank.ru/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -50,9 +56,10 @@ export default {
         })
       });
 
-      const gigaData = await gigaResponse.json();
+      const gigaText = await gigaResponse.text();
+      console.log("5. Ответ GigaChat:", gigaText);
 
-      return new Response(JSON.stringify(gigaData), {
+      return new Response(gigaText, {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -60,6 +67,7 @@ export default {
       });
 
     } catch (err) {
+      console.error("КРИТИЧЕСКАЯ ОШИБКА:", err.message);
       return new Response(JSON.stringify({ error: err.message }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
