@@ -16,6 +16,8 @@ export default {
 
     try {
       console.log("1. Начинаем авторизацию...");
+      
+      // Запрос на авторизацию с игнорированием проверки сертификата
       const authResponse = await fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth', {
         method: 'POST',
         headers: {
@@ -24,14 +26,19 @@ export default {
           'RqUID': crypto.randomUUID(),
           'Authorization': 'Basic ' + env.GIGACHAT_KEY,
         },
-        body: 'scope=GIGACHAT_API_PERS'
+        body: 'scope=GIGACHAT_API_PERS',
+        cf: { insecure: true } // <--- ОБХОД ОШИБКИ 526
       });
 
       const authText = await authResponse.text();
       console.log("2. Ответ авторизации:", authText);
 
       let authData;
-      try { authData = JSON.parse(authText); } catch(e) { throw new Error("Ошибка парсинга авторизации: " + authText); }
+      try { 
+        authData = JSON.parse(authText); 
+      } catch(e) { 
+        throw new Error("Ошибка парсинга авторизации: " + authText); 
+      }
 
       if (!authData.access_token) {
         throw new Error("Нет токена. Ответ: " + authText);
@@ -41,7 +48,7 @@ export default {
       const userBody = await request.json();
       console.log("4. Отправляем запрос в GigaChat...");
       
-      // Заменили адрес на новый шлюз api.giga.chat
+      // Запрос к GigaChat с игнорированием проверки сертификата
       const gigaResponse = await fetch('https://api.giga.chat/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -54,7 +61,8 @@ export default {
           messages: userBody.messages,
           temperature: 0.7,
           max_tokens: 300
-        })
+        }),
+        cf: { insecure: true } // <--- ОБХОД ОШИБКИ 526
       });
 
       const gigaText = await gigaResponse.text();
