@@ -80,7 +80,6 @@
       padding: 20px;
     }
 
-    /* Картинка 2.png на экране запуска (без затемнений) */
     .hero-art img {
       width: 95%;
       max-width: 450px;
@@ -94,7 +93,6 @@
       position: relative;
       z-index: 2;
       padding: 32px 24px 60px;
-      /* Убрали темный градиент, оставили только легкую подложку внизу для контраста */
       background: linear-gradient(180deg, transparent, rgba(15,23,42,0.7) 40%);
       display: flex;
       flex-direction: column;
@@ -108,7 +106,7 @@
       gap: 8px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(15,23,42,0.7); /* Сделали темнее для контраста на светлом фоне */
+      background: rgba(15,23,42,0.7);
       border: 1px solid rgba(34,197,94,0.5);
       color: var(--accent-2);
       font-size: 13px;
@@ -127,16 +125,16 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* Тень для читаемости */
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .hero-subtitle {
       font-size: 16px;
       line-height: 1.55;
-      color: #fff; /* Сделали текст белым для контраста */
+      color: #fff;
       opacity: 0.9;
       margin-bottom: 28px;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.8); /* Тень для читаемости */
+      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
     }
 
     .btn {
@@ -249,12 +247,19 @@
 
     .section-title { font-size: 12px; text-transform: uppercase; color: var(--text-dim); font-weight: 700; margin: 18px 4px 10px; display: flex; justify-content: space-between; }
 
-    .milestone { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; }
-    .milestone.done { border-color: rgba(34,197,94,0.5); background: linear-gradient(135deg, rgba(34,197,94,0.12), var(--card)); }
-    .ms-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.12); }
-    .ms-time { font-size: 13px; font-weight: 700; color: #fff; }
-    .ms-desc { font-size: 12px; color: var(--text-dim); }
+    /* ВЕХИ (ЗАЧЕРКИВАНИЕ) */
+    .milestone { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; transition: all 0.3s; }
+    .milestone.done { opacity: 0.6; border-color: rgba(34,197,94,0.3); background: rgba(30,41,59,0.4); }
+    .milestone.done .ms-time { text-decoration: line-through; color: var(--text-dim); }
+    .milestone.done .ms-icon { filter: grayscale(1); }
+    .milestone.done .ms-arg { color: var(--text-dim); }
+    
+    .ms-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(148,163,184,0.12); font-size: 18px; }
+    .ms-time { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .ms-desc { font-size: 12px; color: var(--text-dim); line-height: 1.3; margin-bottom: 4px; }
+    .ms-arg { font-size: 11px; color: var(--accent-2); font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
+    /* ЗАДАНИЯ */
     .task { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
     .task.completed { border-color: rgba(34,197,94,0.5); opacity: 0.7; }
     .task-check { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; background: rgba(15,23,42,0.5); cursor: pointer; }
@@ -269,6 +274,7 @@
     .task-progress-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.5s; }
     .task-progress-status { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
 
+    /* МАГАЗИН */
     .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .shop-item { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .shop-emoji { font-size: 32px; margin-bottom: 8px; }
@@ -277,6 +283,7 @@
     .shop-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; background: rgba(34,197,94,0.15); color: var(--accent-2); font-weight: 700; font-size: 12px; cursor: pointer; }
     .shop-btn:disabled { background: rgba(148,163,184,0.1); color: #475569; }
 
+    /* НИЖНЯЯ ПАНЕЛЬ */
     .tabs {
       position: absolute; bottom: 0; left: 0; right: 0;
       display: flex; gap: 4px;
@@ -286,12 +293,37 @@
     }
     .tab-btn { flex: 1; padding: 8px 4px; border-radius: 10px; border: none; background: transparent; color: var(--text-dim); font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .tab-btn.active { background: rgba(34,197,94,0.15); color: var(--accent-2); }
+    
+    /* Кнопка ДЫШИ */
+    .btn-breathe {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #04140a;
+      box-shadow: 0 0 15px rgba(34,197,94,0.6);
+      animation: pulseBreathe 2s infinite;
+    }
+    @keyframes pulseBreathe {
+      0% { transform: scale(1); box-shadow: 0 0 10px rgba(34,197,94,0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(34,197,94,0.8); }
+      100% { transform: scale(1); box-shadow: 0 0 10px rgba(34,197,94,0.4); }
+    }
 
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    /* МОДАЛКИ */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-backdrop.show { opacity: 1; pointer-events: auto; }
     .modal-card { background: linear-gradient(160deg, #1e293b, #0f2a1e); border: 1px solid rgba(34,197,94,0.4); border-radius: 20px; padding: 24px 20px; max-width: 360px; width: 100%; text-align: center; }
     .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
     .modal-text { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
+
+    /* ЧАТ ПОМОЩНИКА */
+    .chat-container { display: flex; flex-direction: column; height: 60vh; max-height: 400px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
+    .chat-messages::-webkit-scrollbar { display: none; }
+    .msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.4; }
+    .msg.ai { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #fff; align-self: flex-start; border-bottom-left-radius: 2px; }
+    .msg.user { background: rgba(56,189,248,0.2); border: 1px solid rgba(56,189,248,0.4); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-input-row input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); background: rgba(15,23,42,0.6); color: #fff; font-size: 14px; outline: none; }
+    .chat-input-row button { width: 46px; height: 46px; border-radius: 12px; border: none; background: var(--accent); color: #000; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     .toast { 
       position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.9); 
@@ -458,14 +490,17 @@
       </div>
     </div>
 
+    <!-- НИЖНЯЯ ПАНЕЛЬ С КНОПКОЙ ДЫШИ -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="progress"><span style="font-size:16px;">📊</span>Прогресс</button>
       <button class="tab-btn" data-tab="tasks"><span style="font-size:16px;">✅</span>Задания</button>
+      <button class="tab-btn btn-breathe" id="breathe-modal-btn" style="flex: 0.8; margin: 0 4px; color: #000; border-radius: 12px;"><span style="font-size:16px;">🌿</span>Дыши</button>
       <button class="tab-btn" data-tab="shop"><span style="font-size:16px;">🛍️</span>Магазин</button>
       <button class="tab-btn" data-tab="games"><span style="font-size:16px;">🎮</span>Игры</button>
     </div>
   </main>
 
+  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ ЗАДАНИЙ -->
   <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
       <div class="modal-title">Подтверди действие</div>
@@ -473,6 +508,27 @@
       <input type="text" id="verify-input" placeholder="Например, 42" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; font-size:16px; text-align:center; margin-bottom:16px; outline:none;" />
       <button class="btn btn-primary" id="verify-submit" type="button">Подтвердить</button>
       <button class="btn btn-ghost" id="verify-cancel" type="button" style="margin-top:8px;">Отмена</button>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ДЫШИ (ЧАТ) -->
+  <div class="modal-backdrop" id="breathe-modal">
+    <div class="modal-card" style="padding: 16px;">
+      <div class="modal-title" style="margin-bottom: 4px;">🌿 Дыши</div>
+      <div class="modal-text" style="margin-bottom: 12px; font-size: 12px;">Твой личный помощник по борьбе с тягой.</div>
+      
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg ai">Привет! Я здесь, чтобы поддержать тебя. Если чувствуешь тягу, просто напиши мне "хочу курить" или "тяжело".</div>
+        </div>
+        
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Напиши мне..." autocomplete="off" />
+          <button id="chat-send">➤</button>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" id="breathe-close" type="button" style="margin-top: 12px; padding: 12px;">Закрыть</button>
     </div>
   </div>
 
@@ -498,17 +554,28 @@
 
     function peoplePassed(days) { return Math.floor(days * 24 * 2); }
 
+    // ОБНОВЛЕННЫЕ ВЕХИ С АРГУМЕНТАМИ
     var MILESTONES = [
-      { ms: 20 * 60 * 1000,  title: '20 минут', icon: '❤️', desc: 'Пульс и давление приходят в норму.' },
-      { ms: 8 * HOUR,        title: '8 часов', icon: '🫁', desc: 'Уровень угарного газа падает вдвое.' },
-      { ms: 24 * HOUR,       title: '24 часа', icon: '🚭', desc: 'Никотин начинает выводиться.' },
-      { ms: 48 * HOUR,       title: '48 часов', icon: '👃', desc: 'Возвращаются вкус и обоняние.' },
-      { ms: 72 * HOUR,       title: '72 часа', icon: '⚡', desc: 'Никотин полностью выведен.' },
-      { ms: 7 * DAY,         title: '1 неделя', icon: '🌟', desc: 'Вкусовые рецепторы работают лучше.' },
-      { ms: 30 * DAY,        title: '1 месяц', icon: '🌿', desc: 'Функция лёгких восстанавливается.' },
-      { ms: 90 * DAY,        title: '3 месяца', icon: '🦵', desc: 'Объём лёгких увеличивается до 10%.' },
-      { ms: 180 * DAY,       title: '6 месяцев', icon: '🌳', desc: 'Иммунитет крепче.' },
-      { ms: 365 * DAY,       title: '1 год', icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.' }
+      { ms: 20 * 60 * 1000,  title: '20 минут', icon: '❤️', desc: 'Пульс и давление приходят в норму.', arg: 'Сердце начинает отдыхать' },
+      { ms: 8 * HOUR,        title: '8 часов', icon: '🫁', desc: 'Уровень угарного газа падает вдвое.', arg: 'Кислород питает каждую клетку' },
+      { ms: 24 * HOUR,       title: '24 часа', icon: '🚭', desc: 'Никотин начинает выводиться.', arg: 'Риск инфаркта снижается' },
+      { ms: 48 * HOUR,       title: '48 часов', icon: '👃', desc: 'Возвращаются вкус и обоняние.', arg: 'Еда снова становится вкусной' },
+      { ms: 72 * HOUR,       title: '72 часа', icon: '⚡', desc: 'Никотин полностью выведен.', arg: 'Организм чист от токсинов' },
+      { ms: 5 * DAY,         title: '5 дней', icon: '😴', desc: 'Сон глубже, утренний кашель уходит.', arg: 'Просыпаться стало легче' },
+      { ms: 7 * DAY,         title: '1 неделя', icon: '🌟', desc: 'Вкусовые рецепторы работают лучше.', arg: 'Возвращается радость жизни' },
+      { ms: 10 * DAY,        title: '10 дней', icon: '💪', desc: 'Кровообращение заметно улучшилось.', arg: 'Больше энергии на спорт' },
+      { ms: 14 * DAY,        title: '2 недели', icon: '🏃', desc: 'Одышка при ходьбе уходит.', arg: 'Легкие начинают очищаться' },
+      { ms: 21 * DAY,        title: '3 недели', icon: '🧘', desc: 'Психологическая тяга слабеет.', arg: 'Новые привычки закрепляются' },
+      { ms: 30 * DAY,        title: '1 месяц', icon: '🌿', desc: 'Функция лёгких улучшается на 30%.', arg: 'Кашель курильщика уходит' },
+      { ms: 45 * DAY,        title: '1,5 месяца', icon: '🫀', desc: 'Артериальное давление стабилизируется.', arg: 'Сердечно-сосудистая система крепнет' },
+      { ms: 60 * DAY,        title: '2 месяца', icon: '🔥', desc: 'Кожа становится свежее.', arg: 'Улучшается внешний вид' },
+      { ms: 75 * DAY,        title: '2,5 месяца', icon: '🦵', desc: 'Объём лёгких увеличивается до 10%.', arg: 'Легче переносить физнагрузки' },
+      { ms: 90 * DAY,        title: '3 месяца', icon: '🏊', desc: 'Иммунитет становится крепче.', arg: 'Меньше простуд и болезней' },
+      { ms: 120 * DAY,       title: '4 месяца', icon: '🛌', desc: 'Сон глубокий и стабильный.', arg: 'Продуктивность растет' },
+      { ms: 150 * DAY,       title: '5 месяцев', icon: '🏋️', desc: 'Мышечный тонус растёт.', arg: 'Тело становится сильнее' },
+      { ms: 180 * DAY,       title: '6 месяцев', icon: '🌳', desc: 'Функция лёгких улучшается на 10% и более.', arg: 'Дышать становится легко' },
+      { ms: 270 * DAY,       title: '9 месяцев', icon: '🫧', desc: 'Реснички в лёгких восстановились.', arg: 'Организм сам очищает дыхательные пути' },
+      { ms: 365 * DAY,       title: '1 год', icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.', arg: 'Вы обошли миллионы курильщиков' }
     ];
 
     var TASKS = [
@@ -535,14 +602,12 @@
         return parsed;
       } catch (e) { return null; } 
     }
-    
     function saveData(data) { 
       try { 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); 
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch (e) { console.warn('Не удалось сохранить', e); } 
+      } catch (e) { } 
     }
-    
     function clearData() { 
       try { 
         localStorage.removeItem(STORAGE_KEY); 
@@ -633,6 +698,7 @@
       renderTasks();
       initBubbles();
       initMemory();
+      initChat();
       updateAll();
       
       if (tickInterval) clearInterval(tickInterval);
@@ -641,6 +707,7 @@
 
     $$('.tab-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
+        if (btn.id === 'breathe-modal-btn') return;
         var tab = btn.dataset.tab;
         $$('.tab-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
         $$('.tab-content').forEach(function (c) { c.classList.add('hidden'); });
@@ -654,7 +721,13 @@
       MILESTONES.forEach(function (m) {
         var el = document.createElement('div');
         el.className = 'milestone';
-        el.innerHTML = '<div class="ms-icon">' + m.icon + '</div><div><div class="ms-time">' + m.title + '</div><div class="ms-desc">' + m.desc + '</div></div>';
+        el.innerHTML = 
+          '<div class="ms-icon">' + m.icon + '</div>' +
+          '<div>' +
+            '<div class="ms-time">' + m.title + '</div>' +
+            '<div class="ms-desc">' + m.desc + '</div>' +
+            '<div class="ms-arg">✨ ' + m.arg + '</div>' +
+          '</div>';
         container.appendChild(el);
       });
     }
@@ -687,7 +760,17 @@
       if (next) {
         $('#goal-text').textContent = next.desc;
         $('#goal-countdown').innerHTML = 'Осталось: <strong>' + formatDuration(next.ms - elapsed) + '</strong>';
+      } else {
+        $('#goal-text').textContent = 'Все цели достигнуты! Ты невероятен.';
+        $('#goal-countdown').innerHTML = '';
       }
+
+      // ЗАЧЕРКИВАЕМ ПРОЙДЕННЫЕ ЦЕЛИ
+      var nodes = $$('#milestones-container .milestone');
+      nodes.forEach(function(node, idx) {
+        if (elapsed >= MILESTONES[idx].ms) node.classList.add('done');
+        else node.classList.remove('done');
+      });
 
       updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
     }
@@ -956,6 +1039,79 @@
       }
     }
 
+    /* =========================================================
+       ЧАТ ПОМОЩНИК "ДЫШИ"
+       ========================================================= */
+    function initChat() {
+      var chatBtn = $('#breathe-modal-btn');
+      var modal = $('#breathe-modal');
+      var closeBtn = $('#breathe-close');
+      var input = $('#chat-input');
+      var sendBtn = $('#chat-send');
+      var messages = $('#chat-messages');
+
+      chatBtn.addEventListener('click', function() {
+        modal.classList.add('show');
+        input.focus();
+      });
+
+      closeBtn.addEventListener('click', function() {
+        modal.classList.remove('show');
+      });
+
+      function addMessage(text, isAi) {
+        var div = document.createElement('div');
+        div.className = 'msg ' + (isAi ? 'ai' : 'user');
+        div.textContent = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function getAiReply(text) {
+        text = text.toLowerCase();
+        if (text.includes('курить') || text.includes('тяга') || text.includes('хочу')) {
+          return "Тяга длится всего 3-5 минут. Выпей стакан воды, сделай 5 глубоких вдохов или открой игру «Лопай пузыри». Ты сильнее этого!";
+        }
+        if (text.includes('сорвался') || text.includes('плохо') || text.includes('тяжело')) {
+          return "Срывы случаются, это не конец. Главное — не ругай себя. Завтра новый день, и ты снова начнешь дышать свободно. Я верю в тебя!";
+        }
+        if (text.includes('привет') || text.includes('здравствуй')) {
+          return "Привет! Рад тебя видеть. Как ты себя чувствуешь сегодня? Есть тяга?";
+        }
+        if (text.includes('молодец') || text.includes('спасибо')) {
+          return "Всегда пожалуйста! Твоя сила воли впечатляет. Продолжай в том же духе!";
+        }
+        var replies = [
+          "Каждый час без сигарет — это победа. Ты делаешь огромное дело для своего здоровья!",
+          "Твои легкие сейчас очищаются. Представь, как они говорят тебе спасибо!",
+          "Помни, ради чего ты начал. Ради здоровья, денег и свободы. Ты справишься.",
+          "Сделай глубокий вдох прямо сейчас. Чувствуешь, как легко дышать? Это твоя награда."
+        ];
+        return replies[Math.floor(Math.random() * replies.length)];
+      }
+
+      function sendMessage() {
+        var val = input.value.trim();
+        if (!val) return;
+        addMessage(val, false);
+        input.value = '';
+        
+        // Эмуляция задержки ответа
+        setTimeout(function() {
+          var reply = getAiReply(val);
+          addMessage(reply, true);
+        }, 600);
+      }
+
+      sendBtn.addEventListener('click', sendMessage);
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+      });
+    }
+
+    /* =========================================================
+       НАСТРОЙКИ / СБРОС
+       ========================================================= */
     $('#reset-btn').addEventListener('click', function() { $('#settings-modal').classList.add('show'); });
     $('#close-settings').addEventListener('click', function() { $('#settings-modal').classList.remove('show'); });
     $('#reset-btn-modal').addEventListener('click', function () { if (confirm('Сбросить?')) { clearData(); location.reload(); } });
