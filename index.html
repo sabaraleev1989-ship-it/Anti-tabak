@@ -931,14 +931,14 @@
               showToast('🏃 1000 метров пройдено! +1 💎');
             }
           },
-          function(err) { statusEl.textContent = 'Ошибcloseка GPS: ' + err-s.message; statusEl.style.color =ettings 'var(--danger)';'). },
-          { enableHighAccuracy: true,add timeout: 15000, maximumAge: 0 }
+          function(err) { statusEl.textContent = 'Ошибка GPS: ' + err.message; statusEl.style.color = 'var(--danger)'; },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       });
 
       stopBtn.addEventListener('click', function() {
         if (walkWatchId !== null) navigator.geolocation.clearWatch(walkWatchId);
-        walkWatchId = null;EventListener walkLastPos = null;
+        walkWatchId = null; walkLastPos = null;
         startBtn.classList.remove('hidden'); stopBtn.classList.add('hidden');
         statusEl.textContent = 'Трекинг остановлен. Пройдено ' + Math.round(walkDistance) + ' м.';
         statusEl.style.color = 'var(--text-dim)';
@@ -1078,9 +1078,6 @@
       }
     }
 
-    /* =========================================================
-       УМНЫЙ ЧАТ-ПОМОЩНИК "ДЫШИ" (GigaChat)
-       ========================================================= */
     function initChat() {
       var chatBtn = $('#breathe-modal-btn');
       var modal = $('#breathe-modal');
@@ -1191,11 +1188,8 @@
       });
     }
 
-    /* =========================================================
-       НАСТРОЙКИ / СБРОС
-       ========================================================= */
     $('#reset-btn').addEventListener('click', function() { $('#settings-modal').classList.add('show'); });
-    $('#('click', function() { $('#settings-modal').classList.remove('show'); });
+    $('#close-settings').addEventListener('click', function() { $('#settings-modal').classList.remove('show'); });
     $('#reset-btn-modal').addEventListener('click', function () { if (confirm('Сбросить?')) { clearData(); location.reload(); } });
 
     $('#export-btn').addEventListener('click', function () {
