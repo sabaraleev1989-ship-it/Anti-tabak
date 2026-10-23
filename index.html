@@ -194,6 +194,13 @@
     }
     .btn-ghost:hover { background: rgba(148,163,184,0.2); }
 
+    .btn-small {
+      width: auto;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 12px;
+    }
+
     #form-step { animation: fadeUp 0.5s ease both; }
 
     .field { margin-bottom: 18px; }
@@ -418,8 +425,18 @@
       color: var(--text-dim);
       font-weight: 700;
       margin: 28px 4px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title .counter {
+      font-size: 12px;
+      color: var(--accent-2);
+      text-transform: none;
+      letter-spacing: 0;
     }
 
+    /* ---- Вехи ---- */
     .milestone {
       background: var(--card);
       border: 1px solid var(--card-border);
@@ -490,12 +507,267 @@
       white-space: nowrap;
     }
     .ms-status.done { background: rgba(34,197,94,0.2); color: var(--accent-2); }
-    .ms-status.progress { background: rgba(251,191,36,0.15); color: #fbbf24; }
     .ms-status.pending { background: rgba(148,163,184,0.12); color: var(--text-dim); }
 
     .ms-desc { font-size: 14px; line-height: 1.5; color: var(--text-dim); }
     .ms-desc strong { color: var(--text); }
 
+    /* ---- Вкладки ---- */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(15,23,42,0.5);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      color: #04140a;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    /* ---- Задания ---- */
+    .task {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      backdrop-filter: blur(10px);
+      transition: border-color 0.3s, background 0.3s, transform 0.15s;
+    }
+    .task:hover { border-color: rgba(148,163,184,0.3); }
+    .task.completed {
+      border-color: rgba(34,197,94,0.5);
+      background: linear-gradient(135deg, rgba(34,197,94,0.1), var(--card));
+    }
+    .task.completed .task-text { text-decoration: line-through; color: var(--text-dim); }
+
+    .task-check {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      border: 2px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 16px;
+      color: transparent;
+      background: rgba(15,23,42,0.5);
+      margin-top: 2px;
+    }
+    .task-check:hover { border-color: var(--accent); }
+    .task.completed .task-check {
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      border-color: var(--accent);
+      color: #04140a;
+    }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .task-hint {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+    .task-cat {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-top: 8px;
+      background: rgba(56,189,248,0.15);
+      color: #38bdf8;
+    }
+
+    .tasks-summary {
+      background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(34,197,94,0.1));
+      border: 1px solid rgba(56,189,248,0.3);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .tasks-summary-text {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .tasks-summary-text strong { color: var(--accent-2); }
+    .reset-tasks-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-dim);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .reset-tasks-btn:hover { background: rgba(148,163,184,0.15); color: var(--text); }
+
+    /* ---- Мини-игры ---- */
+    .game-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .game-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .game-emoji { font-size: 26px; }
+    .game-name { font-size: 17px; font-weight: 700; color: #fff; }
+    .game-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* Дыхательное упражнение */
+    .breath-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+    .breath-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74,222,128,0.3), rgba(34,197,94,0.1));
+      border: 2px solid rgba(74,222,128,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-2);
+      transition: transform 4s ease-in-out;
+      margin-bottom: 20px;
+      box-shadow: 0 0 60px rgba(34,197,94,0.3);
+    }
+    .breath-circle.inhale { transform: scale(1.5); transition: transform 4s ease-in-out; }
+    .breath-circle.exhale { transform: scale(1); transition: transform 4s ease-in-out; }
+    .breath-circle.hold  { transform: scale(1.5); transition: transform 4s ease-in-out; }
+    .breath-info {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+
+    /* Игра «Пузырьки» — лопай пузыри, чтобы отвлечься */
+    #bubble-game-area {
+      position: relative;
+      height: 260px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 120%, rgba(56,189,248,0.15), rgba(15,23,42,0.8));
+      border: 1px solid var(--card-border);
+      margin-bottom: 12px;
+      cursor: crosshair;
+      user-select: none;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: transform 0.1s;
+      animation: bubbleFloat linear infinite;
+      user-select: none;
+    }
+    .bubble:active { transform: scale(0.8); }
+    @keyframes bubbleFloat {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to   { transform: translateY(-300px) scale(1.1); opacity: 0; }
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .game-stats strong { color: var(--accent-2); font-size: 16px; }
+
+    /* Игра «Память» — парные карточки */
+    #memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .mem-card {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15));
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      user-select: none;
+    }
+    .mem-card:hover { transform: scale(1.05); }
+    .mem-card.flipped {
+      background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2));
+      border-color: rgba(34,197,94,0.5);
+    }
+    .mem-card.matched {
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      border-color: var(--accent);
+      cursor: default;
+    }
+    .mem-card.matched:hover { transform: none; }
+
+    /* ---- Тост и конфетти ---- */
     .confetti-piece {
       position: fixed;
       width: 10px; height: 10px;
@@ -540,6 +812,7 @@
       .time-num { font-size: 22px; }
       .progress-ring-wrap { width: 170px; height: 170px; }
       .ring-percent { font-size: 36px; }
+      .tab-btn { font-size: 12px; padding: 10px 4px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -604,45 +877,130 @@
       <button class="reset-btn" id="reset-btn" title="Сбросить данные" type="button">⚙︎</button>
     </div>
 
-    <div class="timer-card">
-      <div class="progress-ring-wrap">
-        <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#4ade80" />
-              <stop offset="100%" stop-color="#22c55e" />
-            </linearGradient>
-          </defs>
-          <circle class="track" cx="100" cy="100" r="88" />
-          <circle class="fill" id="ring-fill" cx="100" cy="100" r="88"
-                  stroke-dasharray="552.92" stroke-dashoffset="552.92" />
-        </svg>
-        <div class="ring-center">
-          <div class="ring-percent" id="health-percent">0%</div>
-          <div class="ring-label">Здоровье</div>
+    <!-- Вкладки -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="progress" type="button">📊 Прогресс</button>
+      <button class="tab-btn" data-tab="tasks" type="button">✅ Задания</button>
+      <button class="tab-btn" data-tab="games" type="button">🎮 Игры</button>
+    </div>
+
+    <!-- ============ ВКЛАДКА: ПРОГРЕСС ============ -->
+    <div id="tab-progress">
+      <div class="timer-card">
+        <div class="progress-ring-wrap">
+          <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4ade80" />
+                <stop offset="100%" stop-color="#22c55e" />
+              </linearGradient>
+            </defs>
+            <circle class="track" cx="100" cy="100" r="88" />
+            <circle class="fill" id="ring-fill" cx="100" cy="100" r="88"
+                    stroke-dasharray="552.92" stroke-dashoffset="552.92" />
+          </svg>
+          <div class="ring-center">
+            <div class="ring-percent" id="health-percent">0%</div>
+            <div class="ring-label">Здоровье</div>
+          </div>
+        </div>
+
+        <div class="timer-display" id="timer-display">
+          <div class="time-cell"><div class="time-num" id="t-days">0</div><div class="time-unit">дней</div></div>
+          <div class="time-cell"><div class="time-num" id="t-hours">0</div><div class="time-unit">часов</div></div>
+          <div class="time-cell"><div class="time-num" id="t-minutes">0</div><div class="time-unit">минут</div></div>
+          <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
         </div>
       </div>
 
-      <div class="timer-display" id="timer-display">
-        <div class="time-cell"><div class="time-num" id="t-days">0</div><div class="time-unit">дней</div></div>
-        <div class="time-cell"><div class="time-num" id="t-hours">0</div><div class="time-unit">часов</div></div>
-        <div class="time-cell"><div class="time-num" id="t-minutes">0</div><div class="time-unit">минут</div></div>
-        <div class="time-cell"><div class="time-num" id="t-seconds">0</div><div class="time-unit">секунд</div></div>
+      <div class="goal-card">
+        <div class="goal-head">
+          <span class="goal-icon" id="goal-icon">🎯</span>
+          <span class="goal-title" id="goal-title">Ближайшая цель</span>
+        </div>
+        <div class="goal-text" id="goal-text">Загрузка…</div>
+        <div class="goal-countdown" id="goal-countdown"></div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="goal-progress" style="width:0%"></div></div>
       </div>
+
+      <div class="section-title">
+        <span>Что происходит с организмом</span>
+        <span class="counter" id="milestones-counter"></span>
+      </div>
+      <div id="milestones-container"></div>
     </div>
 
-    <div class="goal-card">
-      <div class="goal-head">
-        <span class="goal-icon" id="goal-icon">🎯</span>
-        <span class="goal-title" id="goal-title">Ближайшая цель</span>
+    <!-- ============ ВКЛАДКА: ЗАДАНИЯ ============ -->
+    <div id="tab-tasks" class="hidden">
+      <div class="tasks-summary">
+        <div class="tasks-summary-text" id="tasks-summary-text">
+          Выполнено заданий: <strong>0 из 0</strong>
+        </div>
+        <button class="reset-tasks-btn" id="reset-tasks-btn" type="button">↺ Сбросить выполненные</button>
       </div>
-      <div class="goal-text" id="goal-text">Загрузка…</div>
-      <div class="goal-countdown" id="goal-countdown"></div>
-      <div class="progress-bar"><div class="progress-bar-fill" id="goal-progress" style="width:0%"></div></div>
+
+      <div class="section-title">
+        <span>Отвлекись от тяги</span>
+      </div>
+      <div id="tasks-container"></div>
     </div>
 
-    <div class="section-title">Что происходит с организмом</div>
-    <div id="milestones-container"></div>
+    <!-- ============ ВКЛАДКА: ИГРЫ ============ -->
+    <div id="tab-games" class="hidden">
+      <div class="section-title"><span>Отвлекись и подыши</span></div>
+
+      <!-- Дыхательное упражнение -->
+      <div class="game-card">
+        <div class="game-head">
+          <span class="game-emoji">🌬️</span>
+          <span class="game-name">Дыхание 4-4-4</span>
+        </div>
+        <div class="game-desc">
+          Тяга длится всего 3–5 минут. Дыши вместе с кругом: вдох 4 секунды, задержка 4, выдох 4.
+          Это успокаивает нервную систему и снижает желание закурить.
+        </div>
+        <div class="breath-wrap">
+          <div class="breath-circle" id="breath-circle">Готов?</div>
+          <div class="breath-info" id="breath-info"></div>
+          <button class="btn btn-primary btn-small" id="breath-start" type="button">Начать дыхание</button>
+        </div>
+      </div>
+
+      <!-- Игра «Пузырьки» -->
+      <div class="game-card">
+        <div class="game-head">
+          <span class="game-emoji">🫧</span>
+          <span class="game-name">Лопай пузыри</span>
+        </div>
+        <div class="game-desc">
+          Лопай пузырьки, чтобы отвлечься от навязчивых мыслей. Каждый лопнувший пузырь — секунда свободы.
+        </div>
+        <div class="game-stats">
+          <span>Счёт: <strong id="bubble-score">0</strong></span>
+          <span>Рекорд: <strong id="bubble-best">0</strong></span>
+          <button class="btn btn-ghost btn-small" id="bubble-reset" type="button">Заново</button>
+        </div>
+        <div id="bubble-game-area"></div>
+        <div class="game-desc" style="text-align:center;margin:0;">Нажимай на пузыри — они лопаются</div>
+      </div>
+
+      <!-- Игра «Память» -->
+      <div class="game-card">
+        <div class="game-head">
+          <span class="game-emoji">🧠</span>
+          <span class="game-name">Память</span>
+        </div>
+        <div class="game-desc">
+          Найди все пары карточек. Тренировка внимания помогает переключить мозг с мыслей о сигарете.
+        </div>
+        <div class="game-stats">
+          <span>Ходы: <strong id="memory-moves">0</strong></span>
+          <span>Пары: <strong id="memory-pairs">0 / 8</strong></span>
+          <button class="btn btn-ghost btn-small" id="memory-reset" type="button">Заново</button>
+        </div>
+        <div id="memory-grid"></div>
+      </div>
+    </div>
 
     <p class="footer-note">
       Данные о восстановлении организма основаны на публичных материалах NHS, WHO и Helsenorge.<br />
@@ -655,18 +1013,58 @@
 
   <script>
     /* =========================================================
-       ДАННЫЕ ВЕХ
+       ДАННЫЕ ВЕХ (плотная сетка после 72 часов)
        ========================================================= */
+    var HOUR = 60 * 60 * 1000;
+    var DAY = 24 * HOUR;
+
     var MILESTONES = [
-      { ms: 20 * 60 * 1000,                title: '20 минут',   icon: '❤️', desc: 'Пульс и артериальное давление приходят в норму.' },
-      { ms: 8 * 60 * 60 * 1000,            title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа (CO) в крови падает вдвое, кислород возвращается к норме.' },
-      { ms: 24 * 60 * 60 * 1000,           title: '24 часа',    icon: '🚭', desc: 'Никотин начинает активно выводиться. Риск внезапного инфаркта снижается.' },
-      { ms: 48 * 60 * 60 * 1000,           title: '48 часов',   icon: '👃', desc: 'Организм освобождается от никотина. Возвращаются вкус и обоняние.' },
-      { ms: 72 * 60 * 60 * 1000,           title: '72 часа',    icon: '⚡', desc: 'Дышать становится легче. Уровень энергии растёт, никотин полностью выведен.' },
-      { ms: 14 * 24 * 60 * 60 * 1000,      title: '2 недели',   icon: '🏃', desc: 'Кровообращение улучшается, появляется больше сил для спорта и прогулок.' },
-      { ms: 30 * 24 * 60 * 60 * 1000,      title: '1 месяц',    icon: '🌿', desc: 'Кашель и одышка уменьшаются, функция лёгких начинает восстанавливаться.' },
-      { ms: 90 * 24 * 60 * 60 * 1000,      title: '3 месяца',   icon: '💪', desc: 'Объём лёгких увеличивается до 10%. Кашель курильщика почти уходит.' },
-      { ms: 365 * 24 * 60 * 60 * 1000,     title: '1 год',      icon: '🏆', desc: 'Риск ишемической болезни сердца снижается примерно вдвое по сравнению с курящими.' }
+      { ms: 20 * 60 * 1000,  title: '20 минут',   icon: '❤️', desc: 'Пульс и артериальное давление приходят в норму.' },
+      { ms: 8 * HOUR,        title: '8 часов',    icon: '🫁', desc: 'Уровень угарного газа (CO) в крови падает вдвое, кислород возвращается к норме.' },
+      { ms: 24 * HOUR,       title: '24 часа',    icon: '🚭', desc: 'Никотин начинает активно выводиться. Риск внезапного инфаркта снижается.' },
+      { ms: 48 * HOUR,       title: '48 часов',   icon: '👃', desc: 'Организм освобождается от никотина. Возвращаются вкус и обоняние.' },
+      { ms: 72 * HOUR,       title: '72 часа',    icon: '⚡', desc: 'Дышать становится легче. Уровень энергии растёт, никотин полностью выведен.' },
+      { ms: 4 * DAY,         title: '4 дня',      icon: '💧', desc: 'Никотин полностью выведен из организма. Тяга ослабевает с каждым часом.' },
+      { ms: 5 * DAY,         title: '5 дней',     icon: '😴', desc: 'Сон становится глубже, утренний кашель уменьшается.' },
+      { ms: 7 * DAY,         title: '1 неделя',   icon: '🌟', desc: 'Вкусовые и обонятельные рецепторы работают заметно лучше. Настроение стабилизируется.' },
+      { ms: 10 * DAY,        title: '10 дней',    icon: '💪', desc: 'Одышка при ходьбе уменьшается, кровообращение улучшается.' },
+      { ms: 14 * DAY,        title: '2 недели',   icon: '🏃', desc: 'Кровообращение улучшается, появляется больше сил для спорта и прогулок.' },
+      { ms: 21 * DAY,        title: '3 недели',   icon: '🧘', desc: 'Психологическая тяга заметно слабеет. Новые привычки закрепляются.' },
+      { ms: 30 * DAY,        title: '1 месяц',    icon: '🌿', desc: 'Кашель и одышка уменьшаются, функция лёгких начинает восстанавливаться.' },
+      { ms: 45 * DAY,        title: '1,5 месяца', icon: '🫀', desc: 'Артериальное давление стабилизируется, риск инфаркта снижается.' },
+      { ms: 60 * DAY,        title: '2 месяца',   icon: '🔥', desc: 'Энергия и выносливость растут. Кожа становится свежее.' },
+      { ms: 90 * DAY,        title: '3 месяца',   icon: '🦵', desc: 'Объём лёгких увеличивается до 10%. Кашель курильщика почти уходит.' },
+      { ms: 120 * DAY,       title: '4 месяца',   icon: '🛌', desc: 'Сон глубокий и стабильный. Утренняя усталость уходит.' },
+      { ms: 150 * DAY,       title: '5 месяцев',  icon: '🏋️', desc: 'Мышечный тонус растёт, физические нагрузки переносятся легче.' },
+      { ms: 180 * DAY,       title: '6 месяцев',  icon: '🌳', desc: 'Функция лёгких улучшается на 10% и более. Иммунитет крепче.' },
+      { ms: 270 * DAY,       title: '9 месяцев',  icon: '🫧', desc: 'Реснички в лёгких восстановились — они лучше очищают дыхательные пути.' },
+      { ms: 365 * DAY,       title: '1 год',      icon: '🏆', desc: 'Риск ишемической болезни сердца снижается примерно вдвое по сравнению с курящими.' }
+    ];
+
+    /* =========================================================
+       ЗАДАНИЯ
+       ========================================================= */
+    var TASKS = [
+      { id: 't1',  text: 'Выпей стакан воды маленькими глотками',           hint: 'Жажда часто маскируется под тягу к сигарете. Медленные глотки помогают переключиться.',      cat: 'Тело' },
+      { id: 't2',  text: 'Сделай 10 глубоких вдохов у открытого окна',        hint: 'Свежий воздух и глубокое дыхание снижают уровень тревожности за 1–2 минуты.',            cat: 'Дыхание' },
+      { id: 't3',  text: 'Пройди 500 шагов',                                 hint: 'Короткая прогулка переключает внимание и снижает тягу.',                                cat: 'Движение' },
+      { id: 't4',  text: 'Позвони или напиши близкому человеку',             hint: 'Поддержка близких — один из самых сильных инструментов против срыва.',                  cat: 'Общение' },
+      { id: 't5',  text: 'Почисти зубы или пожуй жвачку',                     hint: 'Свежесть во рту снижает желание закурить и меняет вкусовые ощущения.',                  cat: 'Гигиена' },
+      { id: 't6',  text: 'Съешь фрукт или овощ',                             hint: 'Замени сигарету полезным перекусом. Организм получит витамины вместо никотина.',        cat: 'Питание' },
+      { id: 't7',  text: 'Убери все зажигалки и пепельницы',                 hint: 'Убери триггеры с глаз долой — это снижает вероятность импульсивного срыва.',            cat: 'Среда' },
+      { id: 't8',  text: 'Помой посуду или протри стол',                      hint: 'Мелкая физическая активность отвлекает руки и ум от привычного ритуала.',              cat: 'Дом' },
+      { id: 't9',  text: 'Послушай любимую песню целиком',                    hint: 'Музыка переключает эмоции и снижает напряжение.',                                      cat: 'Настроение' },
+      { id: 't10', text: 'Сделай 20 приседаний',                              hint: 'Физическая нагрузка снимает стресс и уменьшает тягу.',                                  cat: 'Движение' },
+      { id: 't11', text: 'Запиши в дневник, что тебя беспокоит',             hint: 'Выплеснув мысли на бумагу, ты снижаешь их власть над собой.',                          cat: 'Психика' },
+      { id: 't12', text: 'Полий цветы или растение',                         hint: 'Забота о живом отвлекает и напоминает, зачем ты это делаешь.',                          cat: 'Забота' },
+      { id: 't13', text: 'Надень наушники и включи белый шум',               hint: 'Спокойный звук помогает успокоить нервную систему.',                                    cat: 'Расслабление' },
+      { id: 't14', text: 'Проверь, что съел за день (белок и витамины)',      hint: 'Дефицит белка усиливает тягу к сигаретам. Проверь рацион.',                            cat: 'Питание' },
+      { id: 't15', text: 'Сделай растяжку 3 минуты',                          hint: 'Растяжка снимает мышечное напряжение, связанное со стрессом.',                          cat: 'Тело' },
+      { id: 't16', text: 'Выйди на улицу и посмотри на небо',                 hint: 'Смена обстановки и вид неба снижают тревожность.',                                     cat: 'Среда' },
+      { id: 't17', text: 'Перечитай свою цель «почему я бросил»',            hint: 'Напоминание о мотивации укрепляет решимость.',                                          cat: 'Мотивация' },
+      { id: 't18', text: 'Не бери телефон 5 минут',                          hint: 'Короткая цифровая пауза снижает тревожный фон.',                                        cat: 'Расслабление' },
+      { id: 't19', text: 'Погладь кошку или собаку',                          hint: 'Контакт с животными снижает кортизол.',                                                cat: 'Забота' },
+      { id: 't20', text: 'Попробуй новый вкус: чай, специя, фрукт',          hint: 'Новые вкусы возвращают радость от еды и отвлекают от тяги.',                            cat: 'Питание' }
     ];
 
     /* =========================================================
@@ -691,6 +1089,7 @@
        УТИЛИТЫ
        ========================================================= */
     function $(sel) { return document.querySelector(sel); }
+    function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -790,28 +1189,14 @@
       var name = nameInput.value.trim();
       var quitDate = dateInput.value;
 
-      if (!name) {
-        showError('Пожалуйста, введи своё имя.');
-        nameInput.focus();
-        return;
-      }
-      if (!quitDate) {
-        showError('Укажи дату и время отказа от курения.');
-        dateInput.focus();
-        return;
-      }
+      if (!name) { showError('Пожалуйста, введи своё имя.'); nameInput.focus(); return; }
+      if (!quitDate) { showError('Укажи дату и время отказа от курения.'); dateInput.focus(); return; }
 
       var quitTs = new Date(quitDate).getTime();
-      if (isNaN(quitTs)) {
-        showError('Некорректная дата.');
-        return;
-      }
-      if (quitTs > Date.now()) {
-        showError('Дата отказа не может быть в будущем.');
-        return;
-      }
+      if (isNaN(quitTs)) { showError('Некорректная дата.'); return; }
+      if (quitTs > Date.now()) { showError('Дата отказа не может быть в будущем.'); return; }
 
-      saveData({ name: name, quitTs: quitTs, createdAt: Date.now() });
+      saveData({ name: name, quitTs: quitTs, createdAt: Date.now(), tasks: {}, reached: {}, bubbleBest: 0 });
       startApp({ name: name, quitTs: quitTs });
     });
 
@@ -825,32 +1210,39 @@
        ========================================================= */
     var state = null;
     var tickInterval = null;
-    var reachedMilestones = {};
-    var ringCircumference = 2 * Math.PI * 88; // ~552.92
+    var ringCircumference = 2 * Math.PI * 88;
 
     function startApp(data) {
       state = data;
+      if (!state.tasks) state.tasks = {};
+      if (!state.reached) state.reached = {};
+      if (typeof state.bubbleBest !== 'number') state.bubbleBest = 0;
 
       onboarding.classList.add('hidden');
       appMain.classList.remove('hidden');
 
       $('#user-greeting').textContent = 'Привет, ' + state.name + '!';
 
-      // Восстанавливаем уже достигнутые вехи из localStorage (чтобы не дублировать конфетти)
-      var saved = loadData();
-      reachedMilestones = {};
-      if (saved && saved.reached) {
-        for (var k in saved.reached) {
-          if (saved.reached.hasOwnProperty(k)) reachedMilestones[k] = true;
-        }
-      }
-
       renderMilestones();
+      renderTasks();
+      initMemoryGame();
       updateAll();
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
     }
 
+    /* ---- Вкладки ---- */
+    $$('.tab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tab = btn.dataset.tab;
+        $$('.tab-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+        $('#tab-progress').classList.toggle('hidden', tab !== 'progress');
+        $('#tab-tasks').classList.toggle('hidden', tab !== 'tasks');
+        $('#tab-games').classList.toggle('hidden', tab !== 'games');
+      });
+    });
+
+    /* ---- Вехи ---- */
     function renderMilestones() {
       var container = $('#milestones-container');
       container.innerHTML = '';
@@ -863,14 +1255,13 @@
           '<div class="ms-body">' +
             '<div class="ms-head">' +
               '<div class="ms-time">' + m.title + '</div>' +
-              '<div class="ms-status pending" data-status>' + 'впереди' + '</div>' +
+              '<div class="ms-status pending" data-status>впереди</div>' +
             '</div>' +
             '<div class="ms-desc">' + m.desc + '</div>' +
           '</div>';
         container.appendChild(el);
       });
 
-      // Анимация появления через IntersectionObserver
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
@@ -879,15 +1270,10 @@
               io.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.1 });
-
-        container.querySelectorAll('.milestone').forEach(function (el) {
-          io.observe(el);
-        });
+        }, { threshold: 0.05 });
+        container.querySelectorAll('.milestone').forEach(function (el) { io.observe(el); });
       } else {
-        container.querySelectorAll('.milestone').forEach(function (el) {
-          el.classList.add('visible');
-        });
+        container.querySelectorAll('.milestone').forEach(function (el) { el.classList.add('visible'); });
       }
     }
 
@@ -909,37 +1295,25 @@
       $('#t-minutes').textContent = pad(minutes);
       $('#t-seconds').textContent = pad(seconds);
 
-      // Процент здоровья
-      var daysFloat = elapsed / (24 * 60 * 60 * 1000);
+      var daysFloat = elapsed / DAY;
       var percent = healthPercent(daysFloat);
       var percentInt = Math.floor(percent);
       $('#health-percent').textContent = percentInt + '%';
 
-      // Кольцо
       var offset = ringCircumference - (percent / 100) * ringCircumference;
       $('#ring-fill').setAttribute('stroke-dashoffset', offset.toFixed(2));
 
-      // Градиент фона по прогрессу
-      if (percent >= 50) {
-        document.body.setAttribute('data-progress', 'advanced');
-      } else {
-        document.body.removeAttribute('data-progress');
-      }
+      if (percent >= 50) document.body.setAttribute('data-progress', 'advanced');
+      else document.body.removeAttribute('data-progress');
 
-      // Ближайшая цель
       updateNextGoal(elapsed);
-
-      // Обновление статусов вех
       updateMilestonesStatus(elapsed);
     }
 
     function updateNextGoal(elapsed) {
       var next = null;
       for (var i = 0; i < MILESTONES.length; i++) {
-        if (elapsed < MILESTONES[i].ms) {
-          next = MILESTONES[i];
-          break;
-        }
+        if (elapsed < MILESTONES[i].ms) { next = MILESTONES[i]; break; }
       }
 
       var goalText = $('#goal-text');
@@ -964,7 +1338,6 @@
       var remaining = next.ms - elapsed;
       goalCountdown.innerHTML = 'Осталось: <strong>' + formatDuration(remaining) + '</strong>';
 
-      // Прогресс к следующей цели — считаем от предыдущей вехи
       var prevMs = 0;
       for (var j = 0; j < MILESTONES.length; j++) {
         if (MILESTONES[j].ms === next.ms) {
@@ -979,7 +1352,8 @@
     }
 
     function updateMilestonesStatus(elapsed) {
-      var nodes = document.querySelectorAll('#milestones-container .milestone');
+      var nodes = $$('#milestones-container .milestone');
+      var doneCount = 0;
       nodes.forEach(function (node) {
         var idx = parseInt(node.dataset.idx, 10);
         var m = MILESTONES[idx];
@@ -987,18 +1361,14 @@
         var done = elapsed >= m.ms;
 
         if (done) {
+          doneCount++;
           node.classList.add('done');
           statusEl.className = 'ms-status done';
           statusEl.textContent = 'достигнуто';
 
-          if (!reachedMilestones[idx]) {
-            reachedMilestones[idx] = true;
-            var saved = loadData() || {};
-            saved.reached = saved.reached || {};
-            saved.reached[idx] = true;
-            saveData(saved);
-
-            // Поздравление + конфетти
+          if (!state.reached[idx]) {
+            state.reached[idx] = true;
+            saveData(state);
             if (elapsed > 0) {
               showToast('🎉 Достигнута веха: ' + m.title + '!');
               launchConfetti(idx >= 4 ? 90 : 50);
@@ -1010,6 +1380,296 @@
           statusEl.textContent = 'впереди';
         }
       });
+      var counter = $('#milestones-counter');
+      if (counter) counter.textContent = doneCount + ' / ' + MILESTONES.length;
+    }
+
+    /* ---- Задания ---- */
+    function renderTasks() {
+      var container = $('#tasks-container');
+      container.innerHTML = '';
+      TASKS.forEach(function (task) {
+        var el = document.createElement('div');
+        var isDone = !!state.tasks[task.id];
+        el.className = 'task' + (isDone ? ' completed' : '');
+        el.dataset.id = task.id;
+        el.innerHTML =
+          '<div class="task-check" data-check>✓</div>' +
+          '<div class="task-body">' +
+            '<div class="task-text">' + task.text + '</div>' +
+            '<div class="task-hint">' + task.hint + '</div>' +
+            '<span class="task-cat">' + task.cat + '</span>' +
+          '</div>';
+        container.appendChild(el);
+
+        el.querySelector('[data-check]').addEventListener('click', function () {
+          toggleTask(task.id, el);
+        });
+      });
+      updateTasksSummary();
+    }
+
+    function toggleTask(id, el) {
+      if (state.tasks[id]) {
+        delete state.tasks[id];
+        el.classList.remove('completed');
+      } else {
+        state.tasks[id] = Date.now();
+        el.classList.add('completed');
+        launchConfetti(20);
+      }
+      saveData(state);
+      updateTasksSummary();
+    }
+
+    function updateTasksSummary() {
+      var done = Object.keys(state.tasks).length;
+      var total = TASKS.length;
+      $('#tasks-summary-text').innerHTML = 'Выполнено заданий: <strong>' + done + ' из ' + total + '</strong>';
+    }
+
+    $('#reset-tasks-btn').addEventListener('click', function () {
+      if (confirm('Сбросить все выполненные задания?')) {
+        state.tasks = {};
+        saveData(state);
+        renderTasks();
+      }
+    });
+
+    /* ---- Дыхательное упражнение ---- */
+    var breathTimeout = null;
+    var breathActive = false;
+
+    $('#breath-start').addEventListener('click', function () {
+      if (breathActive) {
+        stopBreathing();
+        return;
+      }
+      startBreathing();
+    });
+
+    function startBreathing() {
+      breathActive = true;
+      this.textContent = 'Остановить';
+      var circle = $('#breath-circle');
+      var info = $('#breath-info');
+      var phases = [
+        { name: 'Вдох', cls: 'inhale', dur: 4000 },
+        { name: 'Задержка', cls: 'hold', dur: 4000 },
+        { name: 'Выдох', cls: 'exhale', dur: 4000 }
+      ];
+      var idx = 0;
+      var cycles = 0;
+
+      function nextPhase() {
+        if (!breathActive) return;
+        var p = phases[idx];
+        circle.textContent = p.name;
+        circle.className = 'breath-circle ' + p.cls;
+        info.textContent = 'Цикл ' + (cycles + 1) + ' · ' + p.name + ' · ' + (p.dur / 1000) + ' сек';
+        breathTimeout = setTimeout(function () {
+          idx = (idx + 1) % phases.length;
+          if (idx === 0) cycles++;
+          nextPhase();
+        }, p.dur);
+      }
+      nextPhase();
+    }
+
+    function stopBreathing() {
+      breathActive = false;
+      clearTimeout(breathTimeout);
+      var circle = $('#breath-circle');
+      circle.className = 'breath-circle';
+      circle.textContent = 'Готов?';
+      $('#breath-info').textContent = '';
+      $('#breath-start').textContent = 'Начать дыхание';
+    }
+
+    /* ---- Игра «Пузырьки» ---- */
+    var bubbleScore = 0;
+    var bubbleSpawner = null;
+    var bubbleArea = null;
+
+    function initBubbleGame() {
+      bubbleArea = $('#bubble-game-area');
+      bubbleScore = 0;
+      updateBubbleScore();
+
+      $('#bubble-reset').addEventListener('click', function () {
+        bubbleScore = 0;
+        updateBubbleScore();
+      });
+
+      // Клик по пузырю — лопнуть
+      bubbleArea.addEventListener('click', function (e) {
+        var bubble = e.target.closest('.bubble');
+        if (bubble) popBubble(bubble);
+      });
+
+      startBubbleSpawner();
+    }
+
+    function startBubbleSpawner() {
+      if (bubbleSpawner) clearInterval(bubbleSpawner);
+      bubbleSpawner = setInterval(function () {
+        if (document.hidden) return;
+        if (!bubbleArea) return;
+        spawnBubble();
+      }, 700);
+    }
+
+    function spawnBubble() {
+      var areaW = bubbleArea.clientWidth;
+      var areaH = bubbleArea.clientHeight;
+      if (!areaW || !areaH) return;
+
+      var size = 40 + Math.random() * 30;
+      var colors = [
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(56,189,248,0.6))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(34,197,94,0.6))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(251,191,36,0.6))',
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(244,114,182,0.6))'
+      ];
+      var bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = Math.random() * (areaW - size) + 'px';
+      bubble.style.bottom = '-60px';
+      bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
+      bubble.style.animationDuration = (3 + Math.random() * 2) + 's';
+      bubble.style.boxShadow = '0 0 20px rgba(56,189,248,0.4)';
+      bubbleArea.appendChild(bubble);
+
+      setTimeout(function () {
+        if (bubble.parentNode) bubble.remove();
+      }, 6000);
+    }
+
+    function popBubble(bubble) {
+      var rect = bubble.getBoundingClientRect();
+      var areaRect = bubbleArea.getBoundingClientRect();
+      var x = rect.left - areaRect.left + rect.width / 2;
+      var y = rect.top - areaRect.top + rect.height / 2;
+
+      // маленький всплеск
+      for (var i = 0; i < 6; i++) {
+        var p = document.createElement('div');
+        p.style.position = 'absolute';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        p.style.width = '6px';
+        p.style.height = '6px';
+        p.style.borderRadius = '50%';
+        p.style.background = bubble.style.background;
+        p.style.pointerEvents = 'none';
+        p.style.transition = 'transform 0.4s ease-out, opacity 0.4s';
+        bubbleArea.appendChild(p);
+        (function (el, dx, dy) {
+          requestAnimationFrame(function () {
+            el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            el.style.opacity = '0';
+          });
+          setTimeout(function () { el.remove(); }, 500);
+        })(p, (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80);
+      }
+
+      bubble.remove();
+      bubbleScore++;
+      updateBubbleScore();
+    }
+
+    function updateBubbleScore() {
+      $('#bubble-score').textContent = bubbleScore;
+      if (bubbleScore > (state.bubbleBest || 0)) {
+        state.bubbleBest = bubbleScore;
+        saveData(state);
+      }
+      $('#bubble-best').textContent = state.bubbleBest || 0;
+    }
+
+    /* ---- Игра «Память» ---- */
+    var memoryEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥'];
+    var memoryDeck = [];
+    var memoryFlipped = [];
+    var memoryMoves = 0;
+    var memoryMatched = 0;
+    var memoryLock = false;
+
+    function initMemoryGame() {
+      $('#memory-reset').addEventListener('click', function () {
+        resetMemoryGame();
+      });
+      resetMemoryGame();
+    }
+
+    function resetMemoryGame() {
+      memoryDeck = [];
+      memoryFlipped = [];
+      memoryMoves = 0;
+      memoryMatched = 0;
+      memoryLock = false;
+
+      var pairs = memoryEmojis.concat(memoryEmojis);
+      // Перемешать
+      for (var i = pairs.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = pairs[i]; pairs[i] = pairs[j]; pairs[j] = tmp;
+      }
+      memoryDeck = pairs;
+
+      var grid = $('#memory-grid');
+      grid.innerHTML = '';
+      memoryDeck.forEach(function (emoji, idx) {
+        var card = document.createElement('div');
+        card.className = 'mem-card';
+        card.dataset.idx = idx;
+        card.dataset.emoji = emoji;
+        card.textContent = '';
+        card.addEventListener('click', function () { flipCard(card); });
+        grid.appendChild(card);
+      });
+
+      $('#memory-moves').textContent = '0';
+      $('#memory-pairs').textContent = '0 / 8';
+    }
+
+    function flipCard(card) {
+      if (memoryLock) return;
+      if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+      card.classList.add('flipped');
+      card.textContent = card.dataset.emoji;
+      memoryFlipped.push(card);
+
+      if (memoryFlipped.length === 2) {
+        memoryMoves++;
+        $('#memory-moves').textContent = memoryMoves;
+        var a = memoryFlipped[0], b = memoryFlipped[1];
+        if (a.dataset.emoji === b.dataset.emoji) {
+          a.classList.add('matched');
+          b.classList.add('matched');
+          memoryFlipped = [];
+          memoryMatched++;
+          $('#memory-pairs').textContent = memoryMatched + ' / 8';
+          launchConfetti(20);
+          if (memoryMatched === 8) {
+            showToast('🎉 Все пары найдены за ' + memoryMoves + ' ходов!');
+            launchConfetti(80);
+          }
+        } else {
+          memoryLock = true;
+          setTimeout(function () {
+            a.classList.remove('flipped');
+            b.classList.remove('flipped');
+            a.textContent = '';
+            b.textContent = '';
+            memoryFlipped = [];
+            memoryLock = false;
+          }, 800);
+        }
+      }
     }
 
     /* =========================================================
@@ -1020,8 +1680,9 @@
         clearData();
         if (tickInterval) clearInterval(tickInterval);
         tickInterval = null;
+        if (bubbleSpawner) clearInterval(bubbleSpawner);
+        bubbleSpawner = null;
         state = null;
-        reachedMilestones = {};
         appMain.classList.add('hidden');
         onboarding.classList.remove('hidden');
         welcomeStep.classList.remove('hidden');
@@ -1042,14 +1703,13 @@
       if (saved && saved.name && saved.quitTs) {
         startApp(saved);
       } else {
-        // По умолчанию показываем онбординг
         onboarding.classList.remove('hidden');
         appMain.classList.add('hidden');
       }
     })();
 
     /* =========================================================
-       РЕГИСТРАЦИЯ SERVICE WORKER
+       SERVICE WORKER
        ========================================================= */
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
