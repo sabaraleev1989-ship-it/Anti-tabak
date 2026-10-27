@@ -1477,7 +1477,7 @@
       }
     }
 
-    // ИГРА "ШАРИКИ" (МАТЧ-3) - исправленная логика поиска
+    // ИГРА "ШАРИКИ" (МАТЧ-3)
     var ROWS = 8;
     var COLS = 8;
     var NUM_TYPES = 5;
@@ -1487,7 +1487,8 @@
     var isAnimating = false;
     var selectedCell = null; 
     var cellElements = []; 
-    var typeColors = ['', '#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1'];
+    // Теперь цвета ЧЕТКО РАЗЛИЧАЮТСЯ: Красный, Голубой, Желтый, Тёмно-синий, Зелёный
+    var typeColors = ['', '#ff6b6b', '#4bcffa', '#feca57', '#3b82f6', '#1dd1a1'];
 
     function initLinesGame() {
       score = 0;
