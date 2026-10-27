@@ -1477,7 +1477,7 @@
       }
     }
 
-    // ИГРА "ШАРИКИ" (МАТЧ-3) - строгая логика по ТЗ
+    // ИГРА "ШАРИКИ" (МАТЧ-3) - исправленная логика
     var ROWS = 8;
     var COLS = 8;
     var NUM_TYPES = 5;
@@ -1504,25 +1504,17 @@
       for (var r = 0; r < ROWS; r++) {
         board[r] = [];
         for (var c = 0; c < COLS; c++) {
-          var type;
-          do {
-            type = Math.floor(Math.random() * NUM_TYPES) + 1;
-          } while (
-            (c >= 2 && board[r][c-1] === type && board[r][c-2] === type) ||
-            (r >= 2 && board[r-1][c] === type && board[r-2][c] === type)
-          );
-          board[r][c] = type;
+          board[r][c] = Math.floor(Math.random() * NUM_TYPES) + 1;
         }
       }
 
-      // Проверка на наличие готовых линий 4+ (т.к. в 3 проверка уже есть, но вдруг)
-      // На самом деле, если мы проверяем пары при генерации, то тройки не появятся. 
-      // Но для надежности проверим и уберем все совпадения рекурсивно.
-      while (findMatches().length > 0) {
-        var m = findMatches();
-        m.forEach(function(match) {
-          board[match.r][match.c] = Math.floor(Math.random() * NUM_TYPES) + 1;
+      // Убираем все стартовые совпадения (в цикле)
+      var initialMatches = findMatches();
+      while (initialMatches.length > 0) {
+        initialMatches.forEach(function(m) {
+          board[m.r][m.c] = Math.floor(Math.random() * NUM_TYPES) + 1;
         });
+        initialMatches = findMatches();
       }
 
       renderBoard();
@@ -1657,7 +1649,7 @@
         for (var c = 0; c < COLS; c++) marked[r][c] = false;
       }
 
-      // Горизонтальные
+      // Горизонтальные (3+ подряд)
       for (var r = 0; r < ROWS; r++) {
         var runStart = 0;
         for (var c = 1; c <= COLS; c++) {
@@ -1673,7 +1665,7 @@
         }
       }
 
-      // Вертикальные
+      // Вертикальные (3+ подряд)
       for (var c = 0; c < COLS; c++) {
         var runStartV = 0;
         for (var r = 1; r <= ROWS; r++) {
