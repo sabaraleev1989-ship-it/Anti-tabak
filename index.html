@@ -45,6 +45,14 @@
       background: radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.15), transparent 60%),
                   radial-gradient(900px 500px at 90% 110%, rgba(56,189,248,0.12), transparent 60%),
                   linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      transition: background 0.5s ease;
+    }
+
+    /* Вспышка при достижении цели */
+    body.flash-green {
+      background: radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.4), transparent 70%),
+                  radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.3), transparent 60%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-2));
     }
 
     body[data-progress="advanced"] {
@@ -224,7 +232,7 @@
     .stat-value.money { color: var(--accent-2); }
     .stat-label { font-size: 10px; color: var(--text-dim); }
 
-    /* --- НОВЫЙ КРАСИВЫЙ ТАЙМЕР --- */
+    /* --- КРАСИВЫЙ ТАЙМЕР --- */
     .timer-card { 
       background: linear-gradient(160deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); 
       border: 1px solid rgba(34, 197, 94, 0.3); 
@@ -261,43 +269,53 @@
       display: flex; 
       justify-content: center; 
       align-items: center;
-      gap: 8px; 
-      margin-bottom: 20px;
+      gap: 6px; 
+      margin-bottom: 12px;
     }
     .time-cell { 
       background: rgba(15,23,42,0.8); 
       border: 1px solid rgba(34,197,94,0.2); 
       border-radius: 12px; 
-      padding: 10px 6px; 
+      padding: 10px 4px; 
       flex: 1; 
-      max-width: 75px;
+      max-width: 72px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.05);
       position: relative;
       overflow: hidden;
     }
     .time-num { 
-      font-size: 26px; 
+      font-size: 24px; 
       font-weight: 800; 
       color: #fff; 
       font-variant-numeric: tabular-nums; 
       line-height: 1;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      animation: popNum 0.3s ease-out;
     }
-    @keyframes popNum {
-      0% { transform: scale(0.9); opacity: 0.5; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .time-unit { font-size: 10px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
+    .time-unit { font-size: 9px; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; font-weight: 600; }
     
     .time-sep {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 800;
       color: rgba(34,197,94,0.5);
       animation: blink 1s infinite;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .total-hours-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--accent-2);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .total-hours-badge strong { color: #fff; font-size: 15px; }
 
     .health-info-box {
       background: rgba(34,197,94,0.1);
@@ -435,6 +453,43 @@
 
     .settings-buttons { display: flex; gap: 8px; margin-top: 20px; }
     .settings-buttons .btn { padding: 10px; font-size: 12px; }
+
+    /* --- АНИМАЦИЯ РАКЕТЫ --- */
+    #rocket-container {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 60px;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      transition: none;
+    }
+    #rocket-container.launch {
+      animation: rocketLaunch 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    @keyframes rocketLaunch {
+      0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg); }
+      10% { opacity: 1; }
+      100% { bottom: 120%; opacity: 0; transform: translateX(-50%) scale(1.5) rotate(10deg); }
+    }
+    /* Дым от ракеты */
+    .smoke-particle {
+      position: fixed;
+      bottom: 0;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      animation: smoke 1s ease-out forwards;
+    }
+    @keyframes smoke {
+      0% { transform: scale(1) translateY(0); opacity: 0.8; }
+      100% { transform: scale(3) translateY(50px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -488,7 +543,7 @@
         <div class="stat-card"><div class="stat-emoji">💰</div><div class="stat-value money" id="stat-money">0 ₽</div><div class="stat-label">сэкономлено</div></div>
       </div>
       
-      <!-- НОВЫЙ КРАСИВЫЙ ТАЙМЕР -->
+      <!-- ТАЙМЕР -->
       <div class="timer-card">
         <div class="progress-ring-wrap">
           <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
@@ -510,8 +565,13 @@
           <div class="time-sep">:</div>
           <div class="time-cell"><div class="time-num" id="t-seconds">00</div><div class="time-unit">секунд</div></div>
         </div>
+
+        <!-- Общее количество часов -->
+        <div class="total-hours-badge">
+          ⏳ Всего часов без сигарет: <strong id="t-total-hours">0</strong>
+        </div>
         
-        <div class="health-info-box" style="margin-top: 14px;">
+        <div class="health-info-box">
           <div class="health-info-icon">🩺</div>
           <div class="health-info-text" id="health-detailed-text">
             Загрузка данных...
@@ -628,6 +688,9 @@
       <button class="btn btn-ghost" id="close-settings" style="margin-top:8px;">Закрыть</button>
     </div>
   </div>
+
+  <!-- Ракета и дым -->
+  <div id="rocket-container">🚀</div>
 
   <div class="toast" id="toast"></div>
 
@@ -781,6 +844,7 @@
     });
 
     var state = null, tickInterval = null, ringCirc = 2 * Math.PI * 60;
+    var lastReachedMilestoneIndex = -1;
 
     function startApp(data) {
       state = data;
@@ -803,6 +867,12 @@
       
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
+
+      // Запоминаем, какая веха была последней при запуске, чтобы не запускать ракету за прошлые заслуги
+      var elapsed = Date.now() - state.quitTs;
+      for (var i = 0; i < MILESTONES.length; i++) {
+        if (elapsed >= MILESTONES[i].ms) lastReachedMilestoneIndex = i;
+      }
     }
 
     $$('.tab-btn').forEach(function (btn) {
@@ -836,13 +906,17 @@
       if (!state) return;
       var elapsed = Math.max(0, Date.now() - state.quitTs);
       var totalSec = Math.floor(elapsed / 1000);
+      var totalHours = Math.floor(elapsed / HOUR);
       var days = Math.floor(totalSec / 86400), hours = Math.floor((totalSec % 86400) / 3600), minutes = Math.floor((totalSec % 3600) / 60), seconds = totalSec % 60;
 
-      // Обновляем цифры в таймере с анимацией
+      // Обновляем цифры в таймере
       updateTimerDigit('t-days', pad(days));
       updateTimerDigit('t-hours', pad(hours));
       updateTimerDigit('t-minutes', pad(minutes));
       updateTimerDigit('t-seconds', pad(seconds));
+      
+      // Общее количество часов
+      $('#t-total-hours').textContent = totalHours.toLocaleString('ru-RU');
 
       var daysFloat = elapsed / DAY;
       var percent = healthPercent(daysFloat);
@@ -874,26 +948,99 @@
         $('#goal-countdown').innerHTML = '';
       }
 
+      // Проверка на новое достижение
+      var currentMilestoneIndex = -1;
       var nodes = $$('#milestones-container .milestone');
       nodes.forEach(function(node, idx) {
-        if (elapsed >= MILESTONES[idx].ms) node.classList.add('done');
-        else node.classList.remove('done');
+        if (elapsed >= MILESTONES[idx].ms) {
+          node.classList.add('done');
+          currentMilestoneIndex = idx;
+        } else {
+          node.classList.remove('done');
+        }
       });
+
+      // Если достигли новой вехи (не считая тех, что были при запуске)
+      if (currentMilestoneIndex > lastReachedMilestoneIndex && lastReachedMilestoneIndex !== -1) {
+        triggerCelebration();
+        lastReachedMilestoneIndex = currentMilestoneIndex;
+      } else if (lastReachedMilestoneIndex === -1 && currentMilestoneIndex >= 0) {
+        // При первом запуске просто запоминаем
+        lastReachedMilestoneIndex = currentMilestoneIndex;
+      }
 
       updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
     }
 
-    // Функция для обновления цифры с анимацией, если она изменилась
     function updateTimerDigit(id, newValue) {
       var el = document.getElementById(id);
       if (el.textContent !== newValue) {
         el.textContent = newValue;
-        // Перезапускаем анимацию
         el.style.animation = 'none';
-        el.offsetHeight; /* trigger reflow */
+        el.offsetHeight; 
         el.style.animation = 'popNum 0.3s ease-out';
       }
     }
+
+    // ЭФФЕКТ ПРАЗДНИКА
+    function triggerCelebration() {
+      // 1. Вспышка экрана
+      document.body.classList.add('flash-green');
+      setTimeout(function() { document.body.classList.remove('flash-green'); }, 1500);
+
+      // 2. Запуск ракеты
+      var rocket = $('#rocket-container');
+      rocket.classList.remove('launch');
+      void rocket.offsetWidth; // сброс анимации
+      rocket.classList.add('launch');
+
+      // 3. Дым от ракеты
+      for (var i = 0; i < 15; i++) {
+        createSmokeParticle();
+      }
+
+      // 4. Конфетти (опционально, если хочешь еще больше праздника)
+      launchConfetti(50);
+    }
+
+    function createSmokeParticle() {
+      var smoke = document.createElement('div');
+      smoke.className = 'smoke-particle';
+      var x = window.innerWidth / 2 + (Math.random() - 0.5) * 100;
+      smoke.style.left = x + 'px';
+      smoke.style.bottom = '0px';
+      smoke.style.width = (15 + Math.random() * 20) + 'px';
+      smoke.style.height = smoke.style.width;
+      document.body.appendChild(smoke);
+      setTimeout(function() { smoke.remove(); }, 1000);
+    }
+
+    function launchConfetti(count) {
+      var colors = ['#22c55e', '#4ade80', '#fbbf24', '#38bdf8', '#f472b6', '#a78bfa'];
+      for (var i = 0; i < count; i++) {
+        var piece = document.createElement('div');
+        piece.style.position = 'fixed';
+        piece.style.width = '10px';
+        piece.style.height = '10px';
+        piece.style.zIndex = '9999';
+        piece.style.pointerEvents = 'none';
+        piece.style.borderRadius = '2px';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.top = '-20px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animation = 'confettiFall ' + (2 + Math.random() * 2) + 's linear forwards';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+        document.body.appendChild(piece);
+        (function(el) { setTimeout(function() { el.remove(); }, 5000); })(piece);
+      }
+    }
+
+    // Добавляем стиль для конфетти через JS (так как мы его не прописали в CSS выше)
+    var style = document.createElement('style');
+    style.innerHTML = '@keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }';
+    document.head.appendChild(style);
+
 
     var taskToVerify = null;
 
