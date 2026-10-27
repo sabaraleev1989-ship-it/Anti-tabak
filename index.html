@@ -437,8 +437,8 @@
     @keyframes popAnim { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
     @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-280px) scale(1.1); opacity: 0; } }
     
-    .mem-difficulty { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mem-diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .mem-difficulty { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .mem-diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .mem-diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
     #memory-grid { display: grid; gap: 6px; margin: 0 auto; }
     #memory-grid.lvl-easy { grid-template-columns: repeat(3, 1fr); max-width: 240px; }
@@ -656,10 +656,12 @@
           <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
           <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <div class="mem-difficulty" style="margin-bottom:12px;">
+        <div class="mem-difficulty" style="margin-bottom:12px; overflow-x: auto;">
           <button class="word-diff-btn mem-diff-btn active" data-diff="easy">5 букв</button>
           <button class="word-diff-btn mem-diff-btn" data-diff="medium">10 букв</button>
           <button class="word-diff-btn mem-diff-btn" data-diff="hard">15 букв</button>
+          <button class="word-diff-btn mem-diff-btn" data-diff="extreme">20 букв</button>
+          <button class="word-diff-btn mem-diff-btn" data-diff="insane">25 букв</button>
         </div>
         
         <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px;">
@@ -1362,11 +1364,13 @@
       }
     }
 
-    // ИГРА "СЛОВА ИЗ БУКВ"
+    // ИГРА "СЛОВА ИЗ БУКВ" (с новыми сложностями)
     var baseWords = {
-      easy: ['ВОЗДУХ', 'ЗДОРОВЬЕ', 'СПОРТ', 'СИЛА', 'ЖИЗНЬ'], // 5-7 букв
-      medium: ['ВОССТАНОВЛЕНИЕ', 'ДЫХАНИЕ', 'ОРГАНИЗМ', 'ЧИСТОТА'], // 8-12 букв
-      hard: ['ПРОФИЛАКТИКА', 'ДОЛГОЛЕТИЕ', 'БЕЗОПАСНОСТЬ', 'УПРАЖНЕНИЕ'] // 13+ букв
+      easy: ['ВОЗДУХ', 'ЗДОРОВЬЕ', 'СПОРТ', 'СИЛА', 'ЖИЗНЬ'], 
+      medium: ['ВОССТАНОВЛЕНИЕ', 'ДЫХАНИЕ', 'ОРГАНИЗМ', 'ЧИСТОТА'], 
+      hard: ['ПРОФИЛАКТИКА', 'ДОЛГОЛЕТИЕ', 'БЕЗОПАСНОСТЬ', 'УПРАЖНЕНИЕ'],
+      extreme: ['САМОСОВЕРШЕНСТВОВАНИЕ', 'ВОЗДУХООЧИСТИТЕЛЬ', 'ЖИЗНЕДЕЯТЕЛЬНОСТЬ'], // 20 букв
+      insane: ['РЕНТГЕНОЭЛЕКТРОКАРДИОГРАФИЧЕСКОГО', 'ПРЕВОСХОДИТЕЛЬСТВОВАНИЕ'] // 25+ букв
     };
     var currentBaseWord = '';
     var currentWordDifficulty = 'easy';
@@ -1450,8 +1454,8 @@
       }
     }
 
-    // ИГРА "ШАРИКИ" (MATCH-3)
-    var linesGrid = []; // Массив объектов {color, el} или null
+    // ИГРА "ШАРИКИ" (MATCH-3) - Исправленная логика
+    var linesGrid = []; // Массив объектов {color, el}
     var linesScore = 0;
     var selectedBall = null; // {r, c}
     var linesColorMap = ['#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1'];
@@ -1475,6 +1479,7 @@
       area.innerHTML = '';
       linesGrid = [];
       
+      // Создаем логическую сетку
       for (var r = 0; r < linesGridSize; r++) {
         linesGrid[r] = [];
         for (var c = 0; c < linesGridSize; c++) {
@@ -1491,7 +1496,7 @@
         }
       }
 
-      // Отрисовка (CSS Grid)
+      // Отрисовка
       for (var r = 0; r < linesGridSize; r++) {
         for (var c = 0; c < linesGridSize; c++) {
           createBallVisual(r, c);
@@ -1504,6 +1509,7 @@
       var ball = document.createElement('div');
       ball.className = 'color-ball';
       ball.style.background = linesGrid[r][c].color;
+      // Жестко привязываем к координатам
       ball.dataset.r = r;
       ball.dataset.c = c;
       ball.addEventListener('click', function() { handleBallClick(r, c); });
@@ -1522,28 +1528,32 @@
       if (linesGrid[r][c] === null) return;
       
       if (!selectedBall) {
+        // Первый клик
         selectedBall = { r: r, c: c };
         linesGrid[r][c].el.classList.add('selected');
         return;
       }
       
       if (selectedBall.r === r && selectedBall.c === c) {
+        // Клик по тому же - снимаем выделение
         linesGrid[r][c].el.classList.remove('selected');
         selectedBall = null;
         return;
       }
       
-      // Проверяем, являются ли они соседними
+      // Проверяем соседство
       var dr = Math.abs(selectedBall.r - r);
       var dc = Math.abs(selectedBall.c - c);
       
       if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
-        // Меняем местами
-        swapBalls(selectedBall.r, selectedBall.c, r, c);
-        linesGrid[selectedBall.r][selectedBall.c].el.classList.remove('selected');
+        // Соседние - меняем
+        var prevR = selectedBall.r, prevC = selectedBall.c;
+        linesGrid[prevR][prevC].el.classList.remove('selected');
+        
+        swapBalls(prevR, prevC, r, c);
         selectedBall = null;
       } else {
-        // Не соседние - меняем выбор
+        // Не соседние - просто переносим выделение
         linesGrid[selectedBall.r][selectedBall.c].el.classList.remove('selected');
         selectedBall = { r: r, c: c };
         linesGrid[r][c].el.classList.add('selected');
@@ -1558,17 +1568,16 @@
       linesGrid[r1][c1] = linesGrid[r2][c2];
       linesGrid[r2][c2] = temp;
       
-      // Обновляем визуально
+      // Обновляем визуально цвета
       linesGrid[r1][c1].el.style.background = linesGrid[r1][c1].color;
       linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
       
       setTimeout(function() {
-        // Проверяем совпадения
+        // Проверяем совпадения в новых позициях
         if (checkMatchAt(r1, c1) || checkMatchAt(r2, c2)) {
-          // Есть совпадение - оставляем и обрабатываем
           processMatches();
         } else {
-          // Нет совпадения - возвращаем обратно
+          // Возвращаем обратно
           var temp2 = linesGrid[r1][c1];
           linesGrid[r1][c1] = linesGrid[r2][c2];
           linesGrid[r2][c2] = temp2;
@@ -1577,7 +1586,7 @@
           linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
           isSwapping = false;
         }
-      }, 250);
+      }, 200);
     }
 
     function checkMatchAt(r, c) {
@@ -1614,7 +1623,7 @@
         return;
       }
       
-      // Удаляем совпадения
+      // Удаляем визуально и логически
       matches.forEach(function(m) {
         if (linesGrid[m.r][m.c]) {
           linesGrid[m.r][m.c].el.classList.add('popping');
@@ -1627,8 +1636,8 @@
       linesScore += matches.length * 10;
       $('#lines-score').textContent = linesScore;
       
+      // Падение
       setTimeout(function() {
-        // Падение шариков
         for (var c = 0; c < linesGridSize; c++) {
           for (var r = linesGridSize - 1; r >= 0; r--) {
             if (linesGrid[r][c] === null) {
@@ -1658,7 +1667,7 @@
           }
         }
         
-        // Проверяем еще раз через секунду
+        // Проверяем каскадные совпадения
         setTimeout(function() {
           var hasMore = false;
           for (var r = 0; r < linesGridSize; r++) {
@@ -1671,7 +1680,7 @@
           } else {
             isSwapping = false;
           }
-        }, 400);
+        }, 350);
         
       }, 300);
     }
