@@ -463,6 +463,27 @@
     .letter-btn:active { transform: scale(0.9); }
     .letter-btn.used { opacity: 0.3; pointer-events: none; }
     
+    /* Фикс длинного слова для узких экранов (iPhone 15 Pro) */
+    #base-word {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      color: #fff;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      line-height: 1.2;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 400px) {
+      #base-word {
+        font-size: 16px;
+        letter-spacing: 1px;
+      }
+    }
+    
     /* Игра Lines (Match-3) */
     #lines-game-area { 
       position: relative; 
@@ -640,7 +661,6 @@
 
       <div class="game-card">
         <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🧠 Память</div>
-        <!-- Уникальные классы для кнопок сложности памяти -->
         <div class="difficulty-row">
           <button class="diff-btn mem-diff active" data-mem-diff="easy">Лёгкий</button>
           <button class="diff-btn mem-diff" data-mem-diff="medium">Средний</button>
@@ -660,7 +680,6 @@
           <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
           <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <!-- Уникальные классы для кнопок сложности слов -->
         <div class="difficulty-row">
           <button class="diff-btn word-diff active" data-word-diff="easy">5 букв</button>
           <button class="diff-btn word-diff" data-word-diff="medium">10 букв</button>
@@ -674,7 +693,7 @@
           <span>Найдено: <strong id="word-found-count" style="color:var(--accent-2);">0</strong></span>
         </div>
         
-        <div style="text-align:center; font-size:20px; font-weight:800; letter-spacing:2px; margin-bottom:12px; color:#fff;" id="base-word">...</div>
+        <div id="base-word">...</div>
         
         <div style="display:flex; gap:8px; margin-bottom:12px;">
           <input type="text" id="word-input" placeholder="Введи слово..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; outline:none;" />
@@ -693,7 +712,6 @@
             <button class="btn btn-ghost btn-small" id="lines-reset" style="padding: 4px 8px; font-size: 10px;">Новая игра</button>
           </div>
         </div>
-        <!-- Выбор количества ходов -->
         <div class="difficulty-row">
           <button class="diff-btn lines-moves-btn active" data-moves="30">30 ходов</button>
           <button class="diff-btn lines-moves-btn" data-moves="60">60 ходов</button>
