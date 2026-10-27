@@ -437,23 +437,23 @@
     @keyframes popAnim { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
     @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-280px) scale(1.1); opacity: 0; } }
     
-    .mem-difficulty { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .mem-diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-    .mem-diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
+    /* Стили для сложности в играх */
+    .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
+
+    /* Память */
     #memory-grid { display: grid; gap: 6px; margin: 0 auto; }
     #memory-grid.lvl-easy { grid-template-columns: repeat(3, 1fr); max-width: 240px; }
-    #memory-grid.lvl-medium { grid-template-columns: repeat(4, 1fr); }
-    #memory-grid.lvl-hard { grid-template-columns: repeat(4, 1fr); }
+    #memory-grid.lvl-medium { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
+    #memory-grid.lvl-hard { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
     .mem-card { aspect-ratio: 1; border-radius: 10px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15)); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: transform 0.2s, background 0.2s; transform-style: preserve-3d; }
     .mem-card:active { transform: scale(0.95); }
     .mem-card.flipped { background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(74,222,128,0.2)); border-color: rgba(34,197,94,0.5); transform: rotateY(180deg); }
     .mem-card.flipped span { transform: rotateY(180deg); }
     .mem-card.matched { background: linear-gradient(135deg, var(--accent), #16a34a); border-color: var(--accent); cursor: default; opacity: 0.5; }
 
-    .settings-buttons { display: flex; gap: 8px; margin-top: 20px; }
-    .settings-buttons .btn { padding: 10px; font-size: 12px; }
-
-    /* Стили для игр "Слова" и "Линии" */
+    /* Слова */
     .word-slots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
     .word-slot { width: 36px; height: 36px; border-radius: 8px; background: rgba(15,23,42,0.6); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--accent-2); }
     .letter-pool { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
@@ -638,10 +638,11 @@
 
       <div class="game-card">
         <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🧠 Память</div>
-        <div class="mem-difficulty">
-          <button class="mem-diff-btn active" data-diff="easy">Лёгкий</button>
-          <button class="mem-diff-btn" data-diff="medium">Средний</button>
-          <button class="mem-diff-btn" data-diff="hard">Сложный</button>
+        <!-- Уникальные классы для кнопок сложности памяти -->
+        <div class="difficulty-row">
+          <button class="diff-btn mem-diff active" data-mem-diff="easy">Лёгкий</button>
+          <button class="diff-btn mem-diff" data-mem-diff="medium">Средний</button>
+          <button class="diff-btn mem-diff" data-mem-diff="hard">Сложный</button>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
           <span>Ходы: <strong id="memory-moves" style="color:var(--accent-2);">0</strong></span>
@@ -657,12 +658,13 @@
           <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
           <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <div class="mem-difficulty" style="margin-bottom:12px; overflow-x: auto;">
-          <button class="word-diff-btn mem-diff-btn active" data-diff="easy">5 букв</button>
-          <button class="word-diff-btn mem-diff-btn" data-diff="medium">10 букв</button>
-          <button class="word-diff-btn mem-diff-btn" data-diff="hard">15 букв</button>
-          <button class="word-diff-btn mem-diff-btn" data-diff="extreme">20 букв</button>
-          <button class="word-diff-btn mem-diff-btn" data-diff="insane">25 букв</button>
+        <!-- Уникальные классы для кнопок сложности слов -->
+        <div class="difficulty-row">
+          <button class="diff-btn word-diff active" data-word-diff="easy">5 букв</button>
+          <button class="diff-btn word-diff" data-word-diff="medium">10 букв</button>
+          <button class="diff-btn word-diff" data-word-diff="hard">15 букв</button>
+          <button class="diff-btn word-diff" data-word-diff="extreme">20 букв</button>
+          <button class="diff-btn word-diff" data-word-diff="insane">25 букв</button>
         </div>
         
         <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px;">
@@ -688,6 +690,13 @@
             <button class="btn btn-ghost btn-small" id="lines-records" style="padding: 4px 8px; font-size: 10px;">🏆</button>
             <button class="btn btn-ghost btn-small" id="lines-reset" style="padding: 4px 8px; font-size: 10px;">Новая игра</button>
           </div>
+        </div>
+        <!-- Выбор количества ходов -->
+        <div class="difficulty-row">
+          <button class="diff-btn lines-moves-btn active" data-moves="30">30 ходов</button>
+          <button class="diff-btn lines-moves-btn" data-moves="60">60 ходов</button>
+          <button class="diff-btn lines-moves-btn" data-moves="90">90 ходов</button>
+          <button class="diff-btn lines-moves-btn" data-moves="120">120 ходов</button>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:12px;">
           <span>Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></span>
@@ -752,7 +761,7 @@
       <div class="modal-title">🏆 Таблица рекордов</div>
       <div class="modal-text">Твои лучшие результаты в игре «Шарики»</div>
       
-      <div id="records-list" style="text-align: left; margin-bottom: 16px; background: rgba(15,23,42,0.6); padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
+      <div id="records-list" style="text-align: left; margin-bottom: 16px; background: rgba(15,23,42,0.6); padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); max-height: 250px; overflow-y: auto;">
         <!-- Список рекордов -->
       </div>
       
@@ -1328,17 +1337,19 @@
       }, 500);
     }
 
+    // === ПАМЯТЬ ===
     var memEmojis = ['🌿', '💧', '🌞', '🦋', '🍃', '⭐', '🌊', '🔥', '🍎', '🍇', '🚀', '🐱'];
     var memDeck = [], memFlipped = [], memMoves = 0, memMatched = 0, memLock = false;
     var memDifficulty = 'easy';
 
     function initMemory() {
       $('#memory-reset').addEventListener('click', resetMemory);
-      $$('.mem-diff-btn').forEach(function(btn) {
+      // Используем уникальный класс .mem-diff для кнопок памяти
+      $$('.mem-diff').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          $$('.mem-diff-btn').forEach(function(b) { b.classList.remove('active'); });
+          $$('.mem-diff').forEach(function(b) { b.classList.remove('active'); });
           btn.classList.add('active');
-          memDifficulty = btn.dataset.diff;
+          memDifficulty = btn.dataset.memDiff;
           var grid = $('#memory-grid');
           grid.className = 'lvl-' + memDifficulty;
           resetMemory();
@@ -1387,7 +1398,7 @@
       }
     }
 
-    // ИГРА "СЛОВА ИЗ БУКВ"
+    // === СЛОВА ИЗ БУКВ ===
     var baseWords = {
       easy: ['ВОЗДУХ', 'ЗДОРОВЬЕ', 'СПОРТ', 'СИЛА', 'ЖИЗНЬ'], 
       medium: ['ВОССТАНОВЛЕНИЕ', 'ДЫХАНИЕ', 'ОРГАНИЗМ', 'ЧИСТОТА'], 
@@ -1410,11 +1421,12 @@
       $('#word-submit').addEventListener('click', checkWord);
       $('#word-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkWord(); });
       
-      $$('.word-diff-btn').forEach(function(btn) {
+      // Используем уникальный класс .word-diff для кнопок слов
+      $$('.word-diff').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          $$('.word-diff-btn').forEach(function(b) { b.classList.remove('active'); });
+          $$('.word-diff').forEach(function(b) { b.classList.remove('active'); });
           btn.classList.add('active');
-          currentWordDifficulty = btn.dataset.diff;
+          currentWordDifficulty = btn.dataset.wordDiff;
           startNewWord();
         });
       });
@@ -1477,22 +1489,23 @@
       }
     }
 
-    // ИГРА "ШАРИКИ" (МАТЧ-3)
+    // === ШАРИКИ (MATCH-3) ===
     var ROWS = 8;
     var COLS = 8;
     var NUM_TYPES = 5;
     var board = []; 
     var score = 0;
     var movesLeft = 30;
+    var totalMoves = 30; // Для записи в рекорд
     var isAnimating = false;
     var selectedCell = null; 
     var cellElements = []; 
-    // Теперь цвета ЧЕТКО РАЗЛИЧАЮТСЯ: Красный, Голубой, Желтый, Тёмно-синий, Зелёный
     var typeColors = ['', '#ff6b6b', '#4bcffa', '#feca57', '#3b82f6', '#1dd1a1'];
 
-    function initLinesGame() {
+    function initLinesGame(initialMoves) {
+      if (initialMoves) totalMoves = initialMoves;
+      movesLeft = totalMoves;
       score = 0;
-      movesLeft = 30;
       isAnimating = false;
       selectedCell = null;
       $('#lines-score').textContent = score;
@@ -1506,7 +1519,6 @@
         }
       }
 
-      // Убираем стартовые совпадения (в цикле)
       var initialMatches = findMatches();
       while (initialMatches.length > 0) {
         initialMatches.forEach(function(m) {
@@ -1524,6 +1536,16 @@
           showToast('Новая игра!');
         };
       }
+
+      // Обработчик выбора количества ходов
+      $$('.lines-moves-btn').forEach(function(btn) {
+        btn.onclick = function() {
+          $$('.lines-moves-btn').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          initLinesGame(parseInt(btn.dataset.moves, 10));
+          showToast('Игра начата! Ходов: ' + totalMoves);
+        };
+      });
     }
 
     function renderBoard() {
@@ -1610,7 +1632,7 @@
           $('#lines-moves').textContent = movesLeft;
           
           if (movesLeft <= 0) {
-            saveRecord(score);
+            saveRecord(score, totalMoves);
             showToast('Игра окончена! Очки: ' + score);
           }
 
@@ -1750,10 +1772,10 @@
       } catch(e) { return []; }
     }
 
-    function saveRecord(newScore) {
+    function saveRecord(newScore, moves) {
       if (newScore <= 0) return;
       var records = loadRecords();
-      records.push({ score: newScore, date: new Date().toLocaleDateString('ru-RU') });
+      records.push({ score: newScore, moves: moves, date: new Date().toLocaleDateString('ru-RU') });
       records.sort(function(a, b) { return b.score - a.score; });
       records = records.slice(0, 10);
       try {
@@ -1776,7 +1798,8 @@
             item.style.justifyContent = 'space-between';
             item.style.padding = '8px 0';
             item.style.borderBottom = '1px solid rgba(148,163,184,0.1)';
-            item.innerHTML = '<span style="color:var(--text-dim);">' + (idx+1) + '. ' + rec.date + '</span> <strong style="color:var(--accent-2);">' + rec.score + '</strong>';
+            // Показываем и очки, и ходы
+            item.innerHTML = '<span style="color:var(--text-dim);">' + (idx+1) + '. ' + rec.date + ' (' + rec.moves + ' ходов)</span> <strong style="color:var(--accent-2);">' + rec.score + '</strong>';
             list.appendChild(item);
           });
         }
