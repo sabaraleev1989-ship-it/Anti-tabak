@@ -231,7 +231,7 @@
     .stat-value.money { color: var(--accent-2); }
     .stat-label { font-size: 10px; color: var(--text-dim); }
 
-    /* --- КРАСИВЫЙ ТАЙМЕР --- */
+    /* --- ТАЙМЕР --- */
     .timer-card { 
       background: linear-gradient(160deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); 
       border: 1px solid rgba(34, 197, 94, 0.3); 
@@ -461,24 +461,48 @@
     .letter-btn:active { transform: scale(0.9); }
     .letter-btn.used { opacity: 0.3; pointer-events: none; }
     
-    #lines-game-area { position: relative; height: 300px; border-radius: 12px; background: rgba(15,23,42,0.6); overflow: hidden; }
-    .color-ball { position: absolute; border-radius: 50%; cursor: pointer; transition: all 0.2s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4); }
-    .color-ball.selected { transform: scale(1.2); box-shadow: 0 0 15px #fff, inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4); }
-
-    /* АНИМАЦИЯ РАКЕТЫ */
+    /* Игра Lines (Match-3) */
+    #lines-game-area { 
+      position: relative; 
+      height: 300px; 
+      border-radius: 12px; 
+      background: rgba(15,23,42,0.6); 
+      overflow: hidden; 
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 4px;
+      padding: 4px;
+    }
+    .color-ball { 
+      border-radius: 50%; 
+      cursor: pointer; 
+      transition: transform 0.2s, background 0.2s, opacity 0.2s;
+      box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4);
+      margin: auto;
+      width: 90%;
+      height: 90%;
+      position: relative;
+    }
+    .color-ball.selected { transform: scale(1.15); box-shadow: 0 0 15px #fff, inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4); z-index: 10; }
+    .color-ball.popping { animation: popBall 0.3s ease-in forwards; }
+    @keyframes popBall { 0% { transform: scale(1); } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
+    
+    /* АНИМАЦИЯ РАКЕТЫ (более медленная и плавная) */
     #rocket-container {
       position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
-      font-size: 60px; z-index: 9999; pointer-events: none; opacity: 0;
+      font-size: 70px; z-index: 9999; pointer-events: none; opacity: 0;
     }
-    #rocket-container.launch { animation: rocketLaunch 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    #rocket-container.launch { animation: rocketLaunch 5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     @keyframes rocketLaunch {
       0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg); }
       10% { opacity: 1; }
-      100% { bottom: 120%; opacity: 0; transform: translateX(-50%) scale(1.5) rotate(10deg); }
+      90% { opacity: 1; }
+      100% { bottom: 120%; opacity: 0; transform: translateX(-50%) scale(1.2) rotate(5deg); }
     }
     .smoke-particle {
-      position: fixed; bottom: 0; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.3);
-      border-radius: 50%; pointer-events: none; z-index: 9998; animation: smoke 1s ease-out forwards;
+      position: fixed; bottom: 0; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%; pointer-events: none; z-index: 9998; animation: smoke 1.5s ease-out forwards;
     }
     @keyframes smoke { 0% { transform: scale(1) translateY(0); opacity: 0.8; } 100% { transform: scale(3) translateY(50px); opacity: 0; } }
   </style>
@@ -646,7 +670,6 @@
         
         <div style="text-align:center; font-size:20px; font-weight:800; letter-spacing:2px; margin-bottom:12px; color:#fff;" id="base-word">...</div>
         
-        <div class="word-slots" id="word-input-slots"></div>
         <div style="display:flex; gap:8px; margin-bottom:12px;">
           <input type="text" id="word-input" placeholder="Введи слово..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; outline:none;" />
           <button class="btn btn-primary btn-small" id="word-submit" style="border-radius:8px;">OK</button>
@@ -655,10 +678,10 @@
         <div id="found-words-list" style="display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--accent-2); justify-content:center;"></div>
       </div>
 
-      <!-- ИГРА: ЛИНИИ ЦВЕТОВ -->
+      <!-- ИГРА: ЛИНИИ ЦВЕТОВ (MATCH-3) -->
       <div class="game-card">
-        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🔴 Линии цветов</div>
-        <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">Нажми на шарик, затем на шарик того же цвета. Если между ними есть путь, они исчезнут. Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></div>
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🔴 Шарики (3 в ряд)</div>
+        <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">Меняй местами соседние шарики, чтобы собрать 3 и более в ряд. Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></div>
         <div id="lines-game-area"></div>
       </div>
 
@@ -868,7 +891,6 @@
     });
 
     var state = null, tickInterval = null, ringCirc = 2 * Math.PI * 60;
-    var checkMilestoneTimeout = null;
 
     function startApp(data) {
       state = data;
@@ -891,12 +913,12 @@
       initLinesGame();
       initChat();
       updateAll();
-
-      // ВАЖНО: Запускаем проверку достижений сразу после загрузки
-      checkAndCelebrate();
       
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
+
+      // Проверка праздника при первом запуске
+      setTimeout(checkAndCelebrate, 500);
     }
 
     $$('.tab-btn').forEach(function (btn) {
@@ -981,7 +1003,6 @@
 
       updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
 
-      // Проверяем на новую веху
       checkAndCelebrate();
     }
 
@@ -996,29 +1017,16 @@
         }
       }
 
-      // Если есть непразднованная веха
       if (currentMilestoneIndex > state.lastCelebratedIdx) {
-        // Если это первый запуск и есть только одна веха (или ноль), просто отмечаем
         if (state.lastCelebratedIdx === -1 && currentMilestoneIndex === 0) {
           state.lastCelebratedIdx = currentMilestoneIndex;
           saveData(state);
           return;
         }
-
-        // Если это первый запуск и уже несколько вех, празднуем только последнюю
-        if (state.lastCelebratedIdx === -1 && currentMilestoneIndex > 0) {
-           state.lastCelebratedIdx = currentMilestoneIndex;
-           saveData(state);
-           triggerCelebration();
-           return;
-        }
-
-        // Если праздник уже был, но время перешло на новую веху
-        if (currentMilestoneIndex > state.lastCelebratedIdx) {
-          state.lastCelebratedIdx = currentMilestoneIndex;
-          saveData(state);
-          triggerCelebration();
-        }
+        
+        state.lastCelebratedIdx = currentMilestoneIndex;
+        saveData(state);
+        triggerCelebration();
       }
     }
 
@@ -1034,18 +1042,18 @@
 
     function triggerCelebration() {
       document.body.classList.add('flash-green');
-      setTimeout(function() { document.body.classList.remove('flash-green'); }, 1500);
+      setTimeout(function() { document.body.classList.remove('flash-green'); }, 2000);
 
       var rocket = $('#rocket-container');
       rocket.classList.remove('launch');
       void rocket.offsetWidth; 
       rocket.classList.add('launch');
 
-      for (var i = 0; i < 15; i++) {
-        createSmokeParticle();
+      for (var i = 0; i < 30; i++) {
+        setTimeout(createSmokeParticle, i * 100);
       }
 
-      launchConfetti(50);
+      launchConfetti(150);
     }
 
     function createSmokeParticle() {
@@ -1057,7 +1065,7 @@
       smoke.style.width = (15 + Math.random() * 20) + 'px';
       smoke.style.height = smoke.style.width;
       document.body.appendChild(smoke);
-      setTimeout(function() { smoke.remove(); }, 1000);
+      setTimeout(function() { smoke.remove(); }, 1500);
     }
 
     function launchConfetti(count) {
@@ -1065,16 +1073,16 @@
       for (var i = 0; i < count; i++) {
         var piece = document.createElement('div');
         piece.style.position = 'fixed';
-        piece.style.width = '10px';
-        piece.style.height = '10px';
+        piece.style.width = (5 + Math.random() * 10) + 'px';
+        piece.style.height = (5 + Math.random() * 10) + 'px';
         piece.style.zIndex = '9999';
         piece.style.pointerEvents = 'none';
-        piece.style.borderRadius = '2px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
         piece.style.left = Math.random() * 100 + 'vw';
         piece.style.top = '-20px';
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animation = 'confettiFall ' + (2 + Math.random() * 2) + 's linear forwards';
-        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        piece.style.animation = 'confettiFall ' + (2 + Math.random() * 3) + 's linear forwards';
+        piece.style.animationDelay = (Math.random() * 0.8) + 's';
         piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
         document.body.appendChild(piece);
         (function(el) { setTimeout(function() { el.remove(); }, 5000); })(piece);
@@ -1084,6 +1092,7 @@
     var style = document.createElement('style');
     style.innerHTML = '@keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }';
     document.head.appendChild(style);
+
 
     var taskToVerify = null;
 
@@ -1352,7 +1361,7 @@
       }
     }
 
-    // ИГРА "СЛОВА ИЗ БУКВ" (Переделана под "Собери слова из длинного слова")
+    // ИГРА "СЛОВА ИЗ БУКВ"
     var baseWords = {
       easy: ['ВОЗДУХ', 'ЗДОРОВЬЕ', 'СПОРТ', 'СИЛА', 'ЖИЗНЬ'], // 5-7 букв
       medium: ['ВОССТАНОВЛЕНИЕ', 'ДЫХАНИЕ', 'ОРГАНИЗМ', 'ЧИСТОТА'], // 8-12 букв
@@ -1364,7 +1373,6 @@
     var wordRecord = 0;
 
     function initWordGame() {
-      // Загружаем рекорд
       try {
         wordRecord = parseInt(localStorage.getItem('dyshi_word_record') || '0', 10);
         $('#word-record').textContent = wordRecord;
@@ -1395,17 +1403,12 @@
       $('#word-input').value = '';
       $('#word-found-count').textContent = '0';
       $('#found-words-list').innerHTML = '';
-      
-      // Генерируем слоты для ввода (просто для красоты, не обязательно)
-      var slotsContainer = $('#word-input-slots');
-      slotsContainer.innerHTML = '<div style="font-size:12px; color:var(--text-dim);">Вводи слова, которые можешь составить из этих букв:</div>';
     }
 
     function checkWord() {
       var val = $('#word-input').value.trim().toUpperCase();
       if (!val) return;
       
-      // Проверяем, можно ли составить слово из букв базового слова
       var tempBase = currentBaseWord.split('');
       var canMake = true;
       for (var i = 0; i < val.length; i++) {
@@ -1424,8 +1427,6 @@
         return;
       }
       
-      // В реальной игре здесь была бы проверка по словарю.
-      // Но для нашей игры мы принимаем любое слово длиннее 2 букв.
       if (val.length < 3) {
         showToast('Слишком короткое слово!');
         return;
@@ -1448,12 +1449,13 @@
       }
     }
 
-    // ИГРА "ЛИНИИ ЦВЕТОВ" (Переписана, теперь с поиском пути)
-    var linesGrid = []; // Двумерный массив (6x6) для хранения цветов или null
+    // ИГРА "ШАРИКИ" (MATCH-3)
+    var linesGrid = []; // Массив объектов {color, el} или null
     var linesScore = 0;
-    var selectedBall = null;
-    var linesColorMap = ['#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1', '#f368e0'];
+    var selectedBall = null; // {r, c}
+    var linesColorMap = ['#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1'];
     var linesGridSize = 6;
+    var isSwapping = false;
     
     function initLinesGame() {
       linesScore = 0;
@@ -1465,164 +1467,207 @@
       var area = $('#lines-game-area');
       if (!area) return;
       area.innerHTML = '';
-      
-      var size = area.clientWidth / linesGridSize;
       linesGrid = [];
       
       for (var r = 0; r < linesGridSize; r++) {
         linesGrid[r] = [];
         for (var c = 0; c < linesGridSize; c++) {
-          // Выбираем случайный цвет из первых 4-х
-          var colorIdx = Math.floor(Math.random() * 4);
-          var color = linesColorMap[colorIdx];
-          linesGrid[r][c] = color;
-          
-          createBallVisual(r, c, color, size);
+          linesGrid[r][c] = { color: linesColorMap[Math.floor(Math.random() * 4)], el: null };
+        }
+      }
+      
+      // Убираем начальные совпадения
+      for (var r = 0; r < linesGridSize; r++) {
+        for (var c = 0; c < linesGridSize; c++) {
+          while (checkMatchAt(r, c)) {
+            linesGrid[r][c].color = linesColorMap[Math.floor(Math.random() * 4)];
+          }
+        }
+      }
+
+      // Отрисовка
+      for (var r = 0; r < linesGridSize; r++) {
+        for (var c = 0; c < linesGridSize; c++) {
+          createBallVisual(r, c);
         }
       }
     }
 
-    function createBallVisual(r, c, color, size) {
+    function createBallVisual(r, c) {
       var area = $('#lines-game-area');
       var ball = document.createElement('div');
       ball.className = 'color-ball';
-      ball.style.width = (size - 6) + 'px';
-      ball.style.height = (size - 6) + 'px';
-      ball.style.left = (c * size + 3) + 'px';
-      ball.style.top = (r * size + 3) + 'px';
-      ball.style.background = color;
+      ball.style.background = linesGrid[r][c].color;
       ball.dataset.r = r;
       ball.dataset.c = c;
-      
-      ball.addEventListener('click', function() { handleBallClick(r, c, this); });
+      ball.addEventListener('click', function() { handleBallClick(r, c); });
       area.appendChild(ball);
+      linesGrid[r][c].el = ball;
     }
 
-    function handleBallClick(r, c, ballEl) {
-      if (linesGrid[r][c] === null) return; // Пустая клетка
+    function updateBallVisual(r, c) {
+      if (linesGrid[r][c] && linesGrid[r][c].el) {
+        linesGrid[r][c].el.style.background = linesGrid[r][c].color;
+      }
+    }
+
+    function handleBallClick(r, c) {
+      if (isSwapping) return;
+      if (linesGrid[r][c] === null) return;
       
       if (!selectedBall) {
-        selectedBall = { r: r, c: c, el: ballEl };
-        ballEl.classList.add('selected');
+        selectedBall = { r: r, c: c };
+        linesGrid[r][c].el.classList.add('selected');
         return;
       }
       
       if (selectedBall.r === r && selectedBall.c === c) {
-        // Клик по тому же шарику - отмена
-        selectedBall.el.classList.remove('selected');
+        linesGrid[r][c].el.classList.remove('selected');
         selectedBall = null;
         return;
       }
       
-      // Проверяем совпадение цветов
-      if (linesGrid[selectedBall.r][selectedBall.c] === linesGrid[r][c]) {
-        // Проверяем путь
-        if (findPath(selectedBall.r, selectedBall.c, r, c)) {
-          // Уничтожаем
-          linesGrid[selectedBall.r][selectedBall.c] = null;
-          linesGrid[r][c] = null;
-          
-          selectedBall.el.remove();
-          ballEl.remove();
-          
-          linesScore += 10;
-          $('#lines-score').textContent = linesScore;
-          showToast('✨ +10 очков!');
-          
-          selectedBall = null;
-          
-          // Проверяем, не закончились ли шарики
-          checkGameOver();
-        } else {
-          showToast('Нет свободного пути!');
-          selectedBall.el.classList.remove('selected');
-          selectedBall = null;
-        }
+      // Проверяем, являются ли они соседними
+      var dr = Math.abs(selectedBall.r - r);
+      var dc = Math.abs(selectedBall.c - c);
+      
+      if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+        // Меняем местами
+        swapBalls(selectedBall.r, selectedBall.c, r, c);
+        linesGrid[selectedBall.r][selectedBall.c].el.classList.remove('selected');
+        selectedBall = null;
       } else {
-        // Другой цвет - меняем выбор
-        selectedBall.el.classList.remove('selected');
-        selectedBall = { r: r, c: c, el: ballEl };
-        ballEl.classList.add('selected');
+        // Не соседние - меняем выбор
+        linesGrid[selectedBall.r][selectedBall.c].el.classList.remove('selected');
+        selectedBall = { r: r, c: c };
+        linesGrid[r][c].el.classList.add('selected');
       }
     }
 
-    // Алгоритм поиска пути (упрощенный: по прямой линии, без препятствий)
-    function findPath(r1, c1, r2, c2) {
-      // 1. Горизонтальная линия
-      if (r1 === r2) {
-        var minC = Math.min(c1, c2) + 1;
-        var maxC = Math.max(c1, c2);
-        var clear = true;
-        for (var c = minC; c < maxC; c++) {
-          if (linesGrid[r1][c] !== null) { clear = false; break; }
-        }
-        if (clear) return true;
-      }
+    function swapBalls(r1, c1, r2, c2) {
+      isSwapping = true;
       
-      // 2. Вертикальная линия
-      if (c1 === c2) {
-        var minR = Math.min(r1, r2) + 1;
-        var maxR = Math.max(r1, r2);
-        var clear = true;
-        for (var r = minR; r < maxR; r++) {
-          if (linesGrid[r][c1] !== null) { clear = false; break; }
-        }
-        if (clear) return true;
-      }
+      // Меняем в массиве
+      var temp = linesGrid[r1][c1];
+      linesGrid[r1][c1] = linesGrid[r2][c2];
+      linesGrid[r2][c2] = temp;
       
-      // 3. Один поворот (Г-образный путь)
-      // Поворот в (r1, c2)
-      if (linesGrid[r1][c2] === null) {
-        var clearH = true;
-        var minC = Math.min(c1, c2) + 1;
-        var maxC = Math.max(c1, c2);
-        for (var c = minC; c < maxC; c++) {
-          if (linesGrid[r1][c] !== null) { clearH = false; break; }
-        }
-        
-        var clearV = true;
-        var minR = Math.min(r1, r2) + 1;
-        var maxR = Math.max(r1, r2);
-        for (var r = minR; r < maxR; r++) {
-          if (linesGrid[r][c2] !== null) { clearV = false; break; }
-        }
-        
-        if (clearH && clearV) return true;
-      }
+      // Обновляем визуально
+      linesGrid[r1][c1].el.style.background = linesGrid[r1][c1].color;
+      linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
       
-      // Поворот в (r2, c1)
-      if (linesGrid[r2][c1] === null) {
-        var clearV = true;
-        var minR = Math.min(r1, r2) + 1;
-        var maxR = Math.max(r1, r2);
-        for (var r = minR; r < maxR; r++) {
-          if (linesGrid[r][c1] !== null) { clearV = false; break; }
+      setTimeout(function() {
+        // Проверяем совпадения
+        if (checkMatchAt(r1, c1) || checkMatchAt(r2, c2)) {
+          // Есть совпадение - оставляем и обрабатываем
+          processMatches();
+        } else {
+          // Нет совпадения - возвращаем обратно
+          var temp2 = linesGrid[r1][c1];
+          linesGrid[r1][c1] = linesGrid[r2][c2];
+          linesGrid[r2][c2] = temp2;
+          
+          linesGrid[r1][c1].el.style.background = linesGrid[r1][c1].color;
+          linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
+          isSwapping = false;
         }
-        
-        var clearH = true;
-        var minC = Math.min(c1, c2) + 1;
-        var maxC = Math.max(c1, c2);
-        for (var c = minC; c < maxC; c++) {
-          if (linesGrid[r2][c] !== null) { clearH = false; break; }
-        }
-        
-        if (clearH && clearV) return true;
-      }
+      }, 250);
+    }
+
+    function checkMatchAt(r, c) {
+      if (!linesGrid[r] || !linesGrid[r][c]) return false;
+      var color = linesGrid[r][c].color;
+      
+      // Горизонталь
+      var count = 1;
+      for (var i = c - 1; i >= 0; i--) { if (linesGrid[r][i] && linesGrid[r][i].color === color) count++; else break; }
+      for (var i = c + 1; i < linesGridSize; i++) { if (linesGrid[r][i] && linesGrid[r][i].color === color) count++; else break; }
+      if (count >= 3) return true;
+      
+      // Вертикаль
+      count = 1;
+      for (var i = r - 1; i >= 0; i--) { if (linesGrid[i] && linesGrid[i][c] && linesGrid[i][c].color === color) count++; else break; }
+      for (var i = r + 1; i < linesGridSize; i++) { if (linesGrid[i] && linesGrid[i][c] && linesGrid[i][c].color === color) count++; else break; }
+      if (count >= 3) return true;
       
       return false;
     }
 
-    function checkGameOver() {
-      var remaining = 0;
+    function processMatches() {
+      var matches = [];
       for (var r = 0; r < linesGridSize; r++) {
         for (var c = 0; c < linesGridSize; c++) {
-          if (linesGrid[r][c] !== null) remaining++;
+          if (linesGrid[r][c] && checkMatchAt(r, c)) {
+            matches.push({r: r, c: c});
+          }
         }
       }
-      if (remaining === 0) {
-        showToast('🎉 Поле очищено!');
-        generateLinesGrid();
+      
+      if (matches.length === 0) {
+        isSwapping = false;
+        return;
       }
+      
+      // Удаляем совпадения
+      matches.forEach(function(m) {
+        if (linesGrid[m.r][m.c]) {
+          linesGrid[m.r][m.c].el.classList.add('popping');
+          var el = linesGrid[m.r][m.c].el;
+          setTimeout(function() { if (el.parentNode) el.remove(); }, 300);
+          linesGrid[m.r][m.c] = null;
+        }
+      });
+      
+      linesScore += matches.length * 10;
+      $('#lines-score').textContent = linesScore;
+      
+      setTimeout(function() {
+        // Падение шариков
+        for (var c = 0; c < linesGridSize; c++) {
+          for (var r = linesGridSize - 1; r >= 0; r--) {
+            if (linesGrid[r][c] === null) {
+              // Ищем шарик выше
+              for (var k = r - 1; k >= 0; k--) {
+                if (linesGrid[k][c] !== null) {
+                  linesGrid[r][c] = linesGrid[k][c];
+                  linesGrid[k][c] = null;
+                  updateBallVisual(r, c);
+                  break;
+                }
+              }
+              // Если не нашли, создаем новый
+              if (linesGrid[r][c] === null) {
+                linesGrid[r][c] = { color: linesColorMap[Math.floor(Math.random() * 4)], el: null };
+                createBallVisual(r, c);
+                // Анимация падения для новых
+                var newEl = linesGrid[r][c].el;
+                newEl.style.transform = 'translateY(-300px)';
+                newEl.style.transition = 'none';
+                setTimeout(function() {
+                  newEl.style.transform = 'translateY(0)';
+                  newEl.style.transition = 'transform 0.3s ease-in';
+                }, 10);
+              }
+            }
+          }
+        }
+        
+        // Проверяем еще раз через секунду
+        setTimeout(function() {
+          var hasMore = false;
+          for (var r = 0; r < linesGridSize; r++) {
+            for (var c = 0; c < linesGridSize; c++) {
+              if (linesGrid[r][c] && checkMatchAt(r, c)) { hasMore = true; break; }
+            }
+          }
+          if (hasMore) {
+            processMatches();
+          } else {
+            isSwapping = false;
+          }
+        }, 400);
+        
+      }, 300);
     }
 
     function initChat() {
