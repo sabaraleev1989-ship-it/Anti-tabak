@@ -684,7 +684,10 @@
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <span style="font-size:16px; font-weight:700;">🔴 Шарики (3 в ряд)</span>
-          <button class="btn btn-ghost btn-small" id="lines-reset" style="padding: 4px 8px; font-size: 10px;">Новая игра</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-ghost btn-small" id="lines-records" style="padding: 4px 8px; font-size: 10px;">🏆</button>
+            <button class="btn btn-ghost btn-small" id="lines-reset" style="padding: 4px 8px; font-size: 10px;">Новая игра</button>
+          </div>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:12px;">
           <span>Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></span>
@@ -743,6 +746,20 @@
     </div>
   </div>
 
+  <!-- МОДАЛКА РЕКОРДОВ (ТРИ В РЯД) -->
+  <div class="modal-backdrop" id="records-modal">
+    <div class="modal-card">
+      <div class="modal-title">🏆 Таблица рекордов</div>
+      <div class="modal-text">Твои лучшие результаты в игре «Шарики»</div>
+      
+      <div id="records-list" style="text-align: left; margin-bottom: 16px; background: rgba(15,23,42,0.6); padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);">
+        <!-- Список рекордов -->
+      </div>
+      
+      <button class="btn btn-primary" id="records-close" type="button">Закрыть</button>
+    </div>
+  </div>
+
   <div id="rocket-container">🚀</div>
   <div class="toast" id="toast"></div>
 
@@ -792,6 +809,7 @@
     ];
 
     var STORAGE_KEY = 'dyshi_app_data_v1';
+    var RECORDS_KEY = 'dyshi_match3_records';
 
     function loadData() { 
       try { 
@@ -920,6 +938,7 @@
       initWordGame();
       initLinesGame();
       initChat();
+      initRecordsModal();
       updateAll();
       
       if (tickInterval) clearInterval(tickInterval);
@@ -1496,6 +1515,16 @@
         }
       }
 
+      // Проверка на наличие готовых линий 4+ (т.к. в 3 проверка уже есть, но вдруг)
+      // На самом деле, если мы проверяем пары при генерации, то тройки не появятся. 
+      // Но для надежности проверим и уберем все совпадения рекурсивно.
+      while (findMatches().length > 0) {
+        var m = findMatches();
+        m.forEach(function(match) {
+          board[match.r][match.c] = Math.floor(Math.random() * NUM_TYPES) + 1;
+        });
+      }
+
       renderBoard();
       
       // Обработчик кнопки сброса
@@ -1601,6 +1630,7 @@
           $('#lines-moves').textContent = movesLeft;
           
           if (movesLeft <= 0) {
+            saveRecord(score); // Сохраняем рекорд перед концом
             showToast('Игра окончена! Очки: ' + score);
           }
 
@@ -1745,6 +1775,53 @@
           updateCellVisual(r, c);
         }
       }
+    }
+
+    // === СИСТЕМА РЕКОРДОВ ДЛЯ ШАРИКОВ ===
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(RECORDS_KEY)) || [];
+      } catch(e) { return []; }
+    }
+
+    function saveRecord(newScore) {
+      if (newScore <= 0) return;
+      var records = loadRecords();
+      records.push({ score: newScore, date: new Date().toLocaleDateString('ru-RU') });
+      // Сортируем по убыванию очков
+      records.sort(function(a, b) { return b.score - a.score; });
+      // Оставляем только топ-10
+      records = records.slice(0, 10);
+      try {
+        localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+      } catch(e) {}
+    }
+
+    function initRecordsModal() {
+      $('#lines-records').addEventListener('click', function() {
+        var records = loadRecords();
+        var list = $('#records-list');
+        list.innerHTML = '';
+        
+        if (records.length === 0) {
+          list.innerHTML = '<div style="text-align:center; color:var(--text-dim);">Пока нет рекордов</div>';
+        } else {
+          records.forEach(function(rec, idx) {
+            var item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.justifyContent = 'space-between';
+            item.style.padding = '8px 0';
+            item.style.borderBottom = '1px solid rgba(148,163,184,0.1)';
+            item.innerHTML = '<span style="color:var(--text-dim);">' + (idx+1) + '. ' + rec.date + '</span> <strong style="color:var(--accent-2);">' + rec.score + '</strong>';
+            list.appendChild(item);
+          });
+        }
+        $('#records-modal').classList.add('show');
+      });
+
+      $('#records-close').addEventListener('click', function() {
+        $('#records-modal').classList.remove('show');
+      });
     }
 
     function initChat() {
