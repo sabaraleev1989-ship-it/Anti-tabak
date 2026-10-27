@@ -48,7 +48,6 @@
       transition: background 0.5s ease;
     }
 
-    /* Вспышка при достижении цели */
     body.flash-green {
       background: radial-gradient(circle at 50% 50%, rgba(74, 222, 128, 0.4), transparent 70%),
                   radial-gradient(1200px 600px at 10% -10%, rgba(34,197,94,0.3), transparent 60%),
@@ -454,27 +453,40 @@
     .settings-buttons { display: flex; gap: 8px; margin-top: 20px; }
     .settings-buttons .btn { padding: 10px; font-size: 12px; }
 
-    /* --- ИГРА "СЛОВА ИЗ БУКВ" --- */
-    .word-game-area { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-    .word-slots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    /* Стили для игр "Слова" и "Линии" */
+    .word-slots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
     .word-slot { width: 36px; height: 36px; border-radius: 8px; background: rgba(15,23,42,0.6); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--accent-2); }
-    .letter-pool { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .letter-pool { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
     .letter-btn { width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(34,197,94,0.15)); border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #fff; cursor: pointer; transition: all 0.2s; }
     .letter-btn:active { transform: scale(0.9); }
     .letter-btn.used { opacity: 0.3; pointer-events: none; }
-
-    /* --- ИГРА "ЛИНИИ ЦВЕТОВ" --- */
+    
     #lines-game-area { position: relative; height: 300px; border-radius: 12px; background: rgba(15,23,42,0.6); overflow: hidden; }
     .color-ball { position: absolute; border-radius: 50%; cursor: pointer; transition: all 0.2s; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4); }
-    .color-ball:hover { transform: scale(1.1); }
+    .color-ball.selected { transform: scale(1.2); box-shadow: 0 0 15px #fff, inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4); }
+
+    /* АНИМАЦИЯ РАКЕТЫ */
+    #rocket-container {
+      position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+      font-size: 60px; z-index: 9999; pointer-events: none; opacity: 0;
+    }
+    #rocket-container.launch { animation: rocketLaunch 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    @keyframes rocketLaunch {
+      0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg); }
+      10% { opacity: 1; }
+      100% { bottom: 120%; opacity: 0; transform: translateX(-50%) scale(1.5) rotate(10deg); }
+    }
+    .smoke-particle {
+      position: fixed; bottom: 0; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%; pointer-events: none; z-index: 9998; animation: smoke 1s ease-out forwards;
+    }
+    @keyframes smoke { 0% { transform: scale(1) translateY(0); opacity: 0.8; } 100% { transform: scale(3) translateY(50px); opacity: 0; } }
   </style>
 </head>
 <body>
 
   <section id="onboarding">
-    <div class="hero-art">
-      <img src="2.png" alt="Дыши" />
-    </div>
+    <div class="hero-art"><img src="2.png" alt="Дыши" /></div>
     <div class="onboarding-content">
       <div class="brand-badge">🌿 Дыши</div>
       <div id="welcome-step">
@@ -520,7 +532,6 @@
         <div class="stat-card"><div class="stat-emoji">💰</div><div class="stat-value money" id="stat-money">0 ₽</div><div class="stat-label">сэкономлено</div></div>
       </div>
       
-      <!-- ТАЙМЕР -->
       <div class="timer-card">
         <div class="progress-ring-wrap">
           <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
@@ -543,7 +554,6 @@
           <div class="time-cell"><div class="time-num" id="t-seconds">00</div><div class="time-unit">секунд</div></div>
         </div>
 
-        <!-- Общее количество часов -->
         <div class="total-hours-badge">
           ⏳ Всего часов без сигарет: <strong id="t-total-hours">0</strong>
         </div>
@@ -621,18 +631,28 @@
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
-          <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Новое слово</button>
+          <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <div class="mem-difficulty" style="margin-bottom:16px;">
-          <button class="mem-diff-btn active" data-diff="easy">Лёгкий (4)</button>
-          <button class="mem-diff-btn" data-diff="medium">Средний (5)</button>
-          <button class="mem-diff-btn" data-diff="hard">Сложный (6)</button>
+        <div class="mem-difficulty" style="margin-bottom:12px;">
+          <button class="word-diff-btn mem-diff-btn active" data-diff="easy">5 букв</button>
+          <button class="word-diff-btn mem-diff-btn" data-diff="medium">10 букв</button>
+          <button class="word-diff-btn mem-diff-btn" data-diff="hard">15 букв</button>
         </div>
-        <div class="word-game-area">
-          <div style="font-size:12px; color:var(--text-dim);">Собери слово из букв:</div>
-          <div class="word-slots" id="word-slots"></div>
-          <div class="letter-pool" id="letter-pool"></div>
+        
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px;">
+          <span>Рекорд слов: <strong id="word-record" style="color:var(--accent-2);">0</strong></span>
+          <span>Найдено: <strong id="word-found-count" style="color:var(--accent-2);">0</strong></span>
         </div>
+        
+        <div style="text-align:center; font-size:20px; font-weight:800; letter-spacing:2px; margin-bottom:12px; color:#fff;" id="base-word">...</div>
+        
+        <div class="word-slots" id="word-input-slots"></div>
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input type="text" id="word-input" placeholder="Введи слово..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; outline:none;" />
+          <button class="btn btn-primary btn-small" id="word-submit" style="border-radius:8px;">OK</button>
+        </div>
+        
+        <div id="found-words-list" style="display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--accent-2); justify-content:center;"></div>
       </div>
 
       <!-- ИГРА: ЛИНИИ ЦВЕТОВ -->
@@ -692,9 +712,7 @@
     </div>
   </div>
 
-  <!-- Ракета и дым -->
   <div id="rocket-container">🚀</div>
-
   <div class="toast" id="toast"></div>
 
   <script>
@@ -726,7 +744,6 @@
       { ms: 365 * DAY,       title: '1 год', icon: '🏆', desc: 'Риск болезней сердца снижается вдвое.', arg: 'Вы обошли миллионы курильщиков' }
     ];
 
-    // Обновленные задания с физическими упражнениями
     var TASKS = [
       { id: 't1',  text: 'Выпей стакан воды',           hint: 'Сделай 5 медленных глотков.', cat: 'Тело' },
       { id: 't2',  text: 'Сделай 10 глубоких вдохов',   hint: 'Выйди на балкон или к окну.', cat: 'Дыхание' },
@@ -851,6 +868,7 @@
     });
 
     var state = null, tickInterval = null, ringCirc = 2 * Math.PI * 60;
+    var checkMilestoneTimeout = null;
 
     function startApp(data) {
       state = data;
@@ -873,6 +891,9 @@
       initLinesGame();
       initChat();
       updateAll();
+
+      // ВАЖНО: Запускаем проверку достижений сразу после загрузки
+      checkAndCelebrate();
       
       if (tickInterval) clearInterval(tickInterval);
       tickInterval = setInterval(updateAll, 1000);
@@ -912,13 +933,11 @@
       var totalHours = Math.floor(elapsed / HOUR);
       var days = Math.floor(totalSec / 86400), hours = Math.floor((totalSec % 86400) / 3600), minutes = Math.floor((totalSec % 3600) / 60), seconds = totalSec % 60;
 
-      // Обновляем цифры в таймере
       updateTimerDigit('t-days', pad(days));
       updateTimerDigit('t-hours', pad(hours));
       updateTimerDigit('t-minutes', pad(minutes));
       updateTimerDigit('t-seconds', pad(seconds));
       
-      // Общее количество часов
       $('#t-total-hours').textContent = totalHours.toLocaleString('ru-RU');
 
       var daysFloat = elapsed / DAY;
@@ -951,32 +970,56 @@
         $('#goal-countdown').innerHTML = '';
       }
 
-      // Проверка достижений (вех)
-      var currentMilestoneIndex = -1;
       var nodes = $$('#milestones-container .milestone');
       nodes.forEach(function(node, idx) {
         if (elapsed >= MILESTONES[idx].ms) {
           node.classList.add('done');
-          currentMilestoneIndex = idx;
         } else {
           node.classList.remove('done');
         }
       });
 
-      // Если есть новая достигнутая веха (не считая тех, что уже праздновали)
-      if (currentMilestoneIndex > state.lastCelebratedIdx) {
-        // Если это самый первый запуск и индекс равен 0 (или -1 до этого), просто записываем
-        if (state.lastCelebratedIdx === -1 && currentMilestoneIndex >= 0) {
-          state.lastCelebratedIdx = currentMilestoneIndex;
-          saveData(state);
-        } else if (state.lastCelebratedIdx !== -1 && currentMilestoneIndex > state.lastCelebratedIdx) {
-          triggerCelebration();
-          state.lastCelebratedIdx = currentMilestoneIndex;
-          saveData(state);
+      updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
+
+      // Проверяем на новую веху
+      checkAndCelebrate();
+    }
+
+    function checkAndCelebrate() {
+      if (!state) return;
+      var elapsed = Date.now() - state.quitTs;
+      var currentMilestoneIndex = -1;
+      
+      for (var i = 0; i < MILESTONES.length; i++) {
+        if (elapsed >= MILESTONES[i].ms) {
+          currentMilestoneIndex = i;
         }
       }
 
-      updateShopButtons(Math.max(0, totalEarned - state.spentPoints));
+      // Если есть непразднованная веха
+      if (currentMilestoneIndex > state.lastCelebratedIdx) {
+        // Если это первый запуск и есть только одна веха (или ноль), просто отмечаем
+        if (state.lastCelebratedIdx === -1 && currentMilestoneIndex === 0) {
+          state.lastCelebratedIdx = currentMilestoneIndex;
+          saveData(state);
+          return;
+        }
+
+        // Если это первый запуск и уже несколько вех, празднуем только последнюю
+        if (state.lastCelebratedIdx === -1 && currentMilestoneIndex > 0) {
+           state.lastCelebratedIdx = currentMilestoneIndex;
+           saveData(state);
+           triggerCelebration();
+           return;
+        }
+
+        // Если праздник уже был, но время перешло на новую веху
+        if (currentMilestoneIndex > state.lastCelebratedIdx) {
+          state.lastCelebratedIdx = currentMilestoneIndex;
+          saveData(state);
+          triggerCelebration();
+        }
+      }
     }
 
     function updateTimerDigit(id, newValue) {
@@ -989,7 +1032,6 @@
       }
     }
 
-    // ЭФФЕКТ ПРАЗДНИКА (при запуске или в реальном времени)
     function triggerCelebration() {
       document.body.classList.add('flash-green');
       setTimeout(function() { document.body.classList.remove('flash-green'); }, 1500);
@@ -1042,7 +1084,6 @@
     var style = document.createElement('style');
     style.innerHTML = '@keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }';
     document.head.appendChild(style);
-
 
     var taskToVerify = null;
 
@@ -1311,96 +1352,108 @@
       }
     }
 
-    // ИГРА "СЛОВА ИЗ БУКВ"
-    var wordList = {
-      easy: ['ДЫМ', 'СОН', 'ЛЕС', 'ДОМ', 'МИР', 'ЧАЙ'],
-      medium: ['СВОБОДА', 'ЗДОРОВЬЕ', 'СИЛА', 'ВОЗДУХ', 'СПОРТ', 'ЖИЗНЬ'],
-      hard: ['ДЫХАНИЕ', 'ОРГАНИЗМ', 'ВОССТАНОВЛЕНИЕ', 'ЭНЕРГИЯ', 'ЧИСТОТА']
+    // ИГРА "СЛОВА ИЗ БУКВ" (Переделана под "Собери слова из длинного слова")
+    var baseWords = {
+      easy: ['ВОЗДУХ', 'ЗДОРОВЬЕ', 'СПОРТ', 'СИЛА', 'ЖИЗНЬ'], // 5-7 букв
+      medium: ['ВОССТАНОВЛЕНИЕ', 'ДЫХАНИЕ', 'ОРГАНИЗМ', 'ЧИСТОТА'], // 8-12 букв
+      hard: ['ПРОФИЛАКТИКА', 'ДОЛГОЛЕТИЕ', 'БЕЗОПАСНОСТЬ', 'УПРАЖНЕНИЕ'] // 13+ букв
     };
-    var currentWord = '';
+    var currentBaseWord = '';
     var currentWordDifficulty = 'easy';
-    var currentWordLetters = [];
-    var selectedLetters = [];
+    var foundWords = [];
+    var wordRecord = 0;
 
     function initWordGame() {
+      // Загружаем рекорд
+      try {
+        wordRecord = parseInt(localStorage.getItem('dyshi_word_record') || '0', 10);
+        $('#word-record').textContent = wordRecord;
+      } catch(e) {}
+      
       $('#word-reset').addEventListener('click', startNewWord);
-      $$('.mem-diff-btn[data-diff]').forEach(function(btn) {
-        // Кнопки сложности в игре слов перепутаются с игрой памяти, поэтому берем только из блока слов
-        var parentCard = btn.closest('.game-card');
-        if (!parentCard || !parentCard.querySelector('#word-slots')) return;
-        
+      $('#word-submit').addEventListener('click', checkWord);
+      $('#word-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkWord(); });
+      
+      $$('.word-diff-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          parentCard.querySelectorAll('.mem-diff-btn').forEach(function(b) { b.classList.remove('active'); });
+          $$('.word-diff-btn').forEach(function(b) { b.classList.remove('active'); });
           btn.classList.add('active');
           currentWordDifficulty = btn.dataset.diff;
           startNewWord();
         });
       });
+      
       startNewWord();
     }
 
     function startNewWord() {
-      var words = wordList[currentWordDifficulty];
-      currentWord = words[Math.floor(Math.random() * words.length)];
-      currentWordLetters = currentWord.split('');
-      selectedLetters = [];
+      var words = baseWords[currentWordDifficulty];
+      currentBaseWord = words[Math.floor(Math.random() * words.length)];
+      foundWords = [];
       
-      var shuffled = currentWordLetters.slice();
-      for (var i = shuffled.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp; }
+      $('#base-word').textContent = currentBaseWord;
+      $('#word-input').value = '';
+      $('#word-found-count').textContent = '0';
+      $('#found-words-list').innerHTML = '';
       
-      var slotsContainer = $('#word-slots');
-      slotsContainer.innerHTML = '';
-      currentWordLetters.forEach(function() {
-        var slot = document.createElement('div');
-        slot.className = 'word-slot';
-        slotsContainer.appendChild(slot);
-      });
-      
-      var poolContainer = $('#letter-pool');
-      poolContainer.innerHTML = '';
-      shuffled.forEach(function(letter) {
-        var btn = document.createElement('div');
-        btn.className = 'letter-btn';
-        btn.textContent = letter;
-        btn.dataset.letter = letter;
-        btn.addEventListener('click', function() { selectLetter(btn); });
-        poolContainer.appendChild(btn);
-      });
+      // Генерируем слоты для ввода (просто для красоты, не обязательно)
+      var slotsContainer = $('#word-input-slots');
+      slotsContainer.innerHTML = '<div style="font-size:12px; color:var(--text-dim);">Вводи слова, которые можешь составить из этих букв:</div>';
     }
 
-    function selectLetter(btn) {
-      if (btn.classList.contains('used')) return;
+    function checkWord() {
+      var val = $('#word-input').value.trim().toUpperCase();
+      if (!val) return;
       
-      var slotIndex = selectedLetters.length;
-      if (slotIndex >= currentWord.length) return;
+      // Проверяем, можно ли составить слово из букв базового слова
+      var tempBase = currentBaseWord.split('');
+      var canMake = true;
+      for (var i = 0; i < val.length; i++) {
+        var idx = tempBase.indexOf(val[i]);
+        if (idx === -1) { canMake = false; break; }
+        tempBase.splice(idx, 1);
+      }
       
-      selectedLetters.push({ letter: btn.dataset.letter, btn: btn });
-      btn.classList.add('used');
+      if (!canMake) {
+        showToast('❌ Нет таких букв в слове!');
+        return;
+      }
       
-      var slots = $$('#word-slots .word-slot');
-      slots[slotIndex].textContent = btn.dataset.letter;
+      if (foundWords.indexOf(val) !== -1) {
+        showToast('Ты уже нашел это слово!');
+        return;
+      }
       
-      if (selectedLetters.length === currentWord.length) {
-        var assembled = selectedLetters.map(function(s) { return s.letter; }).join('');
-        if (assembled === currentWord) {
-          showToast('🎉 Правильно!');
-          setTimeout(startNewWord, 1000);
-        } else {
-          showToast('❌ Попробуй еще раз');
-          setTimeout(function() {
-            selectedLetters.forEach(function(s) { s.btn.classList.remove('used'); });
-            selectedLetters = [];
-            $$('#word-slots .word-slot').forEach(function(s) { s.textContent = ''; });
-          }, 800);
-        }
+      // В реальной игре здесь была бы проверка по словарю.
+      // Но для нашей игры мы принимаем любое слово длиннее 2 букв.
+      if (val.length < 3) {
+        showToast('Слишком короткое слово!');
+        return;
+      }
+      
+      foundWords.push(val);
+      $('#word-found-count').textContent = foundWords.length;
+      $('#word-input').value = '';
+      
+      var span = document.createElement('span');
+      span.textContent = val;
+      $('#found-words-list').appendChild(span);
+      
+      showToast('✅ +1 слово!');
+      
+      if (foundWords.length > wordRecord) {
+        wordRecord = foundWords.length;
+        localStorage.setItem('dyshi_word_record', wordRecord);
+        $('#word-record').textContent = wordRecord;
       }
     }
 
-    // ИГРА "ЛИНИИ ЦВЕТОВ"
-    var linesGrid = [];
+    // ИГРА "ЛИНИИ ЦВЕТОВ" (Переписана, теперь с поиском пути)
+    var linesGrid = []; // Двумерный массив (6x6) для хранения цветов или null
     var linesScore = 0;
     var selectedBall = null;
     var linesColorMap = ['#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1', '#f368e0'];
+    var linesGridSize = 6;
     
     function initLinesGame() {
       linesScore = 0;
@@ -1413,81 +1466,89 @@
       if (!area) return;
       area.innerHTML = '';
       
-      var cols = 6;
-      var rows = 6;
-      var size = area.clientWidth / cols;
+      var size = area.clientWidth / linesGridSize;
       linesGrid = [];
       
-      for (var r = 0; r < rows; r++) {
+      for (var r = 0; r < linesGridSize; r++) {
         linesGrid[r] = [];
-        for (var c = 0; c < cols; c++) {
-          var color = linesColorMap[Math.floor(Math.random() * 4)]; // 4 colors for simplicity
+        for (var c = 0; c < linesGridSize; c++) {
+          // Выбираем случайный цвет из первых 4-х
+          var colorIdx = Math.floor(Math.random() * 4);
+          var color = linesColorMap[colorIdx];
           linesGrid[r][c] = color;
           
-          var ball = document.createElement('div');
-          ball.className = 'color-ball';
-          ball.style.width = (size - 4) + 'px';
-          ball.style.height = (size - 4) + 'px';
-          ball.style.left = (c * size + 2) + 'px';
-          ball.style.top = (r * size + 2) + 'px';
-          ball.style.background = color;
-          ball.dataset.r = r;
-          ball.dataset.c = c;
-          ball.dataset.color = color;
-          
-          ball.addEventListener('click', function() { handleBallClick(this); });
-          area.appendChild(ball);
+          createBallVisual(r, c, color, size);
         }
       }
     }
 
-    function handleBallClick(ball) {
+    function createBallVisual(r, c, color, size) {
+      var area = $('#lines-game-area');
+      var ball = document.createElement('div');
+      ball.className = 'color-ball';
+      ball.style.width = (size - 6) + 'px';
+      ball.style.height = (size - 6) + 'px';
+      ball.style.left = (c * size + 3) + 'px';
+      ball.style.top = (r * size + 3) + 'px';
+      ball.style.background = color;
+      ball.dataset.r = r;
+      ball.dataset.c = c;
+      
+      ball.addEventListener('click', function() { handleBallClick(r, c, this); });
+      area.appendChild(ball);
+    }
+
+    function handleBallClick(r, c, ballEl) {
+      if (linesGrid[r][c] === null) return; // Пустая клетка
+      
       if (!selectedBall) {
-        selectedBall = ball;
-        ball.style.transform = 'scale(1.2)';
-        ball.style.boxShadow = '0 0 15px #fff';
+        selectedBall = { r: r, c: c, el: ballEl };
+        ballEl.classList.add('selected');
         return;
       }
       
-      if (selectedBall === ball) {
-        selectedBall.style.transform = '';
-        selectedBall.style.boxShadow = '';
+      if (selectedBall.r === r && selectedBall.c === c) {
+        // Клик по тому же шарику - отмена
+        selectedBall.el.classList.remove('selected');
         selectedBall = null;
         return;
       }
       
-      var r1 = parseInt(selectedBall.dataset.r), c1 = parseInt(selectedBall.dataset.c);
-      var r2 = parseInt(ball.dataset.r), c2 = parseInt(ball.dataset.c);
-      
-      if (selectedBall.dataset.color === ball.dataset.color) {
-        if (checkPath(r1, c1, r2, c2)) {
-          // Line found
+      // Проверяем совпадение цветов
+      if (linesGrid[selectedBall.r][selectedBall.c] === linesGrid[r][c]) {
+        // Проверяем путь
+        if (findPath(selectedBall.r, selectedBall.c, r, c)) {
+          // Уничтожаем
+          linesGrid[selectedBall.r][selectedBall.c] = null;
+          linesGrid[r][c] = null;
+          
+          selectedBall.el.remove();
+          ballEl.remove();
+          
           linesScore += 10;
           $('#lines-score').textContent = linesScore;
-          selectedBall.remove();
-          ball.remove();
-          selectedBall = null;
           showToast('✨ +10 очков!');
-          checkLinesEnd();
+          
+          selectedBall = null;
+          
+          // Проверяем, не закончились ли шарики
+          checkGameOver();
         } else {
-          showToast('❌ Нет пути');
-          resetSelection();
+          showToast('Нет свободного пути!');
+          selectedBall.el.classList.remove('selected');
+          selectedBall = null;
         }
       } else {
-        resetSelection();
+        // Другой цвет - меняем выбор
+        selectedBall.el.classList.remove('selected');
+        selectedBall = { r: r, c: c, el: ballEl };
+        ballEl.classList.add('selected');
       }
     }
 
-    function resetSelection() {
-      if (selectedBall) {
-        selectedBall.style.transform = '';
-        selectedBall.style.boxShadow = '';
-        selectedBall = null;
-      }
-    }
-
-    function checkPath(r1, c1, r2, c2) {
-      // Упрощенная проверка: если находятся в одном ряду или столбце и между ними нет других шаров
+    // Алгоритм поиска пути (упрощенный: по прямой линии, без препятствий)
+    function findPath(r1, c1, r2, c2) {
+      // 1. Горизонтальная линия
       if (r1 === r2) {
         var minC = Math.min(c1, c2) + 1;
         var maxC = Math.max(c1, c2);
@@ -1495,8 +1556,10 @@
         for (var c = minC; c < maxC; c++) {
           if (linesGrid[r1][c] !== null) { clear = false; break; }
         }
-        return clear;
+        if (clear) return true;
       }
+      
+      // 2. Вертикальная линия
       if (c1 === c2) {
         var minR = Math.min(r1, r2) + 1;
         var maxR = Math.max(r1, r2);
@@ -1504,19 +1567,59 @@
         for (var r = minR; r < maxR; r++) {
           if (linesGrid[r][c1] !== null) { clear = false; break; }
         }
-        return clear;
+        if (clear) return true;
       }
-      return false; // Диагональ запрещена
+      
+      // 3. Один поворот (Г-образный путь)
+      // Поворот в (r1, c2)
+      if (linesGrid[r1][c2] === null) {
+        var clearH = true;
+        var minC = Math.min(c1, c2) + 1;
+        var maxC = Math.max(c1, c2);
+        for (var c = minC; c < maxC; c++) {
+          if (linesGrid[r1][c] !== null) { clearH = false; break; }
+        }
+        
+        var clearV = true;
+        var minR = Math.min(r1, r2) + 1;
+        var maxR = Math.max(r1, r2);
+        for (var r = minR; r < maxR; r++) {
+          if (linesGrid[r][c2] !== null) { clearV = false; break; }
+        }
+        
+        if (clearH && clearV) return true;
+      }
+      
+      // Поворот в (r2, c1)
+      if (linesGrid[r2][c1] === null) {
+        var clearV = true;
+        var minR = Math.min(r1, r2) + 1;
+        var maxR = Math.max(r1, r2);
+        for (var r = minR; r < maxR; r++) {
+          if (linesGrid[r][c1] !== null) { clearV = false; break; }
+        }
+        
+        var clearH = true;
+        var minC = Math.min(c1, c2) + 1;
+        var maxC = Math.max(c1, c2);
+        for (var c = minC; c < maxC; c++) {
+          if (linesGrid[r2][c] !== null) { clearH = false; break; }
+        }
+        
+        if (clearH && clearV) return true;
+      }
+      
+      return false;
     }
 
-    function checkLinesEnd() {
-      var remaining = false;
-      for (var r = 0; r < 6; r++) {
-        for (var c = 0; c < 6; c++) {
-          if (linesGrid[r][c] !== null) remaining = true;
+    function checkGameOver() {
+      var remaining = 0;
+      for (var r = 0; r < linesGridSize; r++) {
+        for (var c = 0; c < linesGridSize; c++) {
+          if (linesGrid[r][c] !== null) remaining++;
         }
       }
-      if (!remaining) {
+      if (remaining === 0) {
         showToast('🎉 Поле очищено!');
         generateLinesGrid();
       }
