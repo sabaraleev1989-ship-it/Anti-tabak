@@ -464,7 +464,7 @@
     /* Игра Lines (Match-3) */
     #lines-game-area { 
       position: relative; 
-      height: 320px; 
+      height: 340px; 
       border-radius: 12px; 
       background: rgba(15,23,42,0.6); 
       overflow: hidden; 
@@ -1458,239 +1458,293 @@
       }
     }
 
-    // ИГРА "ШАРИКИ" (МАТЧ-3) - 8x8, каскады, ходы
-    var linesGrid = []; // Двумерный массив {color, el}
-    var linesScore = 0;
-    var linesMoves = 30;
-    var selectedBall = null; // {r, c}
-    var linesColorMap = ['#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1'];
-    var linesGridSize = 8;
-    var isSwapping = false;
+    // ИГРА "ШАРИКИ" (МАТЧ-3) - строгая логика по ТЗ
+    var ROWS = 8;
+    var COLS = 8;
+    var NUM_TYPES = 5;
+    var board = []; // 2D array of types (1..5) or 0 (empty)
+    var score = 0;
+    var movesLeft = 30;
+    var isAnimating = false;
+    var selectedCell = null; // {r, c}
+    var cellElements = []; // 2D array of DOM elements
+    
+    // Цвета для типов (1..5)
+    var typeColors = ['', '#ff6b6b', '#4bcffa', '#feca57', '#48dbfb', '#1dd1a1'];
 
     function initLinesGame() {
-      linesScore = 0;
-      linesMoves = 30;
-      $('#lines-score').textContent = '0';
-      $('#lines-moves').textContent = '30';
-      isSwapping = false;
-      selectedBall = null;
+      score = 0;
+      movesLeft = 30;
+      isAnimating = false;
+      selectedCell = null;
+      $('#lines-score').textContent = score;
+      $('#lines-moves').textContent = movesLeft;
+
+      // Генерация поля без начальных совпадений
+      board = [];
+      for (var r = 0; r < ROWS; r++) {
+        board[r] = [];
+        for (var c = 0; c < COLS; c++) {
+          var type;
+          do {
+            type = Math.floor(Math.random() * NUM_TYPES) + 1;
+          } while (
+            (c >= 2 && board[r][c-1] === type && board[r][c-2] === type) ||
+            (r >= 2 && board[r-1][c] === type && board[r-2][c] === type)
+          );
+          board[r][c] = type;
+        }
+      }
+
+      renderBoard();
       
-      generateLinesGrid();
-      
-      $('#lines-reset').addEventListener('click', function() {
-        initLinesGame();
-        showToast('Новая игра!');
-      });
+      // Обработчик кнопки сброса
+      var resetBtn = $('#lines-reset');
+      if (resetBtn) {
+        resetBtn.onclick = function() {
+          initLinesGame();
+          showToast('Новая игра!');
+        };
+      }
     }
 
-    function generateLinesGrid() {
+    function renderBoard() {
       var area = $('#lines-game-area');
-      if (!area) return;
       area.innerHTML = '';
-      linesGrid = [];
+      cellElements = [];
       
-      for (var r = 0; r < linesGridSize; r++) {
-        linesGrid[r] = [];
-        for (var c = 0; c < linesGridSize; c++) {
-          linesGrid[r][c] = { color: linesColorMap[Math.floor(Math.random() * 5)], el: null };
-        }
-      }
-      
-      // Убираем начальные совпадения
-      for (var r = 0; r < linesGridSize; r++) {
-        for (var c = 0; c < linesGridSize; c++) {
-          while (checkMatchAt(r, c)) {
-            linesGrid[r][c].color = linesColorMap[Math.floor(Math.random() * 5)];
-          }
-        }
-      }
-
-      // Отрисовка
-      for (var r = 0; r < linesGridSize; r++) {
-        for (var c = 0; c < linesGridSize; c++) {
-          createBallVisual(r, c);
+      for (var r = 0; r < ROWS; r++) {
+        cellElements[r] = [];
+        for (var c = 0; c < COLS; c++) {
+          var cell = document.createElement('div');
+          cell.className = 'color-ball';
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          cell.style.background = typeColors[board[r][c]];
+          
+          cell.addEventListener('click', (function(row, col) {
+            return function() { onCellClick(row, col); };
+          })(r, c));
+          
+          area.appendChild(cell);
+          cellElements[r][c] = cell;
         }
       }
     }
 
-    function createBallVisual(r, c) {
-      var area = $('#lines-game-area');
-      var ball = document.createElement('div');
-      ball.className = 'color-ball';
-      ball.style.background = linesGrid[r][c].color;
-      ball.dataset.r = r;
-      ball.dataset.c = c;
-      ball.addEventListener('click', function() { handleBallClick(r, c); });
-      area.appendChild(ball);
-      linesGrid[r][c].el = ball;
-    }
-
-    function updateBallVisual(r, c) {
-      if (linesGrid[r][c] && linesGrid[r][c].el) {
-        linesGrid[r][c].el.style.background = linesGrid[r][c].color;
-      }
-    }
-
-    function handleBallClick(r, c) {
-      if (isSwapping || linesMoves <= 0) return;
-      if (linesGrid[r][c] === null) return;
-      
-      if (!selectedBall) {
-        selectedBall = { r: r, c: c };
-        linesGrid[r][c].el.classList.add('selected');
-        return;
-      }
-      
-      if (selectedBall.r === r && selectedBall.c === c) {
-        linesGrid[r][c].el.classList.remove('selected');
-        selectedBall = null;
-        return;
-      }
-      
-      var dr = Math.abs(selectedBall.r - r);
-      var dc = Math.abs(selectedBall.c - c);
-      
-      if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
-        // Соседние - меняем
-        var prevR = selectedBall.r, prevC = selectedBall.c;
-        linesGrid[prevR][prevC].el.classList.remove('selected');
-        
-        swapBalls(prevR, prevC, r, c);
-        selectedBall = null;
+    function updateCellVisual(r, c) {
+      var el = cellElements[r][c];
+      if (board[r][c] === 0) {
+        el.style.background = 'transparent';
+        el.style.boxShadow = 'none';
       } else {
-        // Не соседние - меняем выбор
-        linesGrid[selectedBall.r][selectedBall.c].el.classList.remove('selected');
-        selectedBall = { r: r, c: c };
-        linesGrid[r][c].el.classList.add('selected');
+        el.style.background = typeColors[board[r][c]];
+        el.style.boxShadow = 'inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.4)';
       }
     }
 
-    function swapBalls(r1, c1, r2, c2) {
-      isSwapping = true;
-      
-      // Меняем в массиве
-      var temp = linesGrid[r1][c1];
-      linesGrid[r1][c1] = linesGrid[r2][c2];
-      linesGrid[r2][c2] = temp;
-      
-      // Обновляем визуально
-      linesGrid[r1][c1].el.style.background = linesGrid[r1][c1].color;
-      linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
-      
-      setTimeout(function() {
-        // Проверяем совпадения
-        if (checkMatchAt(r1, c1) || checkMatchAt(r2, c2)) {
-          linesMoves--;
-          $('#lines-moves').textContent = linesMoves;
-          
-          if (linesMoves <= 0) {
-            showToast('Игра окончена! Очки: ' + linesScore);
-          }
-          
-          processMatches();
-        } else {
-          // Возврат
-          var temp2 = linesGrid[r1][c1];
-          linesGrid[r1][c1] = linesGrid[r2][c2];
-          linesGrid[r2][c2] = temp2;
-          
-          linesGrid[r1][c1].el.style.background = linesGrid[r1][c1].color;
-          linesGrid[r2][c2].el.style.background = linesGrid[r2][c2].color;
-          isSwapping = false;
-        }
-      }, 250);
-    }
+    function onCellClick(r, c) {
+      if (isAnimating || movesLeft <= 0) return;
+      if (board[r][c] === 0) return;
 
-    function checkMatchAt(r, c) {
-      if (!linesGrid[r] || !linesGrid[r][c]) return false;
-      var color = linesGrid[r][c].color;
-      
-      var count = 1;
-      for (var i = c - 1; i >= 0; i--) { if (linesGrid[r][i] && linesGrid[r][i].color === color) count++; else break; }
-      for (var i = c + 1; i < linesGridSize; i++) { if (linesGrid[r][i] && linesGrid[r][i].color === color) count++; else break; }
-      if (count >= 3) return true;
-      
-      count = 1;
-      for (var i = r - 1; i >= 0; i--) { if (linesGrid[i] && linesGrid[i][c] && linesGrid[i][c].color === color) count++; else break; }
-      for (var i = r + 1; i < linesGridSize; i++) { if (linesGrid[i] && linesGrid[i][c] && linesGrid[i][c].color === color) count++; else break; }
-      if (count >= 3) return true;
-      
-      return false;
-    }
-
-    function processMatches() {
-      var matches = [];
-      for (var r = 0; r < linesGridSize; r++) {
-        for (var c = 0; c < linesGridSize; c++) {
-          if (linesGrid[r][c] && checkMatchAt(r, c)) {
-            matches.push({r: r, c: c});
-          }
-        }
-      }
-      
-      if (matches.length === 0) {
-        isSwapping = false;
-        if (linesMoves <= 0) initLinesGame();
+      if (!selectedCell) {
+        // Первый выбор
+        selectedCell = { r: r, c: c };
+        cellElements[r][c].classList.add('selected');
         return;
       }
+
+      if (selectedCell.r === r && selectedCell.c === c) {
+        // Отмена выбора
+        cellElements[r][c].classList.remove('selected');
+        selectedCell = null;
+        return;
+      }
+
+      // Проверка соседства (Манхэттенское расстояние)
+      var dist = Math.abs(selectedCell.r - r) + Math.abs(selectedCell.c - c);
       
-      // Удаляем
-      matches.forEach(function(m) {
-        if (linesGrid[m.r][m.c]) {
-          linesGrid[m.r][m.c].el.classList.add('popping');
-          var el = linesGrid[m.r][m.c].el;
-          setTimeout(function() { if (el.parentNode) el.remove(); }, 300);
-          linesGrid[m.r][m.c] = null;
-        }
-      });
-      
-      linesScore += matches.length * 10;
-      $('#lines-score').textContent = linesScore;
-      
-      // Падение и каскад
+      if (dist === 1) {
+        // Соседи - пробуем поменять
+        var prevR = selectedCell.r;
+        var prevC = selectedCell.c;
+        cellElements[prevR][prevC].classList.remove('selected');
+        
+        trySwap(prevR, prevC, r, c);
+        selectedCell = null;
+      } else {
+        // Не соседи - переносим выбор
+        cellElements[selectedCell.r][selectedCell.c].classList.remove('selected');
+        selectedCell = { r: r, c: c };
+        cellElements[r][c].classList.add('selected');
+      }
+    }
+
+    function trySwap(r1, c1, r2, c2) {
+      isAnimating = true;
+
+      // Обмен в матрице
+      var temp = board[r1][c1];
+      board[r1][c1] = board[r2][c2];
+      board[r2][c2] = temp;
+
+      // Визуальный обмен
+      updateCellVisual(r1, c1);
+      updateCellVisual(r2, c2);
+
       setTimeout(function() {
-        for (var c = 0; c < linesGridSize; c++) {
-          for (var r = linesGridSize - 1; r >= 0; r--) {
-            if (linesGrid[r][c] === null) {
-              for (var k = r - 1; k >= 0; k--) {
-                if (linesGrid[k][c] !== null) {
-                  linesGrid[r][c] = linesGrid[k][c];
-                  linesGrid[k][c] = null;
-                  updateBallVisual(r, c);
-                  break;
-                }
-              }
-              if (linesGrid[r][c] === null) {
-                linesGrid[r][c] = { color: linesColorMap[Math.floor(Math.random() * 5)], el: null };
-                createBallVisual(r, c);
-                var newEl = linesGrid[r][c].el;
-                newEl.style.transform = 'translateY(-300px)';
-                newEl.style.transition = 'none';
-                setTimeout(function() {
-                  newEl.style.transform = 'translateY(0)';
-                  newEl.style.transition = 'transform 0.3s ease-in';
-                }, 10);
-              }
+        // Проверка совпадений
+        var matches = findMatches();
+        if (matches.length > 0) {
+          // Валидный ход
+          movesLeft--;
+          $('#lines-moves').textContent = movesLeft;
+          
+          if (movesLeft <= 0) {
+            showToast('Игра окончена! Очки: ' + score);
+          }
+
+          // Запуск цикла каскадов
+          processMatchesLoop(matches);
+        } else {
+          // Невалидный ход - откат
+          var temp2 = board[r1][c1];
+          board[r1][c1] = board[r2][c2];
+          board[r2][c2] = temp2;
+          
+          updateCellVisual(r1, c1);
+          updateCellVisual(r2, c2);
+          
+          setTimeout(function() { isAnimating = false; }, 200);
+        }
+      }, 200);
+    }
+
+    function findMatches() {
+      var marked = [];
+      for (var r = 0; r < ROWS; r++) {
+        marked[r] = [];
+        for (var c = 0; c < COLS; c++) marked[r][c] = false;
+      }
+
+      // Горизонтальные
+      for (var r = 0; r < ROWS; r++) {
+        var runStart = 0;
+        for (var c = 1; c <= COLS; c++) {
+          if (c < COLS && board[r][c] === board[r][runStart] && board[r][c] !== 0) {
+            // продолжаем серию
+          } else {
+            var runLen = c - runStart;
+            if (runLen >= 3) {
+              for (var k = runStart; k < c; k++) marked[r][k] = true;
             }
+            runStart = c;
+          }
+        }
+      }
+
+      // Вертикальные
+      for (var c = 0; c < COLS; c++) {
+        var runStartV = 0;
+        for (var r = 1; r <= ROWS; r++) {
+          if (r < ROWS && board[r][c] === board[runStartV][c] && board[r][c] !== 0) {
+            // продолжаем серию
+          } else {
+            var runLenV = r - runStartV;
+            if (runLenV >= 3) {
+              for (var k = runStartV; k < r; k++) marked[k][c] = true;
+            }
+            runStartV = r;
+          }
+        }
+      }
+
+      var result = [];
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          if (marked[r][c]) result.push({r: r, c: c});
+        }
+      }
+      return result;
+    }
+
+    function processMatchesLoop(matches) {
+      if (matches.length === 0) {
+        isAnimating = false;
+        if (movesLeft <= 0) {
+          setTimeout(initLinesGame, 1500);
+        }
+        return;
+      }
+
+      // Начисление очков
+      score += matches.length * 10;
+      $('#lines-score').textContent = score;
+
+      // Анимация исчезновения
+      matches.forEach(function(m) {
+        cellElements[m.r][m.c].classList.add('popping');
+        board[m.r][m.c] = 0;
+      });
+
+      setTimeout(function() {
+        // Очистка DOM-классов
+        matches.forEach(function(m) {
+          cellElements[m.r][m.c].classList.remove('popping');
+          updateCellVisual(m.r, m.c);
+        });
+
+        // Гравитация
+        applyGravity();
+
+        setTimeout(function() {
+          // Проверка каскада
+          var newMatches = findMatches();
+          processMatchesLoop(newMatches);
+        }, 400);
+
+      }, 300);
+    }
+
+    function applyGravity() {
+      for (var c = 0; c < COLS; c++) {
+        // Собираем все непустые элементы сверху вниз
+        var columnItems = [];
+        for (var r = 0; r < ROWS; r++) {
+          if (board[r][c] !== 0) {
+            columnItems.push(board[r][c]);
           }
         }
         
-        setTimeout(function() {
-          var hasMore = false;
-          for (var r = 0; r < linesGridSize; r++) {
-            for (var c = 0; c < linesGridSize; c++) {
-              if (linesGrid[r][c] && checkMatchAt(r, c)) { hasMore = true; break; }
-            }
-          }
-          if (hasMore) {
-            processMatches();
-          } else {
-            isSwapping = false;
-            if (linesMoves <= 0) initLinesGame();
-          }
-        }, 350);
+        // Заполняем снизу вверх
+        var writeRow = ROWS - 1;
+        for (var i = columnItems.length - 1; i >= 0; i--) {
+          board[writeRow][c] = columnItems[i];
+          writeRow--;
+        }
         
-      }, 300);
+        // Заполняем пустые верхние ячейки новыми шариками
+        while (writeRow >= 0) {
+          board[writeRow][c] = Math.floor(Math.random() * NUM_TYPES) + 1;
+          // Анимация появления нового шарика
+          var newEl = cellElements[writeRow][c];
+          newEl.style.background = typeColors[board[writeRow][c]];
+          newEl.style.transform = 'translateY(-300px)';
+          newEl.style.transition = 'none';
+          (function(el) {
+            setTimeout(function() {
+              el.style.transform = 'translateY(0)';
+              el.style.transition = 'transform 0.3s ease-in';
+            }, 10);
+          })(newEl);
+          writeRow--;
+        }
+        
+        // Обновляем визуал для всех ячеек столбца
+        for (var r = 0; r < ROWS; r++) {
+          updateCellVisual(r, c);
+        }
+      }
     }
 
     function initChat() {
