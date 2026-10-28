@@ -1512,6 +1512,7 @@
 
     var wsGridSize = 4;
     var wsGridData = []; 
+    var wsTargetWords = []; 
     var wsFoundWords = []; 
     var wsCellElements = []; 
     var wsUsedCells = []; 
@@ -1547,11 +1548,13 @@
 
     function startNewWordSearch() {
       wsFoundWords = [];
+      wsTargetWords = [];
       wsGridData = [];
       wsCellElements = [];
       wsUsedCells = [];
       
       $('#ws-found-count').textContent = '0';
+      $('#ws-total-count').textContent = '0';
       $('#ws-words-list').innerHTML = '';
       $('#ws-status').textContent = 'Потяни пальцем...';
       $('#ws-status').style.color = 'var(--text-dim)';
@@ -1561,15 +1564,20 @@
       gridEl.style.gridTemplateColumns = 'repeat(' + wsGridSize + ', 1fr)';
       var cellFontSize = wsGridSize === 4 ? '24px' : wsGridSize === 6 ? '18px' : wsGridSize === 8 ? '14px' : '12px';
       
-      // 1. Выбираем слова для генерации поля (разные длины)
-      var availableWords = wsWordsDict.filter(function(w) { 
+      // 1. Выбираем слова, которые поместятся в сетку
+      var possibleWords = wsWordsDict.filter(function(w) { 
         return w.length <= wsGridSize && w.length >= 3; 
       });
       
+      // Очищаем от дублей
+      possibleWords = possibleWords.filter(function(item, pos) {
+        return possibleWords.indexOf(item) == pos;
+      });
+
       // Перемешиваем
-      availableWords.sort(function() { return 0.5 - Math.random(); });
+      possibleWords.sort(function() { return 0.5 - Math.random(); });
       
-      // 2. Создаем пустую сетку
+      // Создаем пустую сетку
       for (var y = 0; y < wsGridSize; y++) {
         wsGridData[y] = [];
         wsUsedCells[y] = [];
@@ -1579,58 +1587,53 @@
         }
       }
       
-      // 3. Размещаем слова в сетке, чтобы заполнить как можно больше
-      var wordsPlaced = 0;
-      var targetWordsCount = Math.floor((wsGridSize * wsGridSize) / 4); 
+      // 2. Заполняем сетку словами (выкладываем змейкой)
+      var currentX = 0, currentY = 0;
+      var dx = 1, dy = 0; // Начинаем вправо
+      var wordIndex = 0;
       
-      for (var w = 0; w < availableWords.length && wordsPlaced < targetWordsCount; w++) {
-        var word = availableWords[w];
-        var placed = false;
-        var attempts = 0;
-        while (!placed && attempts < 100) {
-          attempts++;
-          var dir = Math.floor(Math.random() * 8);
-          var dx = 0, dy = 0;
-          if (dir === 0) { dx = 1; dy = 0; }
-          else if (dir === 1) { dx = -1; dy = 0; }
-          else if (dir === 2) { dx = 0; dy = 1; }
-          else if (dir === 3) { dx = 0; dy = -1; }
-          else if (dir === 4) { dx = 1; dy = 1; }
-          else if (dir === 5) { dx = -1; dy = 1; }
-          else if (dir === 6) { dx = 1; dy = -1; }
-          else if (dir === 7) { dx = -1; dy = -1; }
-          
-          var startX = Math.floor(Math.random() * wsGridSize);
-          var startY = Math.floor(Math.random() * wsGridSize);
-          
-          var endX = startX + (word.length - 1) * dx;
-          var endY = startY + (word.length - 1) * dy;
-          
-          if (endX >= 0 && endX < wsGridSize && endY >= 0 && endY < wsGridSize) {
-            var canPlace = true;
-            for (var i = 0; i < word.length; i++) {
-              var cx = startX + i * dx;
-              var cy = startY + i * dy;
-              if (wsGridData[cy][cx] !== '' && wsGridData[cy][cx] !== word[i]) {
-                canPlace = false;
-                break;
-              }
-            }
-            
-            if (canPlace) {
-              for (var i = 0; i < word.length; i++) {
-                var cx = startX + i * dx;
-                var cy = startY + i * dy;
-                wsGridData[cy][cx] = word[i];
-              }
-              placed = true;
-              wordsPlaced++;
-            }
-          }
+      // Проходим по всем ячейкам сетки
+      for (var i = 0; i < wsGridSize * wsGridSize; i++) {
+        // Если текущее слово закончилось, берем новое
+        if (!wsTargetWords[wordIndex] || wsTargetWords[wordIndex].length === 0) {
+          var nextWord = possibleWords.find(function(w) { 
+            // Ищем слово, которое поместится в оставшееся место (упрощенно)
+            return w.length >= 3; 
+          });
+          if (!nextWord) nextWord = "СЛОВО"; // Заглушка
+          wsTargetWords.push(nextWord);
+          wordIndex++;
         }
+        
+        var currentWord = wsTargetWords[wordIndex - 1];
+        var char = currentWord[0];
+        currentWord = currentWord.substring(1); // Убираем первую букву
+        
+        wsGridData[currentY][currentX] = char;
+        
+        // Двигаемся к следующей ячейке
+        var nextX = currentX + dx;
+        var nextY = currentY + dy;
+        
+        // Если уперлись в стену, меняем направление (змейка)
+        if (nextX < 0 || nextX >= wsGridSize || nextY < 0 || nextY >= wsGridSize || wsGridData[nextY][nextX] !== '') {
+          if (dx === 1 && dy === 0) { dx = 0; dy = 1; } // Вправо -> Вниз
+          else if (dx === 0 && dy === 1) { dx = -1; dy = 0; } // Вниз -> Влево
+          else if (dx === -1 && dy === 0) { dx = 0; dy = -1; } // Влево -> Вверх
+          else if (dx === 0 && dy === -1) { dx = 1; dy = 0; } // Вверх -> Вправо
+          
+          nextX = currentX + dx;
+          nextY = currentY + dy;
+        }
+        
+        currentX = nextX;
+        currentY = nextY;
       }
       
-      // 4. Заполняем пустые ячейки
+      // Очищаем от пустых слов
+      wsTargetWords = wsTargetWords.filter(function(w) { return w.length > 0; });
+      
+      // Если вдруг остались пустые ячейки (баг змейки), заполняем случайными
       var alphabet = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
       for (var y = 0; y < wsGridSize; y++) {
         for (var x = 0; x < wsGridSize; x++) {
@@ -1640,7 +1643,7 @@
         }
       }
       
-      // 5. Отрисовываем сетку
+      // 3. Отрисовываем сетку
       for (var y = 0; y < wsGridSize; y++) {
         wsCellElements[y] = [];
         for (var x = 0; x < wsGridSize; x++) {
@@ -1655,7 +1658,7 @@
         }
       }
       
-      $('#ws-total-count').textContent = wsGridSize * wsGridSize; // Условно, нужно собрать все слова, чтобы закрасить поле
+      $('#ws-total-count').textContent = wsTargetWords.length;
       updateWordSearchStatus();
     }
 
