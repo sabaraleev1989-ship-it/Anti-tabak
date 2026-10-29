@@ -456,12 +456,12 @@
 
     .snake-game-container {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 5px; position: relative; overflow: hidden;
+      padding: 0; /* Убираем отступы, чтобы поле занимало все место */
+      position: relative; overflow: hidden;
     }
     
     #snake-full-canvas {
-      background: #0f172a; border-radius: 0;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      background: #0f172a;
       display: block; touch-action: none;
     }
 
@@ -489,8 +489,8 @@
     /* Крупный D-Pad */
     .dpad {
       display: grid;
-      grid-template-columns: repeat(3, 70px);
-      grid-template-rows: repeat(3, 70px);
+      grid-template-columns: repeat(3, 65px);
+      grid-template-rows: repeat(3, 65px);
       gap: 6px;
       justify-content: center;
       margin: 0 auto;
@@ -500,7 +500,7 @@
       border: 1px solid var(--card-border);
       border-radius: 14px;
       color: var(--accent-2);
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -1702,32 +1702,32 @@
     // Адаптация размера поля под экран (Максимально возможное)
     function resizeSnakeCanvas() {
       var container = $('#snake-game-container');
-      // Берем размер контейнера
+      // Берем ВСЮ ширину и ВСЮ высоту контейнера
       var w = container.clientWidth;
       var h = container.clientHeight;
       
-      // Выбираем меньшее значение, чтобы поле было квадратным и влезло целиком
-      var maxDim = Math.min(w, h);
-      
-      // Определяем количество клеток (около 20-25 пикселей на клетку в зависимости от экрана)
+      // Рассчитываем клетки так, чтобы они были квадратными
       var targetCellSize = 25;
-      cols = Math.floor(maxDim / targetCellSize);
-      // Делаем квадратным
-      rows = cols; 
       
-      // Высчитываем точный размер клетки
-      boxSize = maxDim / cols; 
+      // Определяем количество клеток по ширине и высоте
+      cols = Math.floor(w / targetCellSize);
+      rows = Math.floor(h / targetCellSize);
       
-      var finalSize = boxSize * cols;
+      // Находим минимальный размер клетки, чтобы влезло по обоим измерениям
+      boxSize = Math.min(w / cols, h / rows);
+      
+      // Пересчитываем точные размеры поля, чтобы не было пустых полос
+      var finalWidth = boxSize * cols;
+      var finalHeight = boxSize * rows;
       
       // Поддержка Retina-экранов
       var dpr = window.devicePixelRatio || 1;
-      snakeCanvas.width = finalSize * dpr;
-      snakeCanvas.height = finalSize * dpr;
+      snakeCanvas.width = finalWidth * dpr;
+      snakeCanvas.height = finalHeight * dpr;
       
-      // Устанавливаем визуальный размер
-      snakeCanvas.style.width = finalSize + 'px';
-      snakeCanvas.style.height = finalSize + 'px';
+      // Устанавливаем визуальный размер (прямоугольный)
+      snakeCanvas.style.width = finalWidth + 'px';
+      snakeCanvas.style.height = finalHeight + 'px';
       
       // Сбрасываем трансформацию и масштабируем контекст
       ctx.setTransform(1, 0, 0, 1, 0, 0);
