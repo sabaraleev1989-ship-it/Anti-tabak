@@ -428,11 +428,59 @@
 
     .game-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
     
-    /* ЗМЕЙКА */
-    #snake-game-area { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; background: rgba(15,23,42,0.8); overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 12px; max-width: 300px; margin-left: auto; margin-right: auto; }
-    #snake-canvas { width: 100%; height: 100%; display: block; }
+    /* МОДАЛКА ЗМЕЙКИ НА ВЕСЬ ЭКРАН */
+    #snake-modal {
+      position: fixed; inset: 0; background: #0f172a; z-index: 10005;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    #snake-modal.show { opacity: 1; pointer-events: auto; }
+    
+    .snake-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; padding-top: calc(16px + env(safe-area-inset-top));
+      background: rgba(30, 41, 59, 0.9); border-bottom: 1px solid var(--card-border);
+    }
+    .snake-header-title { font-size: 20px; font-weight: 800; color: var(--accent-2); }
+    .snake-close-btn {
+      background: rgba(148,163,184,0.15); border: none; color: #fff;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 20px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
 
-    /* Удобный D-Pad для змейки (Классическая крестовина) */
+    .snake-game-container {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 10px; overflow: hidden; position: relative;
+    }
+    
+    #snake-full-canvas {
+      background: #0f172a; border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+      max-width: 100%; max-height: 100%; display: block;
+      touch-action: none;
+    }
+
+    .snake-overlay-full {
+      position: absolute; inset: 0; background: rgba(15,23,42,0.85);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 10; backdrop-filter: blur(4px);
+    }
+    .snake-overlay-text { font-size: 24px; font-weight: 800; margin-bottom: 20px; color: #fff; text-align: center; }
+    .snake-overlay-btn { width: 200px; padding: 16px; font-size: 18px; }
+
+    .snake-controls-bottom {
+      padding: 16px 20px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      background: rgba(30, 41, 59, 0.9); border-top: 1px solid var(--card-border);
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .snake-stats-row {
+      display: flex; justify-content: space-between; width: 100%; max-width: 400px; margin-bottom: 12px;
+      font-size: 14px; color: var(--text-dim);
+    }
+    .snake-stats-row strong { color: var(--accent-2); font-size: 16px; }
+
+    /* Удобный D-Pad */
     .dpad {
       display: grid;
       grid-template-columns: repeat(3, 60px);
@@ -458,13 +506,13 @@
     }
     .dpad-btn:active { background: rgba(34, 197, 94, 0.3); transform: scale(0.95); }
     
-    /* Позиционирование кнопок в правильном порядке как на клавиатуре */
+    /* Позиционирование кнопок */
     .dpad-btn.up    { grid-column: 2; grid-row: 1; }
     .dpad-btn.left  { grid-column: 1; grid-row: 2; }
     .dpad-btn.down  { grid-column: 2; grid-row: 2; }
     .dpad-btn.right { grid-column: 3; grid-row: 2; }
 
-    .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; width: 100%; max-width: 400px; }
     .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
 
@@ -817,43 +865,11 @@
         </div>
       </div>
       
-      <!-- ЗМЕЙКА -->
-      <div class="game-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-size:16px; font-weight:700;">🐍 Змейка</span>
-        </div>
-        <div class="difficulty-row">
-          <button class="diff-btn snake-speed-btn active" data-speed="300">Оч. медленно</button>
-          <button class="diff-btn snake-speed-btn" data-speed="200">Медленно</button>
-          <button class="diff-btn snake-speed-btn" data-speed="130">Средне</button>
-          <button class="diff-btn snake-speed-btn" data-speed="80">Быстро</button>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
-          <span>Счёт: <strong id="snake-score" style="color:var(--accent-2);">0</strong></span>
-          <span>Рекорд: <strong id="snake-best" style="color:var(--accent-2);">0</strong></span>
-        </div>
-        
-        <div id="snake-game-area">
-          <canvas id="snake-canvas"></canvas>
-          <!-- Оверлей для старта/паузы -->
-          <div id="snake-overlay" style="position:absolute; inset:0; background:rgba(15,23,42,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10;">
-            <div id="snake-overlay-text" style="font-size:20px; font-weight:800; margin-bottom:16px; color:#fff; text-align:center;">Готов к игре?</div>
-            <button class="btn btn-primary btn-small" id="snake-play-btn" style="width:120px;">▶ Старт</button>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:8px; margin-bottom:12px;">
-          <button class="btn btn-ghost btn-small" id="snake-pause-btn" style="flex:1;">⏸ Пауза</button>
-          <button class="btn btn-ghost btn-small" id="snake-reset" style="flex:1;">🔄 Заново</button>
-        </div>
-
-        <!-- Удобный D-Pad -->
-        <div class="dpad">
-          <div class="dpad-btn up" data-dir="up">⬆</div>
-          <div class="dpad-btn left" data-dir="left">⬅</div>
-          <div class="dpad-btn down" data-dir="down">⬇</div>
-          <div class="dpad-btn right" data-dir="right">➡</div>
-        </div>
+      <!-- КАРТОЧКА ЗМЕЙКИ (Вызов модалки) -->
+      <div class="game-card" style="text-align: center;">
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🐍 Змейка</div>
+        <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">Игра на весь экран</div>
+        <button class="btn btn-primary" id="open-snake-modal-btn" style="padding: 12px 20px;">Открыть игру</button>
       </div>
 
       <!-- ПАМЯТЬ -->
@@ -926,6 +942,49 @@
       <button class="tab-btn" data-tab="games"><span style="font-size:16px;">🎮</span>Игры</button>
     </div>
   </main>
+
+  <!-- МОДАЛКА ЗМЕЙКИ НА ВЕСЬ ЭКРАН -->
+  <div id="snake-modal">
+    <div class="snake-header">
+      <div class="snake-header-title">🐍 Змейка</div>
+      <button class="snake-close-btn" id="close-snake-modal">✕</button>
+    </div>
+    
+    <div class="snake-game-container">
+      <canvas id="snake-full-canvas"></canvas>
+      
+      <div class="snake-overlay-full" id="snake-overlay">
+        <div class="snake-overlay-text" id="snake-overlay-text">Готов к игре?</div>
+        <button class="btn btn-primary snake-overlay-btn" id="snake-play-btn">▶ Старт</button>
+      </div>
+    </div>
+
+    <div class="snake-controls-bottom">
+      <div class="snake-stats-row">
+        <span>Счёт: <strong id="snake-score">0</strong></span>
+        <span>Рекорд: <strong id="snake-best">0</strong></span>
+      </div>
+      
+      <div class="difficulty-row" style="margin-bottom: 16px;">
+        <button class="diff-btn snake-speed-btn active" data-speed="300">Оч. медленно</button>
+        <button class="diff-btn snake-speed-btn" data-speed="200">Медленно</button>
+        <button class="diff-btn snake-speed-btn" data-speed="130">Средне</button>
+        <button class="diff-btn snake-speed-btn" data-speed="80">Быстро</button>
+      </div>
+
+      <div class="dpad" style="margin-bottom: 16px;">
+        <div class="dpad-btn up" data-dir="up">⬆</div>
+        <div class="dpad-btn left" data-dir="left">⬅</div>
+        <div class="dpad-btn down" data-dir="down">⬇</div>
+        <div class="dpad-btn right" data-dir="right">➡</div>
+      </div>
+      
+      <div style="display:flex; gap:8px; width:100%; max-width:400px;">
+        <button class="btn btn-ghost" id="snake-pause-btn" style="flex:1;">⏸ Пауза</button>
+        <button class="btn btn-ghost" id="snake-reset" style="flex:1;">🔄 Заново</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-backdrop" id="verify-modal">
     <div class="modal-card">
@@ -1588,8 +1647,9 @@
       runPhase();
     });
 
-    /* ============= ЗМЕЙКА ============= */
-    var snakeCanvas = $('#snake-canvas');
+    /* ============= ЗМЕЙКА (ПОЛНОЭКРАННАЯ ВЕРСИЯ) ============= */
+    var snakeModal = $('#snake-modal');
+    var snakeCanvas = $('#snake-full-canvas');
     var ctx = snakeCanvas.getContext('2d');
     var snake = [];
     var food = { x: 0, y: 0, emoji: '🍎', color: '#ff4444' };
@@ -1599,12 +1659,13 @@
     var snakeBest = parseInt(localStorage.getItem(SNAKE_RECORDS_KEY) || '0', 10);
     var snakeInterval = null;
     var snakeSpeed = 300; 
-    var boxSize = 20;
-    var canvasSize = 300;
+    var boxSize = 20; // Начальный размер клетки, будет пересчитываться
+    var cols = 15;
+    var rows = 15;
     var isGameOver = false;
-    var isPaused = false;
+    var isPaused = true;
 
-    // Палитра фруктов
+    // Качественные эмодзи (системный шрифт)
     var fruitTypes = [
       { emoji: '🍎', color: '#ff4444' },
       { emoji: '🍌', color: '#fbbf24' },
@@ -1617,11 +1678,51 @@
 
     $('#snake-best').textContent = snakeBest;
 
-    function initSnake() {
-      snakeCanvas.width = canvasSize;
-      snakeCanvas.height = canvasSize;
+    // Открытие/закрытие модалки
+    $('#open-snake-modal-btn').addEventListener('click', function() {
+      snakeModal.classList.add('show');
+      resizeSnakeCanvas();
+      initSnake();
+    });
+
+    $('#close-snake-modal').addEventListener('click', function() {
+      snakeModal.classList.remove('show');
+      if (snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = null;
+    });
+
+    // Адаптация размера поля под экран
+    function resizeSnakeCanvas() {
+      var container = $('.snake-game-container');
+      var maxDim = Math.min(container.clientWidth, container.clientHeight) - 20;
       
-      // Начальная змейка одного цвета (зеленая)
+      // Определяем сетку, чтобы клетки были ровными
+      var targetCellSize = 25;
+      cols = Math.floor(maxDim / targetCellSize);
+      rows = cols;
+      boxSize = maxDim / cols; // Точный размер клетки
+      
+      // Подстраиваем под DPI экрана для четкости
+      var dpr = window.devicePixelRatio || 1;
+      snakeCanvas.width = maxDim * dpr;
+      snakeCanvas.height = maxDim * dpr;
+      snakeCanvas.style.width = maxDim + 'px';
+      snakeCanvas.style.height = maxDim + 'px';
+      ctx.scale(dpr, dpr);
+      
+      if (snake.length > 0) drawSnake();
+    }
+
+    window.addEventListener('resize', function() {
+      if (snakeModal.classList.contains('show')) {
+        resizeSnakeCanvas();
+      }
+    });
+
+    function initSnake() {
+      resizeSnakeCanvas();
+      
+      // Начальная змейка
       snake = [
         {x: 5, y: 5, color: '#4ade80'},
         {x: 4, y: 5, color: '#4ade80'},
@@ -1648,8 +1749,8 @@
 
     function spawnFood() {
       var emptyCells = [];
-      for (var x = 0; x < canvasSize / boxSize; x++) {
-        for (var y = 0; y < canvasSize / boxSize; y++) {
+      for (var x = 0; x < cols; x++) {
+        for (var y = 0; y < rows; y++) {
           if (!snake.some(function(s) { return s.x === x && s.y === y; })) {
             emptyCells.push({x: x, y: y});
           }
@@ -1678,7 +1779,7 @@
       else if (snakeDir === 'up') head.y--;
       else if (snakeDir === 'down') head.y++;
       
-      if (head.x < 0 || head.x >= canvasSize / boxSize || head.y < 0 || head.y >= canvasSize / boxSize) {
+      if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
         gameOver();
         return;
       }
@@ -1693,8 +1794,12 @@
       if (head.x === food.x && head.y === food.y) {
         snakeScore++;
         $('#snake-score').textContent = snakeScore;
-        // Красим ТОЛЬКО НОВУЮ голову в цвет съеденного фрукта
+        
+        // Красим голову
         head.color = food.color;
+        // Красим хвост (новый сегмент, который прибавился)
+        snake[snake.length - 1].color = food.color;
+        
         spawnFood();
       } else {
         snake.pop();
@@ -1704,18 +1809,23 @@
     }
 
     function drawSnake() {
+      var w = snakeCanvas.width / (window.devicePixelRatio || 1);
+      var h = snakeCanvas.height / (window.devicePixelRatio || 1);
+      
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0, 0, canvasSize, canvasSize);
+      ctx.fillRect(0, 0, w, h);
       
       ctx.strokeStyle = 'rgba(148,163,184,0.05)';
       ctx.lineWidth = 1;
-      for (var i = 0; i <= canvasSize; i += boxSize) {
-        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvasSize); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvasSize, i); ctx.stroke();
+      for (var i = 0; i <= cols; i++) {
+        ctx.beginPath(); ctx.moveTo(i * boxSize, 0); ctx.lineTo(i * boxSize, h); ctx.stroke();
+      }
+      for (var j = 0; j <= rows; j++) {
+        ctx.beginPath(); ctx.moveTo(0, j * boxSize); ctx.lineTo(w, j * boxSize); ctx.stroke();
       }
 
-      // Рисуем фрукт (эмодзи)
-      ctx.font = (boxSize - 2) + 'px Arial';
+      // Рисуем фрукт (качественный эмодзи)
+      ctx.font = (boxSize - 2) + 'px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(
@@ -1745,8 +1855,8 @@
 
         if (isHead) {
           ctx.fillStyle = '#000';
-          var eyeOffset = 5;
-          var eyeSize = 3;
+          var eyeOffset = boxSize * 0.25;
+          var eyeSize = Math.max(3, boxSize * 0.15);
           
           if (snakeDir === 'right' || snakeDir === 'left') {
             var eyeX = snakeDir === 'right' ? segment.x * boxSize + boxSize - 6 : segment.x * boxSize + 3;
@@ -1895,7 +2005,6 @@
 
       memDeck = []; memFlipped = []; memMoves = 0; memMatched = 0; memLock = false;
       
-      // Настройка сеток и количества пар
       var pairsCount = 3; 
       if (memDifficulty === 'medium') pairsCount = 6; 
       if (memDifficulty === 'hard') pairsCount = 10;
@@ -2069,7 +2178,6 @@
         });
       });
       
-      // Запускаем игру, опираясь на активную кнопку в HTML (по умолчанию Легкий)
       var activeSizeBtn = document.querySelector('.puzzle-diff.active');
       if (activeSizeBtn) {
         puzzleSize = parseInt(activeSizeBtn.dataset.size, 10);
@@ -2086,7 +2194,6 @@
       
       shufflePuzzle();
       
-      // Настройка сетки
       var grid = $('#puzzle-grid');
       grid.style.gridTemplateColumns = 'repeat(' + puzzleSize + ', 1fr)';
       if (puzzleSize === 5) {
@@ -2099,7 +2206,6 @@
     }
 
     function shufflePuzzle() {
-      // Делаем 150 случайных ходов для перемешивания
       for (var i = 0; i < 150; i++) {
         var neighbors = getNeighbors(emptyIdx);
         var randNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
@@ -2131,7 +2237,6 @@
           tile.classList.add('empty');
         } else {
           tile.textContent = num;
-          
           tile.addEventListener('click', function() {
             tryMoveTile(idx);
           });
@@ -2143,7 +2248,6 @@
     function tryMoveTile(idx) {
       var neighbors = getNeighbors(emptyIdx);
       if (neighbors.indexOf(idx) !== -1) {
-        // Меняем местами
         puzzleTiles[emptyIdx] = puzzleTiles[idx];
         puzzleTiles[idx] = 0;
         emptyIdx = idx;
