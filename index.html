@@ -454,13 +454,15 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    .dpad-btn:active { background: rgba(34, 197, 94, 0.3); }
-    /* Позиционирование кнопок */
+    .dpad-btn:active { background: rgba(34, 197, 94, 0.3); transform: scale(0.95); }
+    
+    /* Позиционирование кнопок в правильном порядке как на клавиатуре */
     .dpad-btn.up    { grid-column: 2; grid-row: 1; }
     .dpad-btn.left  { grid-column: 1; grid-row: 2; }
+    .dpad-btn.down  { grid-column: 2; grid-row: 2; }
     .dpad-btn.right { grid-column: 3; grid-row: 2; }
-    .dpad-btn.down  { grid-column: 2; grid-row: 3; }
 
     .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -849,8 +851,8 @@
         <div class="dpad">
           <div class="dpad-btn up" data-dir="up">⬆</div>
           <div class="dpad-btn left" data-dir="left">⬅</div>
-          <div class="dpad-btn right" data-dir="right">➡</div>
           <div class="dpad-btn down" data-dir="down">⬇</div>
+          <div class="dpad-btn right" data-dir="right">➡</div>
         </div>
       </div>
 
@@ -1590,7 +1592,7 @@
     var snakeCanvas = $('#snake-canvas');
     var ctx = snakeCanvas.getContext('2d');
     var snake = [];
-    var food = { x: 0, y: 0, color: '#fbbf24' };
+    var food = { x: 0, y: 0, emoji: '🍎', color: '#ff4444' };
     var snakeDir = 'right';
     var nextDir = 'right';
     var snakeScore = 0;
@@ -1602,8 +1604,16 @@
     var isGameOver = false;
     var isPaused = false;
 
-    // Палитра цветов для змейки и фруктов
-    var colors = ['#4ade80', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa', '#f87171'];
+    // Палитра фруктов
+    var fruitTypes = [
+      { emoji: '🍎', color: '#ff4444' },
+      { emoji: '🍌', color: '#fbbf24' },
+      { emoji: '🍇', color: '#a78bfa' },
+      { emoji: '🍓', color: '#f472b6' },
+      { emoji: '🍊', color: '#fb923c' },
+      { emoji: '🍉', color: '#22c55e' },
+      { emoji: '🍒', color: '#ef4444' }
+    ];
 
     $('#snake-best').textContent = snakeBest;
 
@@ -1613,9 +1623,9 @@
       
       // Начальная змейка одного цвета (зеленая)
       snake = [
-        {x: 5, y: 5, color: colors[0]},
-        {x: 4, y: 5, color: colors[0]},
-        {x: 3, y: 5, color: colors[0]}
+        {x: 5, y: 5, color: '#4ade80'},
+        {x: 4, y: 5, color: '#4ade80'},
+        {x: 3, y: 5, color: '#4ade80'}
       ];
       snakeDir = 'right';
       nextDir = 'right';
@@ -1647,11 +1657,12 @@
       }
       if (emptyCells.length > 0) {
         var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        var randomFruit = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
         food = {
           x: cell.x, 
           y: cell.y, 
-          // Случайный цвет для фрукта из палитры (кроме зеленого, чтобы отличать от старта)
-          color: colors[Math.floor(Math.random() * (colors.length - 1)) + 1] 
+          emoji: randomFruit.emoji,
+          color: randomFruit.color
         };
       }
     }
@@ -1682,7 +1693,7 @@
       if (head.x === food.x && head.y === food.y) {
         snakeScore++;
         $('#snake-score').textContent = snakeScore;
-        // Красим голову в цвет съеденного фрукта
+        // Красим ТОЛЬКО НОВУЮ голову в цвет съеденного фрукта
         head.color = food.color;
         spawnFood();
       } else {
@@ -1703,14 +1714,15 @@
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvasSize, i); ctx.stroke();
       }
 
-      // Рисуем фрукт
-      ctx.fillStyle = food.color;
-      ctx.shadowColor = food.color;
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(food.x * boxSize + boxSize / 2, food.y * boxSize + boxSize / 2, boxSize / 2 - 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      // Рисуем фрукт (эмодзи)
+      ctx.font = (boxSize - 2) + 'px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        food.emoji, 
+        food.x * boxSize + boxSize / 2, 
+        food.y * boxSize + boxSize / 2 + 2
+      );
       
       // Рисуем змейку
       snake.forEach(function(segment, index) {
