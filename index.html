@@ -464,11 +464,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 32px; /* Крупный эмодзи */
       transition: background 0.3s, border-color 0.3s;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .mem-card.face-down::before {
       content: '🌿';
+      font-size: 24px;
       opacity: 0.4;
       filter: grayscale(1);
     }
@@ -496,10 +499,14 @@
     .mem-card.appear { animation: popInCard 0.2s ease-out forwards; }
     @keyframes popInCard { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    #memory-grid.lvl-extreme .mem-card, #memory-grid.lvl-insane .mem-card, #memory-grid.lvl-impossible .mem-card {
-      font-size: 16px; border-radius: 6px;
-    }
-    #memory-grid.lvl-impossible .mem-card { font-size: 12px; }
+    /* Адаптация эмодзи под размер сетки */
+    #memory-grid.lvl-hard .mem-card { font-size: 36px; }
+    #memory-grid.lvl-extreme .mem-card { font-size: 26px; border-radius: 8px; }
+    #memory-grid.lvl-extreme .mem-card.face-down::before { font-size: 18px; }
+    #memory-grid.lvl-insane .mem-card { font-size: 22px; border-radius: 6px; }
+    #memory-grid.lvl-insane .mem-card.face-down::before { font-size: 14px; }
+    #memory-grid.lvl-impossible .mem-card { font-size: 18px; border-radius: 4px; }
+    #memory-grid.lvl-impossible .mem-card.face-down::before { font-size: 12px; }
 
     .memory-timer {
       display: flex; justify-content: space-between; align-items: center;
@@ -558,7 +565,7 @@
     }
     @keyframes smoke { 0% { transform: scale(1) translateY(0); opacity: 0.8; } 100% { transform: scale(3) translateY(50px); opacity: 0; } }
 
-    /* Игра Lines (Match-3) */
+    /* Игра Lines (Match-3) - Обновленные шарики */
     #lines-game-area { 
       position: relative; height: 340px; border-radius: 12px; 
       background: rgba(15,23,42,0.6); overflow: hidden; 
@@ -1681,14 +1688,14 @@
     var isAnimating = false;
     var selectedCell = null; 
     var cellElements = []; 
-    // Красивые цвета и градиенты для шариков
+    // Контрастные, насыщенные цвета для шариков
     var typeColors = [
       '', // Пустой
-      'radial-gradient(circle at 30% 30%, #ff9a9e, #fecfef, #ff6b6b)', // Красный
-      'radial-gradient(circle at 30% 30%, #a1c4fd, #c2e9fb, #4bcffa)', // Синий
-      'radial-gradient(circle at 30% 30%, #fef9d7, #feca57, #ff9f43)', // Желтый
-      'radial-gradient(circle at 30% 30%, #84fab0, #8fd3f4, #1dd1a1)', // Зеленый
-      'radial-gradient(circle at 30% 30%, #e0c3fc, #8ec5fc, #a29bfe)'  // Фиолетовый
+      'radial-gradient(circle at 35% 35%, #ff9a9e, #fecfef, #ff4d4d)', // Красный
+      'radial-gradient(circle at 35% 35%, #a1c4fd, #c2e9fb, #1e90ff)', // Синий
+      'radial-gradient(circle at 35% 35%, #fef9d7, #feca57, #ffa502)', // Желтый
+      'radial-gradient(circle at 35% 35%, #84fab0, #8fd3f4, #2ed573)', // Зеленый
+      'radial-gradient(circle at 35% 35%, #e0c3fc, #8ec5fc, #9b59b6)'  // Фиолетовый
     ];
 
     function initLinesGame(initialMoves) {
@@ -1752,7 +1759,7 @@
         el.style.boxShadow = 'none';
       } else {
         el.style.background = typeColors[board[r][c]];
-        el.style.boxShadow = 'inset -2px -2px 5px rgba(0,0,0,0.1), inset 2px 2px 5px rgba(255,255,255,0.5)';
+        el.style.boxShadow = 'inset -2px -2px 5px rgba(0,0,0,0.2), inset 2px 2px 5px rgba(255,255,255,0.6)';
       }
     }
 
