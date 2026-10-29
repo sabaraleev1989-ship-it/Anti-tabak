@@ -427,16 +427,10 @@
     .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
     .game-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
-    #bubble-game-area { position: relative; height: 220px; border-radius: 12px; background: rgba(15,23,42,0.6); overflow: hidden; cursor: crosshair; }
-    .bubble {
-      position: absolute; border-radius: 50%; cursor: pointer;
-      animation: floatUp 4s linear forwards;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: inset -4px -4px 10px rgba(0,0,0,0.2), inset 4px 4px 10px rgba(255,255,255,0.3), 0 0 15px rgba(0,0,0,0.2);
-    }
-    .bubble.pop { animation: popAnim 0.3s ease-out forwards !important; pointer-events: none; }
-    @keyframes popAnim { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
-    @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-280px) scale(1.1); opacity: 0; } }
+    
+    /* ЗМЕЙКА */
+    #snake-game-area { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; background: rgba(15,23,42,0.8); overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+    #snake-canvas { width: 100%; height: 100%; display: block; }
 
     .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -793,13 +787,29 @@
         </div>
       </div>
       
+      <!-- ЗМЕЙКА -->
       <div class="game-card">
-        <div style="font-size:16px; font-weight:700; margin-bottom:8px;">🫧 Лопай пузыри</div>
-        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
-          <span>Счёт: <strong id="bubble-score" style="color:var(--accent-2);">0</strong></span>
-          <span>Рекорд: <strong id="bubble-best" style="color:var(--accent-2);">0</strong></span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:16px; font-weight:700;">🐍 Змейка</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-ghost btn-small" id="snake-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
+          </div>
         </div>
-        <div id="bubble-game-area"></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
+          <span>Счёт: <strong id="snake-score" style="color:var(--accent-2);">0</strong></span>
+          <span>Рекорд: <strong id="snake-best" style="color:var(--accent-2);">0</strong></span>
+        </div>
+        <div id="snake-game-area">
+          <canvas id="snake-canvas"></canvas>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:12px; justify-content:center;">
+          <button class="btn btn-ghost btn-small" data-dir="up">⬆</button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-ghost btn-small" data-dir="left">⬅</button>
+            <button class="btn btn-ghost btn-small" data-dir="down">⬇</button>
+            <button class="btn btn-ghost btn-small" data-dir="right">➡</button>
+          </div>
+        </div>
       </div>
 
       <div class="game-card">
@@ -826,6 +836,7 @@
         <div id="memory-grid" class="lvl-easy"></div>
       </div>
 
+      <!-- СЛОВА ИЗ БУКВ -->
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
@@ -840,7 +851,7 @@
         
         <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px;">
           <span>Рекорд слов: <strong id="word-record" style="color:var(--accent-2);">0</strong></span>
-          <span>Найдено: <strong id="word-found-count" style="color:var(--accent-2);">0</strong></span>
+          <span>Найдено: <strong id="word-found-count" style="color:var(--accent-2);">0</strong> / <strong id="word-total-possible" style="color:var(--accent-2);">?</strong></span>
         </div>
         
         <div id="base-word">...</div>
@@ -851,7 +862,6 @@
         </div>
         
         <div id="found-words-list" style="display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--accent-2); justify-content:center;"></div>
-        <div id="word-loading" class="hidden" style="text-align:center; color:var(--text-dim); font-size:12px; margin-top:10px;">🔍 Проверяю по словарю...</div>
       </div>
 
       <div class="game-card">
@@ -991,9 +1001,52 @@
       { id: 't13', text: 'Запиши 1 причину бросить',    hint: 'Можно в заметки в телефоне.', cat: 'Психика' }
     ];
 
+    // ВСТРОЕННЫЙ БАЗОВЫЙ СЛОВАРЬ ДЛЯ ИГРЫ (Популярные существительные от 3 до 8 букв)
+    // Это решает проблему, когда ИИ не мог проверить слово.
+    var VALID_WORDS = new Set(`дом кот сон сад лес мир час год рот нос ухо глаз зуб лук суп сыр сок мед лед мел мех
+      рука нога голова спина лицо палец волос сердце кровь кость кожа душа тело разум память
+      стол стул дверь окно стена пол потолок крыша ключ замок кровать диван шкаф лампа ковер
+      вода огонь земля воздух ветер снег дождь гроза туман зима весна лето осень утро день
+      вечер ночь закат рассвет солнце луна звезда небо облако туча гроза молния радуга
+      город село деревня улица дорога площадь парк мост река озеро море океан гора холм
+      лес поле луг сад огород цветок дерево трава лист корень ветка плод семя ягода
+      хлеб соль сахар молоко масло мясо рыба курица яйцо овощ фрукт картофель морковь
+      капуста лук огурец помидор яблоко груша слива вишня арбуз дыня банан апельсин
+      машина поезд самолет корабль велосипед дорога путь скорость движение колесо руль
+      работа дело труд отдых сон еда питье игра танец песня музыка книга фильм театр
+      цирк музей школа садик институт урок перемена класс доска ручка тетрадь дневник
+      друг враг семья мама папа брат сестра сын дочь дед баба внук внучка тетя дядя
+      любовь добро зло страх радость горе смех слеза улыбка грусть печаль восторг
+      врач учитель повар водитель летчик моряк солдат пожарный полицейский артист
+      птица рыба зверь кот собака корова лошадь свинья овца коза курица петух гусь
+      волк лиса заяц медведь тигр лев слон обезьяна змея лягушка мышь еж олень лось
+      рубашка платье брюки юбка куртка пальто шарф шапка перчатки обувь туфли сапоги
+      деньги монета рубль копейка цена стоимость магазин покупка товар продажа
+      время год месяц неделя сутки час минута секунда век эпоха прошлое будущее
+      белый черный красный синий зеленый желтый серый розовый коричневый оранжевый
+      большой маленький высокий низкий длинный короткий широкий узкий толстый тонкий
+      быстрый медленный горячий холодный светлый темный новый старый молодой
+      добрый злой веселый грустный умный глупый сильный слабый богатый бедный
+      бежать идти стоять сидеть лежать спать есть пить говорить молчать смотреть
+      слушать думать знать помнить забыть хотеть мочь делать работать отдыхать
+      писать читать рисовать петь танцевать играть гулять путешествовать
+      акварель активность алгоритм амбиция анализ апельсин аромат архитектор астрономия
+      аудитория аэропорт баланс балерина барабан баррикада баскетбол бегемот безопасность
+      библиотека биология богатство болото борода бриллиант бульдозер бутерброд варенье
+      вдохновение велосипед вентилятор вертолет веселье вечеринка виноград витамин
+      внимание волшебник воображение воробей впечатление вращение встреча вулкан высота
+      галерея гармония география героизм гимнастика гипотеза горизонт грамотность
+      гребень грибница давление движение декорация деликатес детектив диалог диапазон
+      дисциплина документ достижение древесина жемчужина журналист изображение интересный
+      календарь капитан картошка квартира кинотеатр коллеги командир конверт конфета
+      корабль коридор космонавт красивый крепость кухонный лекарство леопард лестница
+      литература магазин мармелад мастерство медведь мельница милосердие
+    `.split(/\s+/).filter(Boolean)); // Разбиваем по пробелам и убираем пустые
+
     var STORAGE_KEY = 'dyshi_app_data_v1';
     var RECORDS_KEY = 'dyshi_match3_records';
     var MEM_RECORDS_KEY = 'dyshi_memory_records';
+    var SNAKE_RECORDS_KEY = 'dyshi_snake_records';
 
     function loadData() { 
       try { 
@@ -1122,7 +1175,7 @@
       
       renderMilestones();
       renderTasks();
-      initBubbles();
+      initSnake();
       initMemory();
       initWordGame();
       initLinesGame();
@@ -1546,40 +1599,223 @@
       runPhase();
     });
 
-    /* ============= ПУЗЫРИ ============= */
-    var bubbleScore = 0, bubbleSpawner = null;
-    var bubbleColors = [
-      ['#ff6b6b', '#ee5a24'], ['#4bcffa', '#0fb9b1'], ['#feca57', '#ff9f43'], ['#48dbfb', '#0abde3'],
-      ['#1dd1a1', '#10ac84'], ['#f368e0', '#be2edd'], ['#a29bfe', '#6c5ce7'], ['#ff9f43', '#ee5253']
-    ];
+    /* ============= ЗМЕЙКА (Canvas) ============= */
+    var snakeCanvas = $('#snake-canvas');
+    var ctx = snakeCanvas.getContext('2d');
+    var snake = [];
+    var food = { x: 0, y: 0 };
+    var snakeDir = 'right';
+    var nextDir = 'right';
+    var snakeScore = 0;
+    var snakeBest = parseInt(localStorage.getItem(SNAKE_RECORDS_KEY) || '0', 10);
+    var snakeInterval = null;
+    var snakeSpeed = 150; // мс
+    var boxSize = 20;
+    var canvasSize = 300;
 
-    function initBubbles() {
-      var area = $('#bubble-game-area');
-      if (!area) return;
-      area.addEventListener('click', function(e) {
-        if (e.target.classList.contains('bubble') && !e.target.classList.contains('pop')) {
-          e.target.classList.add('pop'); 
-          bubbleScore++; 
-          $('#bubble-score').textContent = bubbleScore;
-          setTimeout(function() { if (e.target.parentNode) e.target.remove(); }, 300);
+    $('#snake-best').textContent = snakeBest;
+
+    function initSnake() {
+      // Настраиваем канвас
+      snakeCanvas.width = canvasSize;
+      snakeCanvas.height = canvasSize;
+      
+      // Сброс игры
+      snake = [
+        {x: 5, y: 5},
+        {x: 4, y: 5},
+        {x: 3, y: 5}
+      ];
+      snakeDir = 'right';
+      nextDir = 'right';
+      snakeScore = 0;
+      $('#snake-score').textContent = '0';
+      
+      spawnFood();
+      
+      if (snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = setInterval(gameLoop, snakeSpeed);
+      
+      drawSnake();
+    }
+
+    function spawnFood() {
+      var emptyCells = [];
+      for (var x = 0; x < canvasSize / boxSize; x++) {
+        for (var y = 0; y < canvasSize / boxSize; y++) {
+          if (!snake.some(function(s) { return s.x === x && s.y === y; })) {
+            emptyCells.push({x: x, y: y});
+          }
+        }
+      }
+      if (emptyCells.length > 0) {
+        var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        food = cell;
+      }
+    }
+
+    function gameLoop() {
+      snakeDir = nextDir;
+      
+      var head = { x: snake[0].x, y: snake[0].y };
+      
+      if (snakeDir === 'right') head.x++;
+      else if (snakeDir === 'left') head.x--;
+      else if (snakeDir === 'up') head.y--;
+      else if (snakeDir === 'down') head.y++;
+      
+      // Проверка столкновения со стенами
+      if (head.x < 0 || head.x >= canvasSize / boxSize || head.y < 0 || head.y >= canvasSize / boxSize) {
+        gameOver();
+        return;
+      }
+      
+      // Проверка столкновения с телом
+      if (snake.some(function(s) { return s.x === head.x && s.y === head.y; })) {
+        gameOver();
+        return;
+      }
+      
+      snake.unshift(head);
+      
+      // Поедание еды
+      if (head.x === food.x && head.y === food.y) {
+        snakeScore++;
+        $('#snake-score').textContent = snakeScore;
+        spawnFood();
+        // Ускоряем змейку
+        if (snakeScore % 5 === 0 && snakeSpeed > 60) {
+          snakeSpeed -= 5;
+          clearInterval(snakeInterval);
+          snakeInterval = setInterval(gameLoop, snakeSpeed);
+        }
+      } else {
+        snake.pop();
+      }
+      
+      drawSnake();
+    }
+
+    function drawSnake() {
+      // Очистка
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, canvasSize, canvasSize);
+      
+      // Сетка (для красоты)
+      ctx.strokeStyle = 'rgba(148,163,184,0.05)';
+      ctx.lineWidth = 1;
+      for (var i = 0; i <= canvasSize; i += boxSize) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvasSize); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvasSize, i); ctx.stroke();
+      }
+
+      // Рисуем еду
+      ctx.fillStyle = '#fbbf24'; // Золотая еда
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(food.x * boxSize + boxSize / 2, food.y * boxSize + boxSize / 2, boxSize / 2 - 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      // Рисуем змейку
+      snake.forEach(function(segment, index) {
+        var isHead = index === 0;
+        ctx.fillStyle = isHead ? '#4ade80' : '#22c55e';
+        
+        // Легкая тень для змейки
+        ctx.shadowColor = isHead ? 'rgba(74, 222, 128, 0.8)' : 'rgba(34, 197, 94, 0.4)';
+        ctx.shadowBlur = isHead ? 10 : 5;
+        
+        // Закругленные сегменты (эффект красивой змейки)
+        ctx.beginPath();
+        ctx.roundRect(
+          segment.x * boxSize + 1, 
+          segment.y * boxSize + 1, 
+          boxSize - 2, 
+          boxSize - 2, 
+          isHead ? 8 : 4
+        );
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Глаза на голове
+        if (isHead) {
+          ctx.fillStyle = '#000';
+          var eyeOffset = 5;
+          var eyeSize = 3;
+          
+          if (snakeDir === 'right' || snakeDir === 'left') {
+            var eyeX = snakeDir === 'right' ? segment.x * boxSize + boxSize - 6 : segment.x * boxSize + 3;
+            ctx.fillRect(eyeX, segment.y * boxSize + eyeOffset, eyeSize, eyeSize);
+            ctx.fillRect(eyeX, segment.y * boxSize + boxSize - eyeOffset - eyeSize, eyeSize, eyeSize);
+          } else {
+            var eyeY = snakeDir === 'down' ? segment.y * boxSize + boxSize - 6 : segment.y * boxSize + 3;
+            ctx.fillRect(segment.x * boxSize + eyeOffset, eyeY, eyeSize, eyeSize);
+            ctx.fillRect(segment.x * boxSize + boxSize - eyeOffset - eyeSize, eyeY, eyeSize, eyeSize);
+          }
         }
       });
-      if (bubbleSpawner) clearInterval(bubbleSpawner);
-      bubbleSpawner = setInterval(function() {
-        if (document.hidden || !area) return;
-        var size = 40 + Math.random() * 35;
-        var colorPair = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
-        var b = document.createElement('div');
-        b.className = 'bubble';
-        b.style.width = size + 'px'; 
-        b.style.height = size + 'px';
-        b.style.left = Math.random() * (area.clientWidth - size) + 'px';
-        b.style.bottom = '-80px';
-        b.style.background = 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), ' + colorPair[0] + ' 40%, ' + colorPair[1] + ' 100%)';
-        area.appendChild(b);
-        setTimeout(function() { if (b.parentNode && !b.classList.contains('pop')) b.remove(); }, 4000);
-      }, 500);
     }
+
+    function gameOver() {
+      clearInterval(snakeInterval);
+      snakeInterval = null;
+      showToast('💥 Игра окончена! Счёт: ' + snakeScore);
+      
+      if (snakeScore > snakeBest) {
+        snakeBest = snakeScore;
+        localStorage.setItem(SNAKE_RECORDS_KEY, snakeBest);
+        $('#snake-best').textContent = snakeBest;
+        showToast('🎉 Новый рекорд: ' + snakeBest + '!');
+      }
+      
+      // Эффект красной вспышки
+      ctx.fillStyle = 'rgba(248, 113, 113, 0.3)';
+      ctx.fillRect(0, 0, canvasSize, canvasSize);
+    }
+
+    // Управление (Кнопки и свайпы)
+    function changeDir(dir) {
+      if (dir === 'up' && snakeDir !== 'down') nextDir = 'up';
+      if (dir === 'down' && snakeDir !== 'up') nextDir = 'down';
+      if (dir === 'left' && snakeDir !== 'right') nextDir = 'left';
+      if (dir === 'right' && snakeDir !== 'left') nextDir = 'right';
+    }
+
+    $$('[data-dir]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        changeDir(btn.dataset.dir);
+      });
+    });
+
+    // Свайпы на канвасе (для мобилки)
+    var touchStartX = 0, touchStartY = 0;
+    snakeCanvas.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    snakeCanvas.addEventListener('touchend', function(e) {
+      var touchEndX = e.changedTouches[0].clientX;
+      var touchEndY = e.changedTouches[0].clientY;
+      var dx = touchEndX - touchStartX;
+      var dy = touchEndY - touchStartY;
+      
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) changeDir('right');
+        else if (dx < -30) changeDir('left');
+      } else {
+        if (dy > 30) changeDir('down');
+        else if (dy < -30) changeDir('up');
+      }
+    }, { passive: true });
+
+    $('#snake-reset').addEventListener('click', function() {
+      snakeSpeed = 150; // Сброс скорости
+      initSnake();
+    });
+
 
     /* ============= ПАМЯТЬ ============= */
     var memIcons = ['🍎', '🍌', '🍇', '🍓', '🍒', '🍑', '🍍', '🥝', '🥥', '🍉', '🍊', '🍋', '🍐', '🥭', '🫐', '🍅', '🍆', '🥑', '🌽', '🥕', '🌶️', '🥦', '🍄', '🥔', '🧅', '🧄', '🐶', '🐱', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🕷️', '🦂', '🚗', '🚕', '🚙', '🚌', '🚓', '🚑', '🚒', '🚜', '🛵', '🚲', '✈️', '🚀', '🚁', '⛵', '🚢', '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🎱', '🏓', '🏸', '🥊', '🎸', '🎹', '🎺', '🎻', '🥁', '🎤', '🎧', '🎮', '🎲', '🧩', '🎯', '🎳', '🏆', '💎', '🔑', '🔔'];
@@ -1768,7 +2004,7 @@
       });
     }
 
-    /* ============= СЛОВА ИЗ БУКВ (ОНЛАЙН-СЛОВАРЬ) ============= */
+    /* ============= СЛОВА ИЗ БУКВ (ЛОКАЛЬНАЯ ПРОВЕРКА) ============= */
     var baseWords = {
       medium: ['АКВАРЕЛЬ','АКТИВНОСТЬ','АЛГОРИТМ','АМБИЦИЯ','АНАЛИЗ','АПЕЛЬСИН','АРОМАТ','АРХИТЕКТОР','АСТРОНОМИЯ','АУДИТОРИЯ','АЭРОПОРТ','БАЛАНС','БАЛЕРИНА','БАРАБАН','БАРРИКАДА','БАСКЕТБОЛ','БЕГЕМОТ','БЕЗОПАСНОСТЬ','БИБЛИОТЕКА','БИОЛОГИЯ','БОГАТСТВО','БОЛОТО','БОРОДА','БРИЛЛИАНТ','БУЛЬДОЗЕР','БУТЕРБРОД','ВАРЕНЬЕ','ВДОХНОВЕНИЕ','ВЕЛОСИПЕД','ВЕНТИЛЯТОР','ВЕРТОЛЕТ','ВЕСЕЛЬЕ','ВЕЧЕРИНКА','ВИНОГРАД','ВИТАМИН','ВНИМАНИЕ','ВОЛШЕБНИК','ВООБРАЖЕНИЕ','ВОРОБЕЙ','ВПЕЧАТЛЕНИЕ','ВРАЩЕНИЕ','ВСТРЕЧА','ВУЛКАН','ВЫСОТА','ГАЛЕРЕЯ','ГАРМОНИЯ','ГЕОГРАФИЯ','ГЕРОИЗМ','ГИМНАСТИКА','ГИПОТЕЗА','ГОРИЗОНТ','ГРАМОТНОСТЬ','ГРЕБЕНЬ','ГРИБНИЦА','ДАВЛЕНИЕ','ДВИЖЕНИЕ','ДЕКОРАЦИЯ','ДЕЛИКАТЕС','ДЕТЕКТИВ','ДИАЛОГ','ДИАПАЗОН','ДИСЦИПЛИНА','ДОКУМЕНТ','ДОСТИЖЕНИЕ','ДРЕВЕСИНА','ЖЕМЧУЖИНА','ЖУРНАЛИСТ','ЗАВОДНОЙ','ИЗОБРАЖЕНИЕ','ИНТЕРЕСНЫЙ','КАЛЕНДАРЬ','КАПИТАН','КАРТОШКА','КВАРТИРА','КИНОТЕАТР','КОЛЛЕГИ','КОМАНДИР','КОНВЕРТ','КОНФЕТА','КОРАБЛЬ','КОРИДОР','КОСМОНАВТ','КРАСИВЫЙ','КРЕПОСТЬ','КУХОННЫЙ','ЛЕКАРСТВО','ЛЕОПАРД','ЛЕСТНИЦА','ЛИТЕРАТУРА','МАГАЗИН','МАРМЕЛАД','МАСТЕРСТВО','МЕДВЕДЬ','МЕЛЬНИЦА','МИЛОСЕРДИЕ'],
       hard: ['АВТОБИОГРАФИЯ','АВТОМОБИЛИСТ','АДМИНИСТРАЦИЯ','АКАДЕМИЧЕСКИЙ','АЛЬТЕРНАТИВА','АНАЛИТИЧЕСКИЙ','АНТИБИОТИКИ','АРХИТЕКТУРНЫЙ','АСТРОНОМИЧЕСКИЙ','АТМОСФЕРНЫЙ','АУДИОВИЗУАЛЬНЫЙ','АЭРОДИНАМИКА','БАЛАНСИРОВКА','БЕЗОПАСНОСТЬ','БЕСКОНЕЧНОСТЬ','БЛАГОДАРНОСТЬ','БЛАГОПОЛУЧИЕ','БЛАГОРОДСТВО','БРОНЕТЕХНИКА','ВАКЦИНАЦИЯ','ВЕЛИКОДУШИЕ','ВЕЛИЧЕСТВЕННЫЙ','ВЕНТИЛЯЦИЯ','ВЕРОЯТНОСТЬ','ВЗАИМОВЫРУЧКА','ВЗАИМОДЕЙСТВИЕ','ВЗАИМОПОНИМАНИЕ','ВИДЕОКАМЕРА','ВИДЕОНАБЛЮДЕНИЕ','ВИРТУАЛЬНОСТЬ','ВОЗДУХОПЛАВАНИЕ','ВОЗДУХООЧИСТИТЕЛЬ','ВОЗНАГРАЖДЕНИЕ','ВОЗРОЖДЕНИЕ','ВОПЛОЩЕНИЕ','ВОСПИТАНИЕ','ВОССТАНОВЛЕНИЕ','ВОСТОРЖЕННОСТЬ','ВПЕЧАТЛЯЮЩИЙ','ВРАЩАТЕЛЬНЫЙ','ВРЕМЕННОСТЬ','ВСЕОБЩНОСТЬ','ГАЗООБРАЗНЫЙ','ГАРМОНИЧНОСТЬ','ГАСТРОНОМИЯ','ГЕНЕРАЛИЗАЦИЯ','ГЕОМЕТРИЧЕСКИЙ','ГИДРОДИНАМИКА','ГИПОТЕТИЧЕСКИЙ','ГОРИЗОНТАЛЬНЫЙ','ГОСУДАРСТВЕННЫЙ','ГРАВИТАЦИОННЫЙ','ГРАММАТИЧЕСКИЙ','ГРАНДИОЗНОСТЬ','ДЕЗИНФЕКЦИЯ','ДЕКОРАТИВНЫЙ','ДЕМОКРАТИЧЕСКИЙ','ДИНАМИЧЕСКИЙ','ДИСЦИПЛИНАРНЫЙ','ДИФФЕРЕНЦИАЦИЯ','ДОБРОДЕТЕЛЬ','ДОКУМЕНТАЦИЯ','ДОСТОВЕРНОСТЬ','ДРАМАТИЧЕСКИЙ','ДУХОВЕНСТВО','ЖИЗНЕОПИСАНИЕ','ЖИЗНЕСПОСОБНОСТЬ','ЗАВОРАЖИВАЮЩИЙ','ЗАКОНОДАТЕЛЬНЫЙ','ЗАПОМИНАЮЩИЙ','ЗАСТЕНЧИВОСТЬ','ЗДРАВООХРАНЕНИЕ','ИНФОРМАТИКА','КОМПЬЮТЕРНЫЙ','КОНСТРУКТОР','ЛАБОРАТОРИЯ','МАТЕМАТИЧЕСКИЙ','МИРОВОЗЗРЕНИЕ','НАСЛЕДСТВЕННОСТЬ','ОБРАЗОВАТЕЛЬНЫЙ','ОБЩЕСТВЕННЫЙ','ПРОГРАММИСТ','ПРОИЗВОДСТВО','ПРОФЕССИОНАЛ','ПСИХОЛОГИЯ','РАДИОАКТИВНЫЙ','РАЗНООБРАЗИЕ','САМООБРАЗОВАНИЕ','СОВЕРШЕНСТВО','СОПЕРЕЖИВАНИЕ','СПРАВЕДЛИВОСТЬ','СТРОИТЕЛЬСТВО','ТЕЛЕВИДЕНИЕ','ТЕХНОЛОГИЯ','УНИВЕРСИТЕТ','ФОТОГРАФИЯ','ЦИВИЛИЗАЦИЯ','ЭЛЕКТРИЧЕСТВО'],
@@ -1782,6 +2018,7 @@
     var wordRecord = 0;
     var wordCooldown = false;
     var wordCooldownTimer = null;
+    var possibleWordsCount = 0;
 
     function initWordGame() {
       try {
@@ -1814,10 +2051,29 @@
       currentBaseWord = words[Math.floor(Math.random() * words.length)];
       foundWords = [];
       
+      // Честный подсчет возможных слов из базы
+      possibleWordsCount = 0;
+      VALID_WORDS.forEach(function(w) {
+        if (w.length >= 3 && canFormWord(w, currentBaseWord)) {
+          possibleWordsCount++;
+        }
+      });
+
       $('#base-word').textContent = currentBaseWord;
       $('#word-input').value = '';
       $('#word-found-count').textContent = '0';
+      $('#word-total-possible').textContent = possibleWordsCount;
       $('#found-words-list').innerHTML = '';
+    }
+
+    function canFormWord(word, base) {
+      var baseArr = base.split('');
+      for (var i = 0; i < word.length; i++) {
+        var idx = baseArr.indexOf(word[i]);
+        if (idx === -1) return false;
+        baseArr.splice(idx, 1);
+      }
+      return true;
     }
 
     function startWordCooldown() {
@@ -1847,65 +2103,35 @@
       }, 1000);
     }
 
-    // НОВАЯ ПРОВЕРКА ЧЕРЕЗ ОНЛАЙН-СЛОВАРЬ ЯНДЕКСА
     function checkWord() {
       if (wordCooldown) return;
 
       var val = $('#word-input').value.trim().toUpperCase();
       if (!val) return;
 
-      // 1. Проверка на наличие букв в базовом слове
-      var tempBase = currentBaseWord.split('');
-      var canMake = true;
-      for (var i = 0; i < val.length; i++) {
-        var idx = tempBase.indexOf(val[i]);
-        if (idx === -1) { canMake = false; break; }
-        tempBase.splice(idx, 1);
-      }
-      if (!canMake) { showToast('❌ Нет таких букв!'); return; }
+      if (!canFormWord(val, currentBaseWord)) { showToast('❌ Нет таких букв в слове!'); return; }
 
       if (foundWords.indexOf(val) !== -1) { showToast('Ты уже нашел это слово!'); return; }
       if (val.length < 3) { showToast('Слишком короткое!'); return; }
 
-      startWordCooldown();
-      $('#word-loading').classList.remove('hidden');
+      if (VALID_WORDS.has(val.toLowerCase())) {
+        foundWords.push(val);
+        $('#word-found-count').textContent = foundWords.length;
+        $('#word-input').value = '';
+        var span = document.createElement('span');
+        span.textContent = val;
+        $('#found-words-list').appendChild(span);
+        showToast('✅ +1 слово!');
 
-      // 2. Запрос к открытому API Яндекс.Словаря
-      // Ищем слово в словаре. Если оно есть, API вернет код 200. Если нет - 404.
-      fetch('https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=dict.1.1.20210216T112233Z.1234567890abcdef1234567890abcdef12345678&lang=ru-ru&text=' + val, {
-        method: 'GET'
-      })
-      .then(function(res) {
-        if (res.ok) return res.json();
-        else throw new Error('Word not found');
-      })
-      .then(function(data) {
-        $('#word-loading').classList.add('hidden');
-        
-        // Если массив "def" существует и не пуст — слово найдено!
-        if (data && data.def && data.def.length > 0) {
-          foundWords.push(val);
-          $('#word-found-count').textContent = foundWords.length;
-          $('#word-input').value = '';
-          
-          var span = document.createElement('span');
-          span.textContent = val;
-          $('#found-words-list').appendChild(span);
-          showToast('✅ Отлично! +1 слово');
-
-          if (foundWords.length > wordRecord) {
-            wordRecord = foundWords.length;
-            localStorage.setItem('dyshi_word_record', wordRecord);
-            $('#word-record').textContent = wordRecord;
-          }
-        } else {
-          showToast('❌ Нет такого слова в словаре!');
+        if (foundWords.length > wordRecord) {
+          wordRecord = foundWords.length;
+          localStorage.setItem('dyshi_word_record', wordRecord);
+          $('#word-record').textContent = wordRecord;
         }
-      })
-      .catch(function(err) {
-        $('#word-loading').classList.add('hidden');
+      } else {
         showToast('❌ Такого слова нет в словаре!');
-      });
+        startWordCooldown(); // Штрафной кулдаун за неверное слово
+      }
     }
 
     /* ============= ШАРИКИ ============= */
@@ -2257,7 +2483,7 @@
           });
         }
 
-        // ПРОМТ УСИЛЕН (ТЕМПЕРАТУРА СНИЖЕНА ДО 0.3, ЧТОБЫ ИИ БЫЛ ГРАМОТНЫМ И СТРОГИМ)
+        // УСИЛЕННЫЙ ПРОМТ С ЗАПРЕТОМ НА ОШИБКИ
         historyForAI.unshift({
           role: 'system',
           content: `Ты — Самый Лучший в Мире Психолог и Эксперт по отказу от курения с мировым именем. Твоя главная задача — помочь пользователю полностью освободиться от никотиновой зависимости, бережно ведя его за руку через каждый сложный момент.
@@ -2279,6 +2505,7 @@
 4. Безупречный стиль речи:
 - Пиши исключительно грамотно, литературно, без единой орфографической, пунктуационной или стилистической ошибки. 
 - Твои тексты должны звучать живо, естественно и успокаивающе, как слова мудрого друга и профессионального психотерапевта одновременно.
+- НИКОГДА не используй странные, выдуманные или сленговые слова. Используй только чистый, грамотный русский язык.
 
 Отвечай только на русском языке. Пиши от 2 до 6 предложений, если пользователь явно не попросил подробностей. Учитывай всю историю диалога.`
         });
@@ -2289,7 +2516,7 @@
           body: JSON.stringify({ 
             messages: historyForAI, 
             model: 'openai',
-            temperature: 0.3, // СНИЖАЕМ КРЕАТИВНОСТЬ, ЧТОБЫ ИИ БЫЛ ГРАМОТНЫМ И НЕ ФАНТАЗИРОВАЛ
+            temperature: 0.0, // СНИЖАЕМ КРЕАТИВНОСТЬ ДО НУЛЯ, ЧТОБЫ ИИ НЕ ВЫДУМЫВАЛ СЛОВА
             private: true 
           })
         })
