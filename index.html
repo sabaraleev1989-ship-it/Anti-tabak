@@ -429,44 +429,44 @@
     .game-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
     
     /* ЗМЕЙКА */
-    #snake-game-area { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; background: rgba(15,23,42,0.8); overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 12px;}
+    #snake-game-area { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; background: rgba(15,23,42,0.8); overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 12px; max-width: 300px; margin-left: auto; margin-right: auto; }
     #snake-canvas { width: 100%; height: 100%; display: block; }
 
-    /* Удобный D-Pad для змейки */
+    /* Удобный D-Pad для змейки (Классическая крестовина) */
     .dpad {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(3, 60px);
       gap: 6px;
-      max-width: 180px;
+      justify-content: center;
       margin: 0 auto;
     }
     .dpad-btn {
       background: rgba(148, 163, 184, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 12px;
       color: var(--accent-2);
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
     }
     .dpad-btn:active { background: rgba(34, 197, 94, 0.3); }
-    .dpad-btn.up { grid-column: 2; grid-row: 1; }
-    .dpad-btn.left { grid-column: 1; grid-row: 2; }
-    .dpad-btn.down { grid-column: 2; grid-row: 3; }
+    /* Позиционирование кнопок */
+    .dpad-btn.up    { grid-column: 2; grid-row: 1; }
+    .dpad-btn.left  { grid-column: 1; grid-row: 2; }
     .dpad-btn.right { grid-column: 3; grid-row: 2; }
+    .dpad-btn.down  { grid-column: 2; grid-row: 3; }
 
     .difficulty-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
 
-    /* ШАРИКИ (Исправленный Grid) */
+    /* ШАРИКИ */
     #lines-game-area {
       position: relative; height: 340px; border-radius: 12px;
       background: rgba(15,23,42,0.6); overflow: hidden;
@@ -484,10 +484,10 @@
     @keyframes popBall { 0% { transform: scale(1); } 50% { transform: scale(1.3); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
 
     /* ПАМЯТЬ */
-    #memory-grid { display: grid; gap: 8px; margin: 0 auto; }
+    #memory-grid { display: grid; gap: 8px; margin: 0 auto; justify-content: center; }
     #memory-grid.lvl-easy { grid-template-columns: repeat(3, 1fr); max-width: 240px; }
     #memory-grid.lvl-medium { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
-    #memory-grid.lvl-hard { grid-template-columns: repeat(4, 1fr); max-width: 320px; }
+    #memory-grid.lvl-hard { grid-template-columns: repeat(5, 1fr); max-width: 340px; gap: 6px; }
     #memory-grid.lvl-extreme { grid-template-columns: repeat(6, 1fr); max-width: 360px; gap: 4px; }
     #memory-grid.lvl-insane { grid-template-columns: repeat(8, 1fr); max-width: 380px; gap: 3px; }
     #memory-grid.lvl-impossible { grid-template-columns: repeat(10, 1fr); max-width: 400px; gap: 2px; }
@@ -539,12 +539,12 @@
     .mem-card.appear { animation: popInCard 0.2s ease-out forwards; }
     @keyframes popInCard { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    #memory-grid.lvl-hard .mem-card { font-size: 36px; }
-    #memory-grid.lvl-extreme .mem-card { font-size: 26px; border-radius: 8px; }
+    #memory-grid.lvl-hard .mem-card { font-size: 28px; }
+    #memory-grid.lvl-extreme .mem-card { font-size: 24px; border-radius: 8px; }
     #memory-grid.lvl-extreme .mem-card.face-down::before { font-size: 18px; }
-    #memory-grid.lvl-insane .mem-card { font-size: 22px; border-radius: 6px; }
+    #memory-grid.lvl-insane .mem-card { font-size: 20px; border-radius: 6px; }
     #memory-grid.lvl-insane .mem-card.face-down::before { font-size: 14px; }
-    #memory-grid.lvl-impossible .mem-card { font-size: 18px; border-radius: 4px; }
+    #memory-grid.lvl-impossible .mem-card { font-size: 16px; border-radius: 4px; }
     #memory-grid.lvl-impossible .mem-card.face-down::before { font-size: 12px; }
 
     .memory-timer {
@@ -574,7 +574,6 @@
     /* ПЯТНАШКИ */
     #puzzle-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
       gap: 4px;
       max-width: 280px;
       margin: 0 auto;
@@ -851,8 +850,8 @@
         <div class="dpad">
           <div class="dpad-btn up" data-dir="up">⬆</div>
           <div class="dpad-btn left" data-dir="left">⬅</div>
-          <div class="dpad-btn down" data-dir="down">⬇</div>
           <div class="dpad-btn right" data-dir="right">➡</div>
+          <div class="dpad-btn down" data-dir="down">⬇</div>
         </div>
       </div>
 
@@ -869,6 +868,9 @@
           <button class="diff-btn mem-diff active" data-mem-diff="easy">Легкий</button>
           <button class="diff-btn mem-diff" data-mem-diff="medium">Средний</button>
           <button class="diff-btn mem-diff" data-mem-diff="hard">Сложный</button>
+          <button class="diff-btn mem-diff" data-mem-diff="extreme">Хардкор</button>
+          <button class="diff-btn mem-diff" data-mem-diff="insane">Безумие</button>
+          <button class="diff-btn mem-diff" data-mem-diff="impossible">Немыслимо</button>
         </div>
         <div class="memory-timer">
           <span>⏱ Время: <strong id="memory-time">00:00</strong></span>
@@ -884,7 +886,12 @@
           <span style="font-size:16px; font-weight:700;">🧩 Пятнашки</span>
           <button class="btn btn-ghost btn-small" id="puzzle-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <div style="text-align:center; font-size:12px; color:var(--text-dim); margin-bottom:10px;">Собери цифры от 1 до 15</div>
+        <div class="difficulty-row">
+          <button class="diff-btn puzzle-diff active" data-size="3">Легкий (3x3)</button>
+          <button class="diff-btn puzzle-diff" data-size="4">Средний (4x4)</button>
+          <button class="diff-btn puzzle-diff" data-size="5">Сложный (5x5)</button>
+        </div>
+        <div style="text-align:center; font-size:12px; color:var(--text-dim); margin-bottom:10px;">Собери цифры по порядку</div>
         <div id="puzzle-grid"></div>
       </div>
 
@@ -905,7 +912,6 @@
           <span>Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></span>
           <span>Ходы: <strong id="lines-moves" style="color:var(--accent-2);">30</strong></span>
         </div>
-        <!-- Исправленная игровая зона -->
         <div id="lines-game-area"></div>
       </div>
 
@@ -1869,9 +1875,13 @@
 
       memDeck = []; memFlipped = []; memMoves = 0; memMatched = 0; memLock = false;
       
+      // Настройка сеток и количества пар (Легкий 3x2, Средний 4x3, Сложный 5x4, Хардкор 6x6, Безумие 8x8, Немыслимо 10x10)
       var pairsCount = 3; 
       if (memDifficulty === 'medium') pairsCount = 6; 
-      if (memDifficulty === 'hard') pairsCount = 8;
+      if (memDifficulty === 'hard') pairsCount = 10;
+      if (memDifficulty === 'extreme') pairsCount = 18;
+      if (memDifficulty === 'insane') pairsCount = 32;
+      if (memDifficulty === 'impossible') pairsCount = 50;
       
       var availableIcons = memIcons.slice();
       availableIcons.sort(function() { return 0.5 - Math.random(); });
@@ -1991,7 +2001,7 @@
         var list = $('#memory-records-list');
         list.innerHTML = '';
         
-        var levels = { easy: 'Легкий', medium: 'Средний', hard: 'Сложный' };
+        var levels = { easy: 'Легкий', medium: 'Средний', hard: 'Сложный', extreme: 'Хардкор', insane: 'Безумие', impossible: 'Немыслимо' };
         var hasAny = false;
         
         for (var key in levels) {
@@ -2021,23 +2031,52 @@
     /* ============= ПЯТНАШКИ (Логическая игра) ============= */
     var puzzleTiles = [];
     var emptyIdx = 15;
+    var puzzleSize = 4;
 
     function initPuzzle() {
-      puzzleTiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
-      emptyIdx = 15;
-      shufflePuzzle();
-      renderPuzzle();
-      
       $('#puzzle-reset').addEventListener('click', function() {
         shufflePuzzle();
         renderPuzzle();
         showToast('Перемешано!');
       });
+      
+      $$('.puzzle-diff').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          $$('.puzzle-diff').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          puzzleSize = parseInt(btn.dataset.size, 10);
+          startPuzzle();
+        });
+      });
+      
+      startPuzzle();
+    }
+
+    function startPuzzle() {
+      var totalTiles = puzzleSize * puzzleSize;
+      puzzleTiles = [];
+      for (var i = 1; i < totalTiles; i++) puzzleTiles.push(i);
+      puzzleTiles.push(0); // 0 это пустая клетка
+      emptyIdx = totalTiles - 1;
+      
+      shufflePuzzle();
+      
+      // Настройка сетки
+      var grid = $('#puzzle-grid');
+      grid.style.gridTemplateColumns = 'repeat(' + puzzleSize + ', 1fr)';
+      // Размер шрифта для больших сеток
+      if (puzzleSize === 5) {
+        grid.style.maxWidth = '320px';
+      } else {
+        grid.style.maxWidth = '280px';
+      }
+      
+      renderPuzzle();
     }
 
     function shufflePuzzle() {
-      // Простой алгоритм перемешивания (делаем 100 случайных ходов)
-      for (var i = 0; i < 100; i++) {
+      // Делаем 150 случайных ходов для перемешивания
+      for (var i = 0; i < 150; i++) {
         var neighbors = getNeighbors(emptyIdx);
         var randNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
         puzzleTiles[emptyIdx] = puzzleTiles[randNeighbor];
@@ -2047,13 +2086,13 @@
     }
 
     function getNeighbors(idx) {
-      var row = Math.floor(idx / 4);
-      var col = idx % 4;
+      var row = Math.floor(idx / puzzleSize);
+      var col = idx % puzzleSize;
       var neighbors = [];
-      if (row > 0) neighbors.push(idx - 4);
-      if (row < 3) neighbors.push(idx + 4);
+      if (row > 0) neighbors.push(idx - puzzleSize);
+      if (row < puzzleSize - 1) neighbors.push(idx + puzzleSize);
       if (col > 0) neighbors.push(idx - 1);
-      if (col < 3) neighbors.push(idx + 1);
+      if (col < puzzleSize - 1) neighbors.push(idx + 1);
       return neighbors;
     }
 
@@ -2093,7 +2132,7 @@
 
     function checkPuzzleWin() {
       var isWin = true;
-      for (var i = 0; i < 15; i++) {
+      for (var i = 0; i < puzzleTiles.length - 1; i++) {
         if (puzzleTiles[i] !== i + 1) { isWin = false; break; }
       }
       if (isWin) {
