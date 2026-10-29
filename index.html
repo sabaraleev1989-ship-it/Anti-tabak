@@ -598,7 +598,6 @@
     }
     .puzzle-tile:active { transform: scale(0.95); }
     .puzzle-tile.empty { background: transparent; border-color: transparent; cursor: default; box-shadow: none; }
-    .puzzle-tile.correct { background: rgba(34,197,94,0.2); border-color: var(--accent); color: #fff; }
 
     #breath-widget {
       position: relative;
@@ -1591,7 +1590,7 @@
     var snakeCanvas = $('#snake-canvas');
     var ctx = snakeCanvas.getContext('2d');
     var snake = [];
-    var food = { x: 0, y: 0 };
+    var food = { x: 0, y: 0, color: '#fbbf24' };
     var snakeDir = 'right';
     var nextDir = 'right';
     var snakeScore = 0;
@@ -1603,7 +1602,8 @@
     var isGameOver = false;
     var isPaused = false;
 
-    var snakeColors = ['#4ade80', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa', '#f87171'];
+    // Палитра цветов для змейки и фруктов
+    var colors = ['#4ade80', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa', '#f87171'];
 
     $('#snake-best').textContent = snakeBest;
 
@@ -1611,10 +1611,11 @@
       snakeCanvas.width = canvasSize;
       snakeCanvas.height = canvasSize;
       
+      // Начальная змейка одного цвета (зеленая)
       snake = [
-        {x: 5, y: 5, color: snakeColors[0]},
-        {x: 4, y: 5, color: snakeColors[0]},
-        {x: 3, y: 5, color: snakeColors[0]}
+        {x: 5, y: 5, color: colors[0]},
+        {x: 4, y: 5, color: colors[0]},
+        {x: 3, y: 5, color: colors[0]}
       ];
       snakeDir = 'right';
       nextDir = 'right';
@@ -1646,7 +1647,12 @@
       }
       if (emptyCells.length > 0) {
         var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        food = cell;
+        food = {
+          x: cell.x, 
+          y: cell.y, 
+          // Случайный цвет для фрукта из палитры (кроме зеленого, чтобы отличать от старта)
+          color: colors[Math.floor(Math.random() * (colors.length - 1)) + 1] 
+        };
       }
     }
 
@@ -1676,8 +1682,8 @@
       if (head.x === food.x && head.y === food.y) {
         snakeScore++;
         $('#snake-score').textContent = snakeScore;
-        // Меняем цвет головы при поедании
-        head.color = snakeColors[snakeScore % snakeColors.length];
+        // Красим голову в цвет съеденного фрукта
+        head.color = food.color;
         spawnFood();
       } else {
         snake.pop();
@@ -1697,17 +1703,19 @@
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvasSize, i); ctx.stroke();
       }
 
-      ctx.fillStyle = '#fbbf24';
-      ctx.shadowColor = '#fbbf24';
+      // Рисуем фрукт
+      ctx.fillStyle = food.color;
+      ctx.shadowColor = food.color;
       ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.arc(food.x * boxSize + boxSize / 2, food.y * boxSize + boxSize / 2, boxSize / 2 - 2, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
       
+      // Рисуем змейку
       snake.forEach(function(segment, index) {
         var isHead = index === 0;
-        ctx.fillStyle = segment.color || '#22c55e';
+        ctx.fillStyle = segment.color;
         
         ctx.shadowColor = isHead ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0,0,0,0.3)';
         ctx.shadowBlur = isHead ? 10 : 5;
@@ -1875,7 +1883,7 @@
 
       memDeck = []; memFlipped = []; memMoves = 0; memMatched = 0; memLock = false;
       
-      // Настройка сеток и количества пар (Легкий 3x2, Средний 4x3, Сложный 5x4, Хардкор 6x6, Безумие 8x8, Немыслимо 10x10)
+      // Настройка сеток и количества пар
       var pairsCount = 3; 
       if (memDifficulty === 'medium') pairsCount = 6; 
       if (memDifficulty === 'hard') pairsCount = 10;
@@ -2030,8 +2038,8 @@
 
     /* ============= ПЯТНАШКИ (Логическая игра) ============= */
     var puzzleTiles = [];
-    var emptyIdx = 15;
-    var puzzleSize = 4;
+    var emptyIdx = 8;
+    var puzzleSize = 3;
 
     function initPuzzle() {
       $('#puzzle-reset').addEventListener('click', function() {
@@ -2049,6 +2057,11 @@
         });
       });
       
+      // Запускаем игру, опираясь на активную кнопку в HTML (по умолчанию Легкий)
+      var activeSizeBtn = document.querySelector('.puzzle-diff.active');
+      if (activeSizeBtn) {
+        puzzleSize = parseInt(activeSizeBtn.dataset.size, 10);
+      }
       startPuzzle();
     }
 
@@ -2064,7 +2077,6 @@
       // Настройка сетки
       var grid = $('#puzzle-grid');
       grid.style.gridTemplateColumns = 'repeat(' + puzzleSize + ', 1fr)';
-      // Размер шрифта для больших сеток
       if (puzzleSize === 5) {
         grid.style.maxWidth = '320px';
       } else {
@@ -2107,8 +2119,6 @@
           tile.classList.add('empty');
         } else {
           tile.textContent = num;
-          // Подсветка, если на своем месте
-          if (num === idx + 1) tile.classList.add('correct');
           
           tile.addEventListener('click', function() {
             tryMoveTile(idx);
