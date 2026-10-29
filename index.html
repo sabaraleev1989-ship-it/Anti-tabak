@@ -1680,7 +1680,7 @@
     var rows = 15;
     var isGameOver = false;
     var isPaused = true;
-    var particles = []; // Для анимации
+    var particles = []; // Для анимации взрыва
 
     // Качественные эмодзи
     var fruitTypes = [
@@ -1897,18 +1897,15 @@
       });
       ctx.globalAlpha = 1.0;
 
-      // Рисуем фрукт (качественный эмодзи)
+      // Рисуем фрукт (качественный эмодзи, БЕЗ ПУЛЬСАЦИИ)
       ctx.font = (boxSize - 2) + 'px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      
-      // Пульсация фрукта
-      var pulse = 1 + Math.sin(Date.now() / 150) * 0.05;
-      ctx.save();
-      ctx.translate(food.x * boxSize + boxSize / 2, food.y * boxSize + boxSize / 2);
-      ctx.scale(pulse, pulse);
-      ctx.fillText(food.emoji, 0, 2);
-      ctx.restore();
+      ctx.fillText(
+        food.emoji, 
+        food.x * boxSize + boxSize / 2, 
+        food.y * boxSize + boxSize / 2 + 2
+      );
       
       // Рисуем змейку
       snake.forEach(function(segment, index) {
