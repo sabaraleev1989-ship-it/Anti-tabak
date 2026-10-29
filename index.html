@@ -526,6 +526,8 @@
       touch-action: none; 
       margin: 0 auto;
       max-width: 380px;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .ws-cell {
       aspect-ratio: 1;
@@ -540,12 +542,12 @@
       color: #fff;
       cursor: pointer;
       user-select: none;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.1s, color 0.2s;
     }
     .ws-cell.selecting {
       background: rgba(56,189,248,0.5);
       color: #000;
-      transform: scale(1.1);
+      transform: scale(1.08);
       z-index: 2;
     }
     .ws-info {
@@ -754,8 +756,11 @@
           <button class="diff-btn ws-diff" data-ws-diff="10">10x10</button>
         </div>
         <div class="ws-info">
-          <span>Найдено: <strong id="ws-found-count">0</strong> / <strong id="ws-total-count">0</strong></span>
-          <span id="ws-status">Потяни пальцем...</span>
+          <span>✅ Найдено: <strong id="ws-found-count">0</strong> / <strong id="ws-total-count">0</strong></span>
+          <span>⏳ Осталось: <strong id="ws-left-count" style="color:#fbbf24;">0</strong></span>
+        </div>
+        <div class="ws-info" style="margin-top:-4px;">
+          <span id="ws-status" style="font-size:13px;">Тяни по буквам...</span>
         </div>
         <div id="word-search-grid"></div>
         <div id="ws-words-list" style="display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--accent-2); justify-content:center; margin-top:10px;"></div>
@@ -1552,111 +1557,159 @@
       });
     }
 
-    /* ============= ФИЛВОРДЫ (ЗАХАРДКОЖЕННЫЕ ИДЕАЛЬНЫЕ СЕТКИ) ============= */
-    // Идеальные сетки, где нет лишних букв
-    var wsGrids = {
-      4: [
-        {
-          grid: [
-            ['К', 'О', 'Т', 'С'],
-            ['Р', 'А', 'К', 'О'],
-            ['О', 'Д', 'А', 'Н'],
-            ['Т', 'И', 'Г', 'Р']
-          ],
-          words: ['КОТ', 'РАК', 'ТИГР', 'СОН', 'КРОТ', 'ДАН', 'ОСА']
-        },
-        {
-          grid: [
-            ['Д', 'О', 'М', 'С'],
-            ['О', 'С', 'А', 'Ы'],
-            ['М', 'И', 'Р', 'Н'],
-            ['К', 'О', 'Т', 'А']
-          ],
-          words: ['ДОМ', 'СЫР', 'СОМ', 'МИР', 'ОСА', 'СОН', 'КОТ']
-        },
-        {
-          grid: [
-            ['Л', 'У', 'К', 'С'],
-            ['Е', 'С', 'О', 'А'],
-            ['С', 'О', 'К', 'Д'],
-            ['К', 'О', 'Т', 'А']
-          ],
-          words: ['ЛУК', 'ЛЕС', 'СОК', 'КОТ', 'САД', 'ОСА', 'УС']
-        }
-      ],
-      6: [
-        {
-          grid: [
-            ['К', 'О', 'Т', 'Л', 'Е', 'С'],
-            ['Р', 'А', 'К', 'У', 'А', 'Ы'],
-            ['О', 'Д', 'И', 'Ж', 'М', 'Р'],
-            ['Т', 'И', 'Г', 'Р', 'П', 'А'],
-            ['С', 'О', 'Н', 'Ц', 'А', 'К'],
-            ['Д', 'О', 'М', 'И', 'К', 'И']
-          ],
-          words: ['КОТ', 'ЛЕС', 'РАК', 'ТИГР', 'СОН', 'ДОМ', 'КОМИК', 'СОЛНЦЕ', 'ЖИРАФ', 'КРАН', 'ПАРК', 'УМ', 'СЫР']
-        },
-        {
-          grid: [
-            ['В', 'О', 'Р', 'О', 'Н', 'А'],
-            ['Е', 'С', 'А', 'Д', 'И', 'К'],
-            ['Т', 'О', 'К', 'О', 'М', 'О'],
-            ['Е', 'Р', 'О', 'З', 'А', 'Т'],
-            ['Р', 'А', 'К', 'Н', 'И', 'Г'],
-            ['Л', 'И', 'С', 'А', 'Ш', 'А']
-          ],
-          words: ['ВОРОНА', 'САД', 'КОТ', 'ТОК', 'РОЗА', 'РАК', 'ЛИСА', 'ВЕТЕР', 'РОТ', 'СОН', 'КОМ', 'АИСТ', 'ШКАФ']
-        }
-      ],
-      8: [
-        {
-          grid: [
-            ['К', 'О', 'Т', 'Л', 'Е', 'С', 'Д', 'О'],
-            ['Р', 'А', 'К', 'У', 'А', 'Ы', 'И', 'М'],
-            ['О', 'Д', 'И', 'Ж', 'М', 'Р', 'В', 'И'],
-            ['Т', 'И', 'Г', 'Р', 'П', 'А', 'А', 'К'],
-            ['С', 'О', 'Н', 'Ц', 'А', 'К', 'Н', 'И'],
-            ['Д', 'О', 'М', 'И', 'К', 'И', 'А', 'Т'],
-            ['Б', 'Е', 'Г', 'Е', 'М', 'О', 'Т', 'Ы'],
-            ['М', 'О', 'Р', 'Е', 'П', 'Л', 'Я', 'Ж']
-          ],
-          words: ['КОТ', 'ЛЕС', 'РАК', 'ТИГР', 'СОН', 'ДОМ', 'КОМИК', 'СОЛНЦЕ', 'ЖИРАФ', 'КРАН', 'БЕГЕМОТ', 'МОРЕ', 'ПЛЯЖ', 'ДИВАН', 'ТУМАН', 'ВИНО', 'СЫР', 'КОН', 'КИТ']
-        }
-      ],
-      10: [
-        {
-          grid: [
-            ['К', 'О', 'Т', 'Л', 'Е', 'С', 'Д', 'О', 'М', 'И'],
-            ['Р', 'А', 'К', 'У', 'А', 'Ы', 'И', 'М', 'А', 'К'],
-            ['О', 'Д', 'И', 'Ж', 'М', 'Р', 'В', 'И', 'Ш', 'Н'],
-            ['Т', 'И', 'Г', 'Р', 'П', 'А', 'А', 'К', 'Я', 'И'],
-            ['С', 'О', 'Н', 'Ц', 'А', 'К', 'Н', 'И', 'Г', 'А'],
-            ['Д', 'О', 'М', 'И', 'К', 'И', 'А', 'Т', 'Р', 'А'],
-            ['Б', 'Е', 'Г', 'Е', 'М', 'О', 'Т', 'Ы', 'Л', 'М'],
-            ['М', 'О', 'Р', 'Е', 'П', 'Л', 'Я', 'Ж', 'Ь', 'Я'],
-            ['Ж', 'И', 'Р', 'А', 'Ф', 'З', 'М', 'Е', 'Я', 'С'],
-            ['В', 'И', 'Н', 'О', 'Г', 'Р', 'А', 'Д', 'Н', 'А']
-          ],
-          words: ['КОТ', 'ЛЕС', 'РАК', 'ТИГР', 'СОН', 'ДОМ', 'КОМИК', 'СОЛНЦЕ', 'ЖИРАФ', 'КРАН', 'БЕГЕМОТ', 'МОРЕ', 'ПЛЯЖ', 'ДИВАН', 'ТУМАН', 'ВИНО', 'ВИШНЯ', 'КНИГА', 'МЕСЯЦ', 'ВИНОГРАД', 'ЗИМА', 'ЛЕВ', 'СЫР']
-        }
-      ]
-    };
+    /* ============= ФИЛВОРДЫ (генерация, изгибы, полное покрытие) ============= */
 
     var wsGridSize = 4;
     var currentWsGrid = null;
-    var wsFoundWords = []; 
-    var wsCellElements = []; 
-    var wsUsedCells = []; 
+    var wsFoundWords = [];
+    var wsCellElements = [];
+    var wsUsedCells = [];
     var wsColors = ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16', '#f43f5e', '#d946ef', '#6366f1'];
-    
+
     var wsIsDragging = false;
-    var wsSelectedCells = []; 
+    var wsSelectedCells = [];
+
+    var WS_WORD_BANK = {
+      3: ['КОТ','РАК','СОН','ДОМ','ЛЕС','СОК','СЫР','МИР','САД','ЛУК','КОМ','РОТ','НОС','ВОЛ','БЫК','МЕЛ','ГАЗ','ЖУК','УХО','ОСА','ЯМА','ШАР'],
+      4: ['ТИГР','КРОТ','ВОЛК','СЛОН','КОЗА','ЛУНА','ЗИМА','ВЕСНА','МОРЕ','ПЛЯЖ','СНЕГ','ОКНО','СТОЛ','КОНЬ','ГОРА','РЕКА','ПЕСОК','ЗЕМЛЯ','ОГОНЬ','ВЕТЕР','ГРОЗА','ТУЧА','РОЗА'],
+      5: ['ЖИРАФ','МЕТРО','ПАРУС','ЗВЕЗДА','КАМЕНЬ','ГОЛОС','ХЛЕБ','САХАР','МАСЛО','СОЛЬ','ПЕРЕЦ','ЛИМОН','БАНАН','ЯБЛОКО','ГРУША','СЛИВА','ВИШНЯ','ДЫНЯ','АРБУЗ','ТЫКВА','ОГУРЕЦ'],
+      6: ['СОЛНЦЕ','БЕРЕЗА','РЯБИНА','СИРЕНЬ','КАКТУС','РОМАШКА','БАБОЧКА','ПЧЕЛА','МУРАВЕЙ','СТРЕКОЗА','КУЗНЕЧИК','ПАУК','ЗМЕЯ','КРОКОДИЛ','ДЕЛЬФИН','АКУЛА','ОКУНЬ','ЩУКА','КАРАСЬ'],
+      7: ['БЕГЕМОТ','ПИНГВИН','СТРАУС','ФЛАМИНГО','ПЕЛИКАН','ЛЕОПАРД','ГЕПАРД','ОЛЕНЬ','КАБАН','БОБР','ВЫДРА','ХОМЯК','КРОЛИК'],
+      8: ['ВОРОБЕЙ','СИНИЦА','СОРОКА','ВОРОНА','СКВОРЕЦ','СОЛОВЕЙ','ДЯТЕЛ','КУКУШКА','ЛЕБЕДЬ','ПЕТУХ','КУРИЦА','УЛИТКА','МЕДВЕДЬ','ЛИСИЦА','БАРСУК']
+    };
+
+    function wsAllWords() {
+      var out = [];
+      for (var len in WS_WORD_BANK) out = out.concat(WS_WORD_BANK[len]);
+      return out;
+    }
+
+    function wsWordsOverlap(a, b) {
+      if (a === b) return false;
+      var short = a.length <= b.length ? a : b;
+      var long  = a.length >  b.length ? a : b;
+      return long.indexOf(short) !== -1;
+    }
+
+    function wsGenerateGrid(size) {
+      var totalCells = size * size;
+      var targetWordCount = Math.max(4, Math.floor(totalCells / 3.5));
+      var allWords = wsAllWords();
+
+      for (var attempt = 0; attempt < 300; attempt++) {
+        var grid = [];
+        for (var y = 0; y < size; y++) { grid[y] = []; for (var x = 0; x < size; x++) grid[y][x] = null; }
+
+        var placed = [];
+        var usedWords = {};
+
+        var pool = allWords.slice();
+        for (var i = pool.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+        }
+        pool.sort(function (a, b) { return b.length - a.length; });
+
+        var maxWords = Math.min(targetWordCount + 5, pool.length);
+
+        for (var wi = 0; wi < pool.length && placed.length < maxWords; wi++) {
+          var word = pool[wi];
+          if (usedWords[word]) continue;
+          if (size >= 6 && word.length < 4) continue;
+          var conflict = false;
+          for (var k = 0; k < placed.length; k++) {
+            if (wsWordsOverlap(word, placed[k].word)) { conflict = true; break; }
+          }
+          if (conflict) continue;
+
+          var path = wsTryPlaceWord(word, grid, size);
+          if (path) {
+            for (var p = 0; p < word.length; p++) {
+              grid[path[p].y][path[p].x] = word[p];
+            }
+            placed.push({ word: word, path: path });
+            usedWords[word] = true;
+          }
+        }
+
+        var filled = 0;
+        for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) if (grid[y][x] !== null) filled++;
+
+        if (filled === totalCells) {
+          var wordPaths = {};
+          var wordsList = [];
+          placed.forEach(function (p) { wordPaths[p.word] = p.path; wordsList.push(p.word); });
+          return { grid: grid, words: wordsList, wordPaths: wordPaths };
+        }
+      }
+
+      return wsGenerateGridFallback(size);
+    }
+
+    function wsGenerateGridFallback(size) {
+      var alpha = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЫЭЮЯ';
+      var grid = [];
+      for (var y = 0; y < size; y++) {
+        grid[y] = [];
+        for (var x = 0; x < size; x++) grid[y][x] = alpha[Math.floor(Math.random() * alpha.length)];
+      }
+      return { grid: grid, words: [], wordPaths: {} };
+    }
+
+    function wsTryPlaceWord(word, grid, size) {
+      var starts = [];
+      for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) starts.push({ x: x, y: y });
+      for (var i = starts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = starts[i]; starts[i] = starts[j]; starts[j] = t;
+      }
+      for (var s = 0; s < starts.length; s++) {
+        var res = wsGrowPath(word, grid, size, starts[s], 0, null, []);
+        if (res) return res;
+      }
+      return null;
+    }
+
+    function wsGrowPath(word, grid, size, cur, idx, lastDir, path) {
+      var cell = grid[cur.y][cur.x];
+      if (cell !== null && cell !== word[idx]) return null;
+
+      var newPath = path.concat([{ x: cur.x, y: cur.y }]);
+      if (idx === word.length - 1) return newPath;
+
+      var dirs = [
+        { dx: 0, dy: -1 },
+        { dx: 0, dy: 1 },
+        { dx: -1, dy: 0 },
+        { dx: 1, dy: 0 }
+      ];
+      for (var d = dirs.length - 1; d > 0; d--) {
+        var r = Math.floor(Math.random() * (d + 1));
+        var tmp = dirs[d]; dirs[d] = dirs[r]; dirs[r] = tmp;
+      }
+
+      for (var d = 0; d < dirs.length; d++) {
+        var dir = dirs[d];
+        if (lastDir && dir.dx === -lastDir.dx && dir.dy === -lastDir.dy) continue;
+        var nx = cur.x + dir.dx, ny = cur.y + dir.dy;
+        if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
+        var alreadyInPath = false;
+        for (var p = 0; p < newPath.length; p++) {
+          if (newPath[p].x === nx && newPath[p].y === ny) { alreadyInPath = true; break; }
+        }
+        if (alreadyInPath) continue;
+
+        var res = wsGrowPath(word, grid, size, { x: nx, y: ny }, idx + 1, dir, newPath);
+        if (res) return res;
+      }
+      return null;
+    }
 
     function initWordSearch() {
       $('#ws-reset').addEventListener('click', startNewWordSearch);
-      $$('.ws-diff').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          $$('.ws-diff').forEach(function(b) { b.classList.remove('active'); });
+      $$('.ws-diff').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          $$('.ws-diff').forEach(function (b) { b.classList.remove('active'); });
           btn.classList.add('active');
           wsGridSize = parseInt(btn.dataset.wsDiff, 10);
           startNewWordSearch();
@@ -1664,16 +1717,13 @@
       });
 
       var gridEl = $('#word-search-grid');
-      
       gridEl.addEventListener('mousedown', handlePointerDown);
-      gridEl.addEventListener('touchstart', handlePointerDown, {passive: false});
-      
+      gridEl.addEventListener('touchstart', handlePointerDown, { passive: false });
       window.addEventListener('mousemove', handlePointerMove);
-      window.addEventListener('touchmove', handlePointerMove, {passive: false});
-      
+      window.addEventListener('touchmove', handlePointerMove, { passive: false });
       window.addEventListener('mouseup', handlePointerUp);
       window.addEventListener('touchend', handlePointerUp);
-      
+
       startNewWordSearch();
     }
 
@@ -1681,158 +1731,157 @@
       wsFoundWords = [];
       wsCellElements = [];
       wsUsedCells = [];
-      
-      $('#ws-found-count').textContent = '0';
+      wsIsDragging = false;
+      wsSelectedCells = [];
+
       $('#ws-words-list').innerHTML = '';
-      $('#ws-status').textContent = 'Потяни пальцем...';
-      $('#ws-status').style.color = 'var(--text-dim)';
 
       var gridEl = $('#word-search-grid');
       gridEl.innerHTML = '';
       gridEl.style.gridTemplateColumns = 'repeat(' + wsGridSize + ', 1fr)';
       var cellFontSize = wsGridSize === 4 ? '24px' : wsGridSize === 6 ? '18px' : wsGridSize === 8 ? '14px' : '12px';
-      
-      // Берем случайную сетку из подготовленных
-      var availableGrids = wsGrids[wsGridSize];
-      currentWsGrid = availableGrids[Math.floor(Math.random() * availableGrids.length)];
-      
-      // Инициализируем массив использованных клеток
+
+      currentWsGrid = wsGenerateGrid(wsGridSize);
+
       for (var y = 0; y < wsGridSize; y++) {
         wsUsedCells[y] = [];
-        for (var x = 0; x < wsGridSize; x++) {
-          wsUsedCells[y][x] = false;
-        }
+        for (var x = 0; x < wsGridSize; x++) wsUsedCells[y][x] = false;
       }
-      
-      // Отрисовываем сетку
-      for (var y = 0; y < wsGridSize; y++) {
-        wsCellElements[y] = [];
-        for (var x = 0; x < wsGridSize; x++) {
+
+      for (var y2 = 0; y2 < wsGridSize; y2++) {
+        wsCellElements[y2] = [];
+        for (var x2 = 0; x2 < wsGridSize; x2++) {
           var cell = document.createElement('div');
           cell.className = 'ws-cell';
-          cell.textContent = currentWsGrid.grid[y][x];
-          cell.dataset.x = x;
-          cell.dataset.y = y;
+          cell.textContent = currentWsGrid.grid[y2][x2];
+          cell.dataset.x = x2;
+          cell.dataset.y = y2;
           cell.style.fontSize = cellFontSize;
           gridEl.appendChild(cell);
-          wsCellElements[y][x] = cell;
+          wsCellElements[y2][x2] = cell;
         }
       }
-      
-      $('#ws-total-count').textContent = currentWsGrid.words.length;
-      updateWordSearchStatus();
+
+      $('#ws-status').textContent = 'Тяни по буквам...';
+      $('#ws-status').style.color = 'var(--text-dim)';
+      updateWsCounter();
+    }
+
+    function updateWsCounter() {
+      var total = currentWsGrid ? currentWsGrid.words.length : 0;
+      var found = wsFoundWords.length;
+      var left = Math.max(0, total - found);
+      var fEl = $('#ws-found-count'); if (fEl) fEl.textContent = found;
+      var tEl = $('#ws-total-count'); if (tEl) tEl.textContent = total;
+      var lEl = $('#ws-left-count'); if (lEl) lEl.textContent = left;
+      var statusEl = $('#ws-status');
+      if (found === total && total > 0) {
+        statusEl.textContent = '🎉 Все слова найдены!';
+        statusEl.style.color = 'var(--accent-2)';
+      }
     }
 
     function handlePointerDown(e) {
       var target = e.target;
       if (!target.classList.contains('ws-cell')) return;
-      
       var x = parseInt(target.dataset.x, 10);
       var y = parseInt(target.dataset.y, 10);
       if (wsUsedCells[y][x]) return;
-      
-      e.preventDefault(); 
-      
+      e.preventDefault();
       wsIsDragging = true;
       wsSelectedCells = [];
-      
       addCellToSelection(x, y);
     }
 
     function handlePointerMove(e) {
       if (!wsIsDragging) return;
       e.preventDefault();
-      
       var clientX = e.touches ? e.touches[0].clientX : e.clientX;
       var clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
       var el = document.elementFromPoint(clientX, clientY);
-      
       if (el && el.classList.contains('ws-cell')) {
         var x = parseInt(el.dataset.x, 10);
         var y = parseInt(el.dataset.y, 10);
-        
         if (wsUsedCells[y][x]) return;
-
-        var alreadySelected = wsSelectedCells.some(function(c) { return c.x === x && c.y === y; });
-        
-        if (!alreadySelected) {
-          if (wsSelectedCells.length > 0) {
-            var last = wsSelectedCells[wsSelectedCells.length - 1];
-            var dx = Math.abs(last.x - x);
-            var dy = Math.abs(last.y - y);
-            // Разрешаем ходить только по горизонтали или вертикали (как в классике)
-            if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
-              addCellToSelection(x, y);
-            }
+        var alreadySelected = wsSelectedCells.some(function (c) { return c.x === x && c.y === y; });
+        if (!alreadySelected && wsSelectedCells.length > 0) {
+          var last = wsSelectedCells[wsSelectedCells.length - 1];
+          var dx = Math.abs(last.x - x);
+          var dy = Math.abs(last.y - y);
+          if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+            addCellToSelection(x, y);
           }
         }
       }
     }
 
-    function handlePointerUp(e) {
+    function handlePointerUp() {
       if (!wsIsDragging) return;
       wsIsDragging = false;
-      
-      var word = wsSelectedCells.map(function(c) { return currentWsGrid.grid[c.y][c.x]; }).join('');
-      
-      wsSelectedCells.forEach(function(c) {
+
+      var word = wsSelectedCells.map(function (c) { return currentWsGrid.grid[c.y][c.x]; }).join('');
+
+      wsSelectedCells.forEach(function (c) {
         wsCellElements[c.y][c.x].classList.remove('selecting');
       });
-      
-      if (word.length >= 3) {
-        checkWordSearchWord(word, wsSelectedCells);
+
+      if (word.length >= 2) {
+        checkWordSearchWord(word, wsSelectedCells.slice());
       }
-      
+
       wsSelectedCells = [];
     }
 
     function addCellToSelection(x, y) {
-      wsSelectedCells.push({x: x, y: y});
+      wsSelectedCells.push({ x: x, y: y });
       wsCellElements[y][x].classList.add('selecting');
     }
 
     function checkWordSearchWord(word, cells) {
       var statusEl = $('#ws-status');
-      var isTargetWord = currentWsGrid.words.indexOf(word) !== -1;
+      var isTarget = currentWsGrid.words.indexOf(word) !== -1;
       var isAlreadyFound = wsFoundWords.indexOf(word) !== -1;
-      
+
       if (isAlreadyFound) {
         statusEl.textContent = '❌ Уже найдено';
         statusEl.style.color = 'var(--danger)';
         flashError(cells);
-      } else if (isTargetWord) {
+        return;
+      }
+
+      if (isTarget) {
+        var refPath = currentWsGrid.wordPaths[word];
+        var samePath = wsPathEquals(refPath, cells);
+        if (!samePath) {
+          statusEl.textContent = '❌ Не тот путь';
+          statusEl.style.color = 'var(--danger)';
+          flashError(cells);
+          return;
+        }
+
         wsFoundWords.push(word);
-        
         var color = wsColors[wsFoundWords.length % wsColors.length];
-        
-        cells.forEach(function(c) {
-          wsUsedCells[c.y][c.x] = true; 
+
+        cells.forEach(function (c) {
+          wsUsedCells[c.y][c.x] = true;
           wsCellElements[c.y][c.x].style.backgroundColor = color;
           wsCellElements[c.y][c.x].style.borderColor = color;
           wsCellElements[c.y][c.x].style.color = '#fff';
         });
-        
+
         statusEl.textContent = '✅ Найдено: ' + word;
         statusEl.style.color = 'var(--accent-2)';
-        
+
         var span = document.createElement('span');
         span.textContent = word;
         span.style.color = color;
         $('#ws-words-list').appendChild(span);
-        
-        // Проверка на победу (все буквы закрашены)
-        var allUsed = true;
-        for (var y = 0; y < wsGridSize; y++) {
-          for (var x = 0; x < wsGridSize; x++) {
-            if (!wsUsedCells[y][x]) allUsed = false;
-          }
-        }
-        
-        if (allUsed) {
-          showToast('🎉 Победа! Все буквы использованы!');
-          launchConfetti(100);
-          statusEl.textContent = '🎉 Поле очищено!';
+
+        updateWsCounter();
+
+        if (wsFoundWords.length === currentWsGrid.words.length) {
+          showToast('🎉 Победа! Все слова найдены!');
+          launchConfetti(120);
         }
       } else {
         statusEl.textContent = '❌ Нет такого слова';
@@ -1841,27 +1890,48 @@
       }
     }
 
+    function wsPathEquals(a, b) {
+      if (!a || !b || a.length !== b.length) return false;
+      var keyA = a.map(function (p) { return p.x + ',' + p.y; }).sort().join('|');
+      var keyB = b.map(function (p) { return p.x + ',' + p.y; }).sort().join('|');
+      return keyA === keyB;
+    }
+
     function flashError(cells) {
-      cells.forEach(function(c) {
-        wsCellElements[c.y][c.x].style.backgroundColor = 'rgba(248,113,113,0.8)';
-        wsCellElements[c.y][c.x].style.borderColor = 'var(--danger)';
+      cells.forEach(function (c) {
+        var el = wsCellElements[c.y][c.x];
+        el.style.backgroundColor = 'rgba(248,113,113,0.8)';
+        el.style.borderColor = 'var(--danger)';
       });
-      
-      setTimeout(function() {
-        cells.forEach(function(c) {
-          if (!wsUsedCells[c.y][c.x]) {
-            wsCellElements[c.y][c.x].style.backgroundColor = '';
-            wsCellElements[c.y][c.x].style.borderColor = '';
-            wsCellElements[c.y][c.x].style.color = '#fff';
+      setTimeout(function () {
+        cells.forEach(function (c) {
+          var el = wsCellElements[c.y][c.x];
+          if (wsUsedCells[c.y][c.x]) {
+            var wordOfCell = null;
+            for (var k = 0; k < wsFoundWords.length; k++) {
+              var refPath = currentWsGrid.wordPaths[wsFoundWords[k]];
+              if (refPath && refPath.some(function (p) { return p.x === c.x && p.y === c.y; })) {
+                wordOfCell = wsFoundWords[k]; break;
+              }
+            }
+            if (wordOfCell) {
+              var idx = wsFoundWords.indexOf(wordOfCell);
+              var col = wsColors[idx % wsColors.length];
+              el.style.backgroundColor = col;
+              el.style.borderColor = col;
+              el.style.color = '#fff';
+            } else {
+              el.style.backgroundColor = '';
+              el.style.borderColor = '';
+              el.style.color = '#fff';
+            }
+          } else {
+            el.style.backgroundColor = '';
+            el.style.borderColor = '';
+            el.style.color = '#fff';
           }
         });
       }, 500);
-    }
-
-    function updateWordSearchStatus() {
-      if (wsFoundWords.length > 0) return;
-      $('#ws-status').textContent = 'Потяни пальцем...';
-      $('#ws-status').style.color = 'var(--text-dim)';
     }
 
     /* ============= ПЯТНАШКИ ============= */
@@ -1887,14 +1957,12 @@
       puzzleMoves = 0;
       $('#puzzle-moves').textContent = '0';
       
-      // Создаем решенное состояние
       puzzleBoard = [];
       for (var i = 0; i < puzzleSize * puzzleSize; i++) {
         puzzleBoard.push(i === puzzleSize * puzzleSize - 1 ? 0 : i + 1);
       }
       puzzleEmptyIdx = puzzleBoard.length - 1;
       
-      // Перемешиваем (делаем случайные ходы)
       for (var k = 0; k < 100; k++) {
         var neighbors = getNeighbors(puzzleEmptyIdx);
         var randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
@@ -1909,10 +1977,10 @@
       var neighbors = [];
       var row = Math.floor(idx / puzzleSize);
       var col = idx % puzzleSize;
-      if (row > 0) neighbors.push(idx - puzzleSize); // вверх
-      if (row < puzzleSize - 1) neighbors.push(idx + puzzleSize); // вниз
-      if (col > 0) neighbors.push(idx - 1); // влево
-      if (col < puzzleSize - 1) neighbors.push(idx + 1); // вправо
+      if (row > 0) neighbors.push(idx - puzzleSize);
+      if (row < puzzleSize - 1) neighbors.push(idx + puzzleSize);
+      if (col > 0) neighbors.push(idx - 1);
+      if (col < puzzleSize - 1) neighbors.push(idx + 1);
       return neighbors;
     }
 
@@ -1946,7 +2014,6 @@
               $('#puzzle-moves').textContent = puzzleMoves;
               renderPuzzle();
               
-              // Проверка победы
               var isSolved = true;
               for (var i = 0; i < puzzleBoard.length - 1; i++) {
                 if (puzzleBoard[i] !== i + 1) { isSolved = false; break; }
@@ -2057,7 +2124,7 @@
         2. НИКОГДА не повторяйся. Каждый твой ответ должен быть уникальным.
         3. Эмпатия превыше всего. Всегда валидируй его чувства (например: "Я понимаю, как это трудно", "Ты молодец, что борешься").
         4. Приводи примеры из жизни и метафоры (например, про сад и сорняки, про марафон).
-        5. Используй научную статистику (ВОЗ, NHS) о том, как восстанавливается организм, чтобы мотивировать его. (Например: тяга длится 3-5 минут, рецепторы восстанавливаются за 21 день).
+        5. Используй научную статистику (ВОЗ, NHS) о том, как восстанавливается организм, чтобы мотивировать его.
         6. Если пользователю тяжело — давай конкретные практические советы (дыхание 4-7-8, выпить воды, отжаться, переключить внимание).
         7. Если случился срыв — НИКОГДА не осуждай. Скажи, что это часть пути, и помоги проанализировать триггер.
         8. Твой ответ должен быть кратким (2-5 предложений), но глубоким. Обязательно заканчивай ответ вопросом к пользователю, чтобы поддержать диалог.`;
@@ -2083,7 +2150,7 @@
             addMessage(text.trim(), true, true);
           }
         })
-        .catch(function(err) {
+        .catch(function() {
           hideTyping();
           addMessage("Связь прервалась. Но я здесь. Попробуй написать еще раз.", true, true);
         });
