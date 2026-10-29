@@ -466,7 +466,7 @@
     .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--card-border); background: transparent; color: var(--text-dim); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
     .diff-btn.active { background: rgba(34,197,94,0.2); color: var(--accent-2); border-color: var(--accent); }
 
-    /* ШАРИКИ */
+    /* ШАРИКИ (Исправленный Grid) */
     #lines-game-area {
       position: relative; height: 340px; border-radius: 12px;
       background: rgba(15,23,42,0.6); overflow: hidden;
@@ -477,6 +477,7 @@
       border-radius: 50%; cursor: pointer;
       transition: transform 0.2s, background 0.2s, opacity 0.2s;
       width: 90%; height: 90%; margin: auto; position: relative;
+      box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.3);
     }
     .color-ball.selected { transform: scale(1.15); box-shadow: 0 0 15px #fff; z-index: 10; }
     .color-ball.popping { animation: popBall 0.3s ease-in forwards; }
@@ -570,38 +571,35 @@
     }
     .mem-record-time { color: var(--accent-2); font-weight: 700; }
 
-    #base-word {
-      text-align: center;
+    /* ПЯТНАШКИ */
+    #puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      max-width: 280px;
+      margin: 0 auto;
+      background: rgba(15,23,42,0.8);
+      padding: 6px;
+      border-radius: 12px;
+    }
+    .puzzle-tile {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9));
+      border: 1px solid rgba(148,163,184,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 20px;
       font-weight: 800;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-      color: #fff;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      line-height: 1.2;
-      padding: 0 4px;
+      color: var(--accent-2);
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+      user-select: none;
     }
-    @media (max-width: 400px) {
-      #base-word { font-size: 16px; letter-spacing: 1px; }
-    }
-
-    #rocket-container {
-      position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
-      font-size: 70px; z-index: 9999; pointer-events: none; opacity: 0;
-    }
-    #rocket-container.launch { animation: rocketLaunch 5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-    @keyframes rocketLaunch {
-      0% { bottom: -100px; opacity: 0; transform: translateX(-50%) scale(1) rotate(0deg); }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { bottom: 120%; opacity: 0; transform: translateX(-50%) scale(1.2) rotate(5deg); }
-    }
-    .smoke-particle {
-      position: fixed; bottom: 0; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.4);
-      border-radius: 50%; pointer-events: none; z-index: 9998; animation: smoke 1.5s ease-out forwards;
-    }
-    @keyframes smoke { 0% { transform: scale(1) translateY(0); opacity: 0.8; } 100% { transform: scale(3) translateY(50px); opacity: 0; } }
+    .puzzle-tile:active { transform: scale(0.95); }
+    .puzzle-tile.empty { background: transparent; border-color: transparent; cursor: default; box-shadow: none; }
+    .puzzle-tile.correct { background: rgba(34,197,94,0.2); border-color: var(--accent); color: #fff; }
 
     #breath-widget {
       position: relative;
@@ -823,9 +821,6 @@
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <span style="font-size:16px; font-weight:700;">🐍 Змейка</span>
-          <div style="display:flex; gap:6px;">
-            <button class="btn btn-ghost btn-small" id="snake-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
-          </div>
         </div>
         <div class="difficulty-row">
           <button class="diff-btn snake-speed-btn active" data-speed="300">Оч. медленно</button>
@@ -837,9 +832,21 @@
           <span>Счёт: <strong id="snake-score" style="color:var(--accent-2);">0</strong></span>
           <span>Рекорд: <strong id="snake-best" style="color:var(--accent-2);">0</strong></span>
         </div>
+        
         <div id="snake-game-area">
           <canvas id="snake-canvas"></canvas>
+          <!-- Оверлей для старта/паузы -->
+          <div id="snake-overlay" style="position:absolute; inset:0; background:rgba(15,23,42,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+            <div id="snake-overlay-text" style="font-size:20px; font-weight:800; margin-bottom:16px; color:#fff; text-align:center;">Готов к игре?</div>
+            <button class="btn btn-primary btn-small" id="snake-play-btn" style="width:120px;">▶ Старт</button>
+          </div>
         </div>
+
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <button class="btn btn-ghost btn-small" id="snake-pause-btn" style="flex:1;">⏸ Пауза</button>
+          <button class="btn btn-ghost btn-small" id="snake-reset" style="flex:1;">🔄 Заново</button>
+        </div>
+
         <!-- Удобный D-Pad -->
         <div class="dpad">
           <div class="dpad-btn up" data-dir="up">⬆</div>
@@ -849,6 +856,7 @@
         </div>
       </div>
 
+      <!-- ПАМЯТЬ -->
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <span style="font-size:16px; font-weight:700;">🧠 Память</span>
@@ -861,9 +869,6 @@
           <button class="diff-btn mem-diff active" data-mem-diff="easy">Легкий</button>
           <button class="diff-btn mem-diff" data-mem-diff="medium">Средний</button>
           <button class="diff-btn mem-diff" data-mem-diff="hard">Сложный</button>
-          <button class="diff-btn mem-diff" data-mem-diff="extreme">Хардкор</button>
-          <button class="diff-btn mem-diff" data-mem-diff="insane">Безумие</button>
-          <button class="diff-btn mem-diff" data-mem-diff="impossible">Немыслимо</button>
         </div>
         <div class="memory-timer">
           <span>⏱ Время: <strong id="memory-time">00:00</strong></span>
@@ -873,32 +878,14 @@
         <div id="memory-grid" class="lvl-easy"></div>
       </div>
 
-      <!-- СЛОВА ИЗ БУКВ -->
+      <!-- ПЯТНАШКИ -->
       <div class="game-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-size:16px; font-weight:700;">🔤 Слова из букв</span>
-          <button class="btn btn-ghost btn-small" id="word-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
+          <span style="font-size:16px; font-weight:700;">🧩 Пятнашки</span>
+          <button class="btn btn-ghost btn-small" id="puzzle-reset" style="padding: 4px 8px; font-size: 10px;">Заново</button>
         </div>
-        <div class="difficulty-row">
-          <button class="diff-btn word-diff active" data-word-diff="medium">10+ букв</button>
-          <button class="diff-btn word-diff" data-word-diff="hard">15+ букв</button>
-          <button class="diff-btn word-diff" data-word-diff="extreme">20+ букв</button>
-          <button class="diff-btn word-diff" data-word-diff="insane">25+ букв</button>
-        </div>
-        
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:10px;">
-          <span>Рекорд слов: <strong id="word-record" style="color:var(--accent-2);">0</strong></span>
-          <span>Найдено: <strong id="word-found-count" style="color:var(--accent-2);">0</strong> / <strong id="word-total-possible" style="color:var(--accent-2);">?</strong></span>
-        </div>
-        
-        <div id="base-word">...</div>
-        
-        <div style="display:flex; gap:8px; margin-bottom:12px;">
-          <input type="text" id="word-input" placeholder="Введи слово..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(15,23,42,0.6); color:#fff; outline:none;" />
-          <button class="btn btn-primary btn-small" id="word-submit" style="border-radius:8px;">OK</button>
-        </div>
-        
-        <div id="found-words-list" style="display:flex; flex-wrap:wrap; gap:6px; font-size:13px; color:var(--accent-2); justify-content:center;"></div>
+        <div style="text-align:center; font-size:12px; color:var(--text-dim); margin-bottom:10px;">Собери цифры от 1 до 15</div>
+        <div id="puzzle-grid"></div>
       </div>
 
       <!-- ТРИ В РЯД -->
@@ -913,8 +900,6 @@
         <div class="difficulty-row">
           <button class="diff-btn lines-moves-btn active" data-moves="30">30 ходов</button>
           <button class="diff-btn lines-moves-btn" data-moves="60">60 ходов</button>
-          <button class="diff-btn lines-moves-btn" data-moves="90">90 ходов</button>
-          <button class="diff-btn lines-moves-btn" data-moves="120">120 ходов</button>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:12px;">
           <span>Счёт: <strong id="lines-score" style="color:var(--accent-2);">0</strong></span>
@@ -1039,47 +1024,6 @@
       { id: 't12', text: 'Сделай планку 30 секунд',     hint: 'Напряги пресс и думай о здоровье.', cat: 'Движение' },
       { id: 't13', text: 'Запиши 1 причину бросить',    hint: 'Можно в заметки в телефоне.', cat: 'Психика' }
     ];
-
-    // СЛОВАРЬ (в нижнем регистре для корректного сравнения)
-    var VALID_WORDS = new Set(`дом кот сон сад лес мир час год рот нос ухо глаз зуб лук суп сыр сок мед лед мел мех
-      рука нога голова спина лицо палец волос сердце кровь кость кожа душа тело разум память
-      стол стул дверь окно стена пол потолок крыша ключ замок кровать диван шкаф лампа ковер
-      вода огонь земля воздух ветер снег дождь гроза туман зима весна лето осень утро день
-      вечер ночь закат рассвет солнце луна звезда небо облако туча гроза молния радуга
-      город село деревня улица дорога площадь парк мост река озеро море океан гора холм
-      лес поле луг сад огород цветок дерево трава лист корень ветка плод семя ягода
-      хлеб соль сахар молоко масло мясо рыба курица яйцо овощ фрукт картофель морковь
-      капуста лук огурец помидор яблоко груша слива вишня арбуз дыня банан апельсин
-      машина поезд самолет корабль велосипед дорога путь скорость движение колесо руль
-      работа дело труд отдых сон еда питье игра танец песня музыка книга фильм театр
-      цирк музей школа садик институт урок перемена класс доска ручка тетрадь дневник
-      друг враг семья мама папа брат сестра сын дочь дед баба внук внучка тетя дядя
-      любовь добро зло страх радость горе смех слеза улыбка грусть печаль восторг
-      врач учитель повар водитель летчик моряк солдат пожарный полицейский артист
-      птица рыба зверь кот собака корова лошадь свинья овца коза курица петух гусь
-      волк лиса заяц медведь тигр лев слон обезьяна змея лягушка мышь еж олень лось
-      рубашка платье брюки юбка куртка пальто шарф шапка перчатки обувь туфли сапоги
-      деньги монета рубль копейка цена стоимость магазин покупка товар продажа
-      время год месяц неделя сутки час минута секунда век эпоха прошлое будущее
-      белый черный красный синий зеленый желтый серый розовый коричневый оранжевый
-      большой маленький высокий низкий длинный короткий широкий узкий толстый тонкий
-      быстрый медленный горячий холодный светлый темный новый старый молодой
-      добрый злой веселый грустный умный глупый сильный слабый богатый бедный
-      бежать идти стоять сидеть лежать спать есть пить говорить молчать смотреть
-      слушать думать знать помнить забыть хотеть мочь делать работать отдыхать
-      писать читать рисовать петь танцевать играть гулять путешествовать
-      акварель активность алгоритм амбиция анализ апельсин аромат архитектор астрономия
-      аудитория аэропорт баланс балерина барабан баррикада баскетбол бегемот безопасность
-      библиотека биология богатство болото борода бриллиант бульдозер бутерброд варенье
-      вдохновение велосипед вентилятор вертолет веселье вечеринка виноград витамин
-      внимание волшебник воображение воробей впечатление вращение встреча вулкан высота
-      галерея гармония география героизм гимнастика гипотеза горизонт грамотность
-      гребень грибница давление движение декорация деликатес детектив диалог диапазон
-      дисциплина документ достижение древесина жемчужина журналист изображение интересный
-      календарь капитан картошка квартира кинотеатр коллеги командир конверт конфета
-      корабль коридор космонавт красивый крепость кухонный лекарство леопард лестница
-      литература магазин мармелад мастерство медведь мельница милосердие
-    `.split(/\s+/).filter(Boolean));
 
     var STORAGE_KEY = 'dyshi_app_data_v1';
     var RECORDS_KEY = 'dyshi_match3_records';
@@ -1215,7 +1159,7 @@
       renderTasks();
       initSnake();
       initMemory();
-      initWordGame();
+      initPuzzle();
       initLinesGame();
       initChat();
       initRecordsModal();
@@ -1647,10 +1591,13 @@
     var snakeScore = 0;
     var snakeBest = parseInt(localStorage.getItem(SNAKE_RECORDS_KEY) || '0', 10);
     var snakeInterval = null;
-    var snakeSpeed = 300; // По умолчанию очень медленно
+    var snakeSpeed = 300; 
     var boxSize = 20;
     var canvasSize = 300;
     var isGameOver = false;
+    var isPaused = false;
+
+    var snakeColors = ['#4ade80', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa', '#f87171'];
 
     $('#snake-best').textContent = snakeBest;
 
@@ -1659,22 +1606,27 @@
       snakeCanvas.height = canvasSize;
       
       snake = [
-        {x: 5, y: 5},
-        {x: 4, y: 5},
-        {x: 3, y: 5}
+        {x: 5, y: 5, color: snakeColors[0]},
+        {x: 4, y: 5, color: snakeColors[0]},
+        {x: 3, y: 5, color: snakeColors[0]}
       ];
       snakeDir = 'right';
       nextDir = 'right';
       snakeScore = 0;
       isGameOver = false;
+      isPaused = true;
       $('#snake-score').textContent = '0';
       
       spawnFood();
+      drawSnake();
       
       if (snakeInterval) clearInterval(snakeInterval);
-      snakeInterval = setInterval(gameLoop, snakeSpeed);
+      snakeInterval = null;
       
-      drawSnake();
+      // Показываем оверлей
+      $('#snake-overlay').classList.remove('hidden');
+      $('#snake-overlay-text').textContent = 'Готов к игре?';
+      $('#snake-play-btn').textContent = '▶ Старт';
     }
 
     function spawnFood() {
@@ -1693,10 +1645,10 @@
     }
 
     function gameLoop() {
-      if (isGameOver) return;
+      if (isGameOver || isPaused) return;
       snakeDir = nextDir;
       
-      var head = { x: snake[0].x, y: snake[0].y };
+      var head = { x: snake[0].x, y: snake[0].y, color: snake[0].color };
       
       if (snakeDir === 'right') head.x++;
       else if (snakeDir === 'left') head.x--;
@@ -1718,6 +1670,8 @@
       if (head.x === food.x && head.y === food.y) {
         snakeScore++;
         $('#snake-score').textContent = snakeScore;
+        // Меняем цвет головы при поедании
+        head.color = snakeColors[snakeScore % snakeColors.length];
         spawnFood();
       } else {
         snake.pop();
@@ -1747,9 +1701,9 @@
       
       snake.forEach(function(segment, index) {
         var isHead = index === 0;
-        ctx.fillStyle = isHead ? '#4ade80' : '#22c55e';
+        ctx.fillStyle = segment.color || '#22c55e';
         
-        ctx.shadowColor = isHead ? 'rgba(74, 222, 128, 0.8)' : 'rgba(34, 197, 94, 0.4)';
+        ctx.shadowColor = isHead ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0,0,0,0.3)';
         ctx.shadowBlur = isHead ? 10 : 5;
         
         ctx.beginPath();
@@ -1794,12 +1748,13 @@
         showToast('🎉 Новый рекорд: ' + snakeBest + '!');
       }
       
-      ctx.fillStyle = 'rgba(248, 113, 113, 0.3)';
-      ctx.fillRect(0, 0, canvasSize, canvasSize);
+      $('#snake-overlay').classList.remove('hidden');
+      $('#snake-overlay-text').textContent = '💥 Игра окончена!';
+      $('#snake-play-btn').textContent = '🔄 Заново';
     }
 
     function changeDir(dir) {
-      if (isGameOver) return;
+      if (isGameOver || isPaused) return;
       if (dir === 'up' && snakeDir !== 'down') nextDir = 'up';
       if (dir === 'down' && snakeDir !== 'up') nextDir = 'down';
       if (dir === 'left' && snakeDir !== 'right') nextDir = 'left';
@@ -1843,9 +1798,35 @@
         snakeSpeed = parseInt(btn.dataset.speed, 10);
         if (snakeInterval) {
           clearInterval(snakeInterval);
-          if (!isGameOver) snakeInterval = setInterval(gameLoop, snakeSpeed);
+          if (!isGameOver && !isPaused) snakeInterval = setInterval(gameLoop, snakeSpeed);
         }
       });
+    });
+
+    // Кнопки управления игрой
+    $('#snake-play-btn').addEventListener('click', function() {
+      if (isGameOver) {
+        initSnake();
+        $('#snake-overlay').classList.add('hidden');
+        isPaused = false;
+        $('#snake-overlay-text').textContent = 'Пауза';
+        $('#snake-play-btn').textContent = '▶ Продолжить';
+        snakeInterval = setInterval(gameLoop, snakeSpeed);
+      } else if (isPaused) {
+        isPaused = false;
+        $('#snake-overlay').classList.add('hidden');
+        snakeInterval = setInterval(gameLoop, snakeSpeed);
+      }
+    });
+
+    $('#snake-pause-btn').addEventListener('click', function() {
+      if (isGameOver) return;
+      isPaused = true;
+      if (snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = null;
+      $('#snake-overlay').classList.remove('hidden');
+      $('#snake-overlay-text').textContent = '⏸ Пауза';
+      $('#snake-play-btn').textContent = '▶ Продолжить';
     });
 
     $('#snake-reset').addEventListener('click', function() {
@@ -1891,9 +1872,6 @@
       var pairsCount = 3; 
       if (memDifficulty === 'medium') pairsCount = 6; 
       if (memDifficulty === 'hard') pairsCount = 8;
-      if (memDifficulty === 'extreme') pairsCount = 18;
-      if (memDifficulty === 'insane') pairsCount = 32;
-      if (memDifficulty === 'impossible') pairsCount = 50;
       
       var availableIcons = memIcons.slice();
       availableIcons.sort(function() { return 0.5 - Math.random(); });
@@ -2013,7 +1991,7 @@
         var list = $('#memory-records-list');
         list.innerHTML = '';
         
-        var levels = { easy: 'Легкий', medium: 'Средний', hard: 'Сложный', extreme: 'Хардкор', insane: 'Безумие', impossible: 'Немыслимо' };
+        var levels = { easy: 'Легкий', medium: 'Средний', hard: 'Сложный' };
         var hasAny = false;
         
         for (var key in levels) {
@@ -2040,133 +2018,87 @@
       });
     }
 
-    /* ============= СЛОВА ИЗ БУКВ ============= */
-    var baseWords = {
-      medium: ['АКВАРЕЛЬ','АКТИВНОСТЬ','АЛГОРИТМ','АМБИЦИЯ','АНАЛИЗ','АПЕЛЬСИН','АРОМАТ','АРХИТЕКТОР','АСТРОНОМИЯ','АУДИТОРИЯ','АЭРОПОРТ','БАЛАНС','БАЛЕРИНА','БАРАБАН','БАРРИКАДА','БАСКЕТБОЛ','БЕГЕМОТ','БЕЗОПАСНОСТЬ','БИБЛИОТЕКА','БИОЛОГИЯ','БОГАТСТВО','БОЛОТО','БОРОДА','БРИЛЛИАНТ','БУЛЬДОЗЕР','БУТЕРБРОД','ВАРЕНЬЕ','ВДОХНОВЕНИЕ','ВЕЛОСИПЕД','ВЕНТИЛЯТОР','ВЕРТОЛЕТ','ВЕСЕЛЬЕ','ВЕЧЕРИНКА','ВИНОГРАД','ВИТАМИН','ВНИМАНИЕ','ВОЛШЕБНИК','ВООБРАЖЕНИЕ','ВОРОБЕЙ','ВПЕЧАТЛЕНИЕ','ВРАЩЕНИЕ','ВСТРЕЧА','ВУЛКАН','ВЫСОТА','ГАЛЕРЕЯ','ГАРМОНИЯ','ГЕОГРАФИЯ','ГЕРОИЗМ','ГИМНАСТИКА','ГИПОТЕЗА','ГОРИЗОНТ','ГРАМОТНОСТЬ','ГРЕБЕНЬ','ГРИБНИЦА','ДАВЛЕНИЕ','ДВИЖЕНИЕ','ДЕКОРАЦИЯ','ДЕЛИКАТЕС','ДЕТЕКТИВ','ДИАЛОГ','ДИАПАЗОН','ДИСЦИПЛИНА','ДОКУМЕНТ','ДОСТИЖЕНИЕ','ДРЕВЕСИНА','ЖЕМЧУЖИНА','ЖУРНАЛИСТ','ЗАВОДНОЙ','ИЗОБРАЖЕНИЕ','ИНТЕРЕСНЫЙ','КАЛЕНДАРЬ','КАПИТАН','КАРТОШКА','КВАРТИРА','КИНОТЕАТР','КОЛЛЕГИ','КОМАНДИР','КОНВЕРТ','КОНФЕТА','КОРАБЛЬ','КОРИДОР','КОСМОНАВТ','КРАСИВЫЙ','КРЕПОСТЬ','КУХОННЫЙ','ЛЕКАРСТВО','ЛЕОПАРД','ЛЕСТНИЦА','ЛИТЕРАТУРА','МАГАЗИН','МАРМЕЛАД','МАСТЕРСТВО','МЕДВЕДЬ','МЕЛЬНИЦА','МИЛОСЕРДИЕ'],
-      hard: ['АВТОБИОГРАФИЯ','АВТОМОБИЛИСТ','АДМИНИСТРАЦИЯ','АКАДЕМИЧЕСКИЙ','АЛЬТЕРНАТИВА','АНАЛИТИЧЕСКИЙ','АНТИБИОТИКИ','АРХИТЕКТУРНЫЙ','АСТРОНОМИЧЕСКИЙ','АТМОСФЕРНЫЙ','АУДИОВИЗУАЛЬНЫЙ','АЭРОДИНАМИКА','БАЛАНСИРОВКА','БЕЗОПАСНОСТЬ','БЕСКОНЕЧНОСТЬ','БЛАГОДАРНОСТЬ','БЛАГОПОЛУЧИЕ','БЛАГОРОДСТВО','БРОНЕТЕХНИКА','ВАКЦИНАЦИЯ','ВЕЛИКОДУШИЕ','ВЕЛИЧЕСТВЕННЫЙ','ВЕНТИЛЯЦИЯ','ВЕРОЯТНОСТЬ','ВЗАИМОВЫРУЧКА','ВЗАИМОДЕЙСТВИЕ','ВЗАИМОПОНИМАНИЕ','ВИДЕОКАМЕРА','ВИДЕОНАБЛЮДЕНИЕ','ВИРТУАЛЬНОСТЬ','ВОЗДУХОПЛАВАНИЕ','ВОЗДУХООЧИСТИТЕЛЬ','ВОЗНАГРАЖДЕНИЕ','ВОЗРОЖДЕНИЕ','ВОПЛОЩЕНИЕ','ВОСПИТАНИЕ','ВОССТАНОВЛЕНИЕ','ВОСТОРЖЕННОСТЬ','ВПЕЧАТЛЯЮЩИЙ','ВРАЩАТЕЛЬНЫЙ','ВРЕМЕННОСТЬ','ВСЕОБЩНОСТЬ','ГАЗООБРАЗНЫЙ','ГАРМОНИЧНОСТЬ','ГАСТРОНОМИЯ','ГЕНЕРАЛИЗАЦИЯ','ГЕОМЕТРИЧЕСКИЙ','ГИДРОДИНАМИКА','ГИПОТЕТИЧЕСКИЙ','ГОРИЗОНТАЛЬНЫЙ','ГОСУДАРСТВЕННЫЙ','ГРАВИТАЦИОННЫЙ','ГРАММАТИЧЕСКИЙ','ГРАНДИОЗНОСТЬ','ДЕЗИНФЕКЦИЯ','ДЕКОРАТИВНЫЙ','ДЕМОКРАТИЧЕСКИЙ','ДИНАМИЧЕСКИЙ','ДИСЦИПЛИНАРНЫЙ','ДИФФЕРЕНЦИАЦИЯ','ДОБРОДЕТЕЛЬ','ДОКУМЕНТАЦИЯ','ДОСТОВЕРНОСТЬ','ДРАМАТИЧЕСКИЙ','ДУХОВЕНСТВО','ЖИЗНЕОПИСАНИЕ','ЖИЗНЕСПОСОБНОСТЬ','ЗАВОРАЖИВАЮЩИЙ','ЗАКОНОДАТЕЛЬНЫЙ','ЗАПОМИНАЮЩИЙ','ЗАСТЕНЧИВОСТЬ','ЗДРАВООХРАНЕНИЕ','ИНФОРМАТИКА','КОМПЬЮТЕРНЫЙ','КОНСТРУКТОР','ЛАБОРАТОРИЯ','МАТЕМАТИЧЕСКИЙ','МИРОВОЗЗРЕНИЕ','НАСЛЕДСТВЕННОСТЬ','ОБРАЗОВАТЕЛЬНЫЙ','ОБЩЕСТВЕННЫЙ','ПРОГРАММИСТ','ПРОИЗВОДСТВО','ПРОФЕССИОНАЛ','ПСИХОЛОГИЯ','РАДИОАКТИВНЫЙ','РАЗНООБРАЗИЕ','САМООБРАЗОВАНИЕ','СОВЕРШЕНСТВО','СОПЕРЕЖИВАНИЕ','СПРАВЕДЛИВОСТЬ','СТРОИТЕЛЬСТВО','ТЕЛЕВИДЕНИЕ','ТЕХНОЛОГИЯ','УНИВЕРСИТЕТ','ФОТОГРАФИЯ','ЦИВИЛИЗАЦИЯ','ЭЛЕКТРИЧЕСТВО'],
-      extreme: ['АВИАКОНСТРУКТОР','АВТОМАТИЗИРОВАННЫЙ','АГРОПРОМЫШЛЕННЫЙ','АДМИНИСТРАТИВНЫЙ','АККЛИМАТИЗАЦИОННЫЙ','АЛЬТЕРНАТИВНОСТЬ','АМОРТИЗАЦИОННЫЙ','АНТИБИОТИКОТЕРАПИЯ','АППАРАТОСТРОЕНИЕ','АРХИТЕКТУРНОСТЬ','АССОЦИАТИВНОСТЬ','АСТРОНОМИЧЕСКИЙ','АТМОСФЕРОУСТОЙЧИВЫЙ','АУДИОВИЗУАЛЬНОСТЬ','АЭРОДИНАМИЧЕСКИЙ','БАКТЕРИОЛОГИЧЕСКИЙ','БАЛАНСИРОВОЧНЫЙ','БЕСКОНЕЧНОМЕРНЫЙ','БИБЛИОТЕКОВЕДЕНИЕ','БИОГРАФИЧЕСКИЙ','БЛАГОДАРСТВЕННЫЙ','ВАКЦИНОПРОФИЛАКТИКА','ВЕЛИЧЕСТВЕННОСТЬ','ВЕНТИЛЯЦИОННЫЙ','ВЕРОЯТНОСТНЫЙ','ВЗАИМОВЫГОДНЫЙ','ВИДЕОЗАПИСЫВАЮЩИЙ','ВИДЕОКОНФЕРЕНЦИЯ','ВИДЕОНАБЛЮДЕНИЕ','ВОЗДУХОПЛАВАТЕЛЬНЫЙ','ВОЗНАГРАЖДАЮЩИЙ','ВОЛНООБРАЗНОСТЬ','ГАЗООБРАЗНОСТЬ','ГАЛЬВАНОПЛАСТИКА','ГАРМОНИЧЕСКИЙ','ГАСТРОНОМИЧЕСКИЙ','ГЕНЕРАЛИЗОВАННЫЙ','ГЕОМЕТРИЧЕСКИЙ','ГИДРОДИНАМИЧЕСКИЙ','ГИПЕРБОЛИЧЕСКИЙ','ГОЛОГРАФИЧЕСКИЙ','ГОРИЗОНТАЛЬНЫЙ','ГОСУДАРСТВЕННЫЙ','ГРАВИТАЦИОННЫЙ','ГРАММАТИЧЕСКИЙ','ГРАНДИОЗНОСТЬ','ГУМАНИТАРНЫЙ','ДЕЗИНФЕКЦИОННЫЙ','ДЕКОРАТИВНОСТЬ','ДЕМОКРАТИЧЕСКИЙ','ДЕРЕВООБРАБОТКА','ДИАГНОСТИРОВАНИЕ','ДИСЦИПЛИНАРНЫЙ','ДИФФЕРЕНЦИАЦИЯ','ДОСТОВЕРНОСТЬ','ДРАМАТИЧЕСКИЙ','ЖИЗНЕОПИСАНИЕ','ЖИЗНЕСПОСОБНОСТЬ','ЗАКОНОДАТЕЛЬНЫЙ','ЗДРАВООХРАНЕНИЕ','ИЗОБРАЗИТЕЛЬНЫЙ','ИНТЕРПРЕТАЦИЯ','КЛАССИФИКАЦИЯ','КОМПЬЮТЕРИЗАЦИЯ','КОНСТРУИРОВАНИЕ','МАТЕМАТИЧЕСКИЙ','МЕХАНИЗИРОВАННЫЙ','МИРОВОЗЗРЕНИЕ','НАСЛЕДСТВЕННОСТЬ','ОБРАЗОВАТЕЛЬНЫЙ','ПРОГРАММИРОВАНИЕ','ПРОФЕССИОНАЛЬНЫЙ','ПСИХОЛОГИЧЕСКИЙ','РАДИОТЕХНИЧЕСКИЙ','РАЗНООБРАЗНОСТЬ','САМООБРАЗОВАНИЕ','САМОСОВЕРШЕНСТВОВАНИЕ','СОВЕРШЕНСТВОВАНИЕ','СОПЕРЕЖИВАЮЩИЙ','СПРАВЕДЛИВОСТЬ','СТРОИТЕЛЬСТВО','ТЕЛЕКОММУНИКАЦИЯ','ТЕХНОЛОГИЧЕСКИЙ','УНИВЕРСИТЕТСКИЙ','ФОТОГРАММЕТРИЧЕСКИЙ','ЦИВИЛИЗОВАННЫЙ','ЭЛЕКТРИЧЕСКИЙ','ЭЛЕКТРОСНАБЖЕНИЕ','ЭНЕРГОСБЕРЕЖЕНИЕ','ЭКОЛОГИЧЕСКИЙ','ЭКОНОМИЧЕСКИЙ','ЭКСПЕРИМЕНТАЛЬНЫЙ','ЭНЦИКЛОПЕДИЯ','ЭСТЕТИЧЕСКИЙ'],
-      insane: ['РЕНТГЕНОЭЛЕКТРОКАРДИОГРАФИЧЕСКОГО','ПРЕВОСХОДИТЕЛЬСТВОВАНИЕ','ДОСТОПРИМЕЧАТЕЛЬНОСТЬ','ЕСТЕСТВОИСПЫТАТЕЛЬНЫЙ','РАДИОТЕЛЕГРАФИРОВАНИЕ','ЭЛЕКТРОСВЕТОЛЕЧЕНИЕ','ГИДРОЭЛЕКТРОСТАНЦИЯ','АВТОМОБИЛЕСТРОЕНИЕ','АЭРОФОТОСПЕКТРОМЕТРИЯ','ЭЛЕКТРОМАГНИТОСТРИКЦИЯ','АВТОБИОГРАФИРОВАНИЕ','СЕЙСМОАКУСТОЭЛЕКТРОНИКА','ДЕЗИНФЕКЦИОНИРОВАНИЕ','ГАЛЬВАНОПЛАСТИЧЕСКИЙ','ИНТЕРНАЦИОНАЛИЗИРОВАТЬ','ЭЛЕКТРОЭНЦЕФАЛОГРАФИЧЕСКИЙ','ХРОМАТОГРАФИРОВАНИЕ','СПЕКТРОФОТОМЕТРИЧЕСКИЙ','ЭКСПЕРИМЕНТИРОВАНИЕ','АВТОМОТОКРОССИРОВАНИЕ','ВРЕМЯПРЕПРОВОЖДЕНИЕ','ЭЛЕКТРОСТИМУЛИРОВАНИЕ','МАГНИТОСТРИКЦИОННЫЙ','АГРОЛЕСОМЕЛИОРАТИВНЫЙ','АВТОРЕГУЛИРОВАНИЕ','ЭЛЕКТРОКАРДИОГРАФИЧЕСКИЙ','ГЕЛЬМИНТООВОСКОПИРОВАНИЕ','ДЕНДРОХРОНОЛОГИЧЕСКИЙ','ЭЛЕКТРОГАЗОСВАРОЧНЫЙ','АВТОМОБИЛЕРАЗГРУЗОЧНЫЙ','ЭЛЕКТРОМЕТАЛЛУРГИЧЕСКИЙ','ВЗАИМОПЕРПЕНДИКУЛЯРНЫЙ','ПСИХОНЕВРОЛОГИЧЕСКИЙ','СЕЛЬСКОХОЗЯЙСТВЕННЫЙ','АЭРОГИДРОДИНАМИЧЕСКИЙ','ЭЛЕКТРОСВЕТОСИГНАЛЬНЫЙ','РЕНТГЕНОДИАГНОСТИЧЕСКИЙ','ГИДРОМЕТЕОРОЛОГИЧЕСКИЙ','АВТОМОБИЛЕПРОКАТНЫЙ','ЭЛЕКТРОСТАНЦИОННЫЙ','МЕТЕОРОЛОГИЧЕСКИЙ','ТЕЛЕКОММУНИКАЦИОННЫЙ','АВТОМАТИЗИРОВАННЫЙ','ФОТОГРАММЕТРИЧЕСКИЙ','РАДИОТЕХНИЧЕСКИЙ','ЭЛЕКТРОМОНТАЖНЫЙ','АСТРОФОТОМЕТРИЧЕСКИЙ','ГАЗОТУРБОСТРОЕНИЕ','АЭРОДИНАМИЧЕСКИЙ','СПЕКТРОСКОПИЧЕСКИЙ','ЭНЕРГОМАШИНОСТРОЕНИЕ','ЭЛЕКТРООБОРУДОВАНИЕ','АВТОМОБИЛЕСТРОЕНИЕ','ИНТЕРПРЕТИРОВАНИЕ','СТРУКТУРАЛИЗИРОВАНИЕ','ЭКОНОМИКОГЕОГРАФИЧЕСКИЙ','МЕТАЛЛООБРАБАТЫВАЮЩИЙ','ГИДРОТЕХНИЧЕСКИЙ','ЭЛЕКТРОСНАБЖЕНИЕ','АВТОМАТИЧЕСКИЙ','АВИАМОДЕЛИРОВАНИЕ','АГРОБИОЛОГИЧЕСКИЙ','АДМИНИСТРИРОВАНИЕ','АККЛИМАТИЗИРОВАНИЕ','АЛЬТЕРНАТИВНОСТЬ','АМОРТИЗИРУЮЩИЙ','АНТРОПОМОРФИЧЕСКИЙ','АППАРАТОСТРОИТЕЛЬНЫЙ','АРХИТЕКТУРИРОВАНИЕ','АССОЦИИРОВАНИЕ','АСТРОМЕТРИЧЕСКИЙ','АТМОСФЕРООБРАЗУЮЩИЙ','АУДИОТРАНСЛЯЦИОННЫЙ','АЭРОКОСМИЧЕСКИЙ','БАКТЕРИОСТАТИЧЕСКИЙ','БЕСПРЕПЯТСТВЕННЫЙ','БИОГЕОЦЕНОЛОГИЧЕСКИЙ','БИОИНФОРМАЦИОННЫЙ','БЛАГОУСТРАИВАЮЩИЙ','ВЗАИМОДЕЙСТВУЮЩИЙ','ВИБРОИЗОЛИРУЮЩИЙ','ВИДЕОКОНФЕРЕНЦСВЯЗЬ','ВОЗДУХОРАСПРЕДЕЛЕНИЕ','ВОСПРОИЗВОДСТВЕННЫЙ','ГАЗОРАСПРЕДЕЛИТЕЛЬНЫЙ','ГЕЛИОГЕОФИЗИЧЕСКИЙ','ГЕОИНФОРМАЦИОННЫЙ','ГИДРОМЕЛИОРАТИВНЫЙ','ГИПЕРВЕНТИЛЯЦИЯ','ГОСУДАРСТВООБРАЗУЮЩИЙ','ГРАДОСТРОИТЕЛЬНЫЙ','ДЕЗАКТИВИРОВАНИЕ','ДЕКЛАРИРОВАНИЕ','ДЕМОНСТРИРОВАНИЕ','ДЕЦЕНТРАЛИЗАЦИЯ','ДИВЕРСИФИКАЦИЯ','ДИСЦИПЛИНИРОВАНИЕ','ДОКУМЕНТИРОВАНИЕ','ЗАКОНОДАТЕЛЬСТВОВАНИЕ','ЗВУКОИЗОЛИРУЮЩИЙ','ИЗОБРЕТАТЕЛЬСКИЙ','ИНТЕЛЛЕКТУАЛИЗАЦИЯ','КВАЛИФИЦИРОВАНИЕ']
-    };
-    
-    var currentBaseWord = '';
-    var currentWordDifficulty = 'medium';
-    var foundWords = [];
-    var wordRecord = 0;
-    var wordCooldown = false;
-    var wordCooldownTimer = null;
-    var possibleWordsCount = 0;
+    /* ============= ПЯТНАШКИ (Логическая игра) ============= */
+    var puzzleTiles = [];
+    var emptyIdx = 15;
 
-    function initWordGame() {
-      try {
-        wordRecord = parseInt(localStorage.getItem('dyshi_word_record') || '0', 10);
-        $('#word-record').textContent = wordRecord;
-      } catch(e) {}
-      $('#word-reset').addEventListener('click', startNewWord);
-      $('#word-submit').addEventListener('click', checkWord);
-      $('#word-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') checkWord(); });
-      $$('.word-diff').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          $$('.word-diff').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          currentWordDifficulty = btn.dataset.wordDiff;
-          startNewWord();
-        });
-      });
-      startNewWord();
-    }
-
-    function startNewWord() {
-      if (wordCooldownTimer) clearInterval(wordCooldownTimer);
-      wordCooldown = false;
-      $('#word-submit').disabled = false;
-      $('#word-input').disabled = false;
-      $('#word-submit').textContent = 'OK';
-      $('#word-loading').classList.add('hidden');
-
-      var words = baseWords[currentWordDifficulty];
-      currentBaseWord = words[Math.floor(Math.random() * words.length)];
-      foundWords = [];
+    function initPuzzle() {
+      puzzleTiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
+      emptyIdx = 15;
+      shufflePuzzle();
+      renderPuzzle();
       
-      possibleWordsCount = 0;
-      VALID_WORDS.forEach(function(w) {
-        if (w.length >= 3 && canFormWord(w, currentBaseWord)) {
-          possibleWordsCount++;
-        }
+      $('#puzzle-reset').addEventListener('click', function() {
+        shufflePuzzle();
+        renderPuzzle();
+        showToast('Перемешано!');
       });
-
-      $('#base-word').textContent = currentBaseWord;
-      $('#word-input').value = '';
-      $('#word-found-count').textContent = '0';
-      $('#word-total-possible').textContent = possibleWordsCount;
-      $('#found-words-list').innerHTML = '';
     }
 
-    function canFormWord(word, base) {
-      var baseArr = base.toLowerCase().split('');
-      var wordArr = word.toLowerCase().split('');
-      for (var i = 0; i < wordArr.length; i++) {
-        var idx = baseArr.indexOf(wordArr[i]);
-        if (idx === -1) return false;
-        baseArr.splice(idx, 1);
+    function shufflePuzzle() {
+      // Простой алгоритм перемешивания (делаем 100 случайных ходов)
+      for (var i = 0; i < 100; i++) {
+        var neighbors = getNeighbors(emptyIdx);
+        var randNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+        puzzleTiles[emptyIdx] = puzzleTiles[randNeighbor];
+        puzzleTiles[randNeighbor] = 0;
+        emptyIdx = randNeighbor;
       }
-      return true;
     }
 
-    function startWordCooldown() {
-      wordCooldown = true;
-      var submitBtn = $('#word-submit');
-      var input = $('#word-input');
-      var secondsLeft = 30;
+    function getNeighbors(idx) {
+      var row = Math.floor(idx / 4);
+      var col = idx % 4;
+      var neighbors = [];
+      if (row > 0) neighbors.push(idx - 4);
+      if (row < 3) neighbors.push(idx + 4);
+      if (col > 0) neighbors.push(idx - 1);
+      if (col < 3) neighbors.push(idx + 1);
+      return neighbors;
+    }
 
-      submitBtn.disabled = true;
-      input.disabled = true;
-      submitBtn.textContent = '⏳ ' + secondsLeft + 'с';
-
-      if (wordCooldownTimer) clearInterval(wordCooldownTimer);
-
-      wordCooldownTimer = setInterval(function() {
-        secondsLeft--;
-        if (secondsLeft > 0) {
-          submitBtn.textContent = '⏳ ' + secondsLeft + 'с';
+    function renderPuzzle() {
+      var grid = $('#puzzle-grid');
+      grid.innerHTML = '';
+      
+      puzzleTiles.forEach(function(num, idx) {
+        var tile = document.createElement('div');
+        tile.className = 'puzzle-tile';
+        if (num === 0) {
+          tile.classList.add('empty');
         } else {
-          clearInterval(wordCooldownTimer);
-          wordCooldown = false;
-          submitBtn.disabled = false;
-          input.disabled = false;
-          submitBtn.textContent = 'OK';
-          input.focus();
+          tile.textContent = num;
+          // Подсветка, если на своем месте
+          if (num === idx + 1) tile.classList.add('correct');
+          
+          tile.addEventListener('click', function() {
+            tryMoveTile(idx);
+          });
         }
-      }, 1000);
+        grid.appendChild(tile);
+      });
     }
 
-    function checkWord() {
-      if (wordCooldown) return;
+    function tryMoveTile(idx) {
+      var neighbors = getNeighbors(emptyIdx);
+      if (neighbors.indexOf(idx) !== -1) {
+        // Меняем местами
+        puzzleTiles[emptyIdx] = puzzleTiles[idx];
+        puzzleTiles[idx] = 0;
+        emptyIdx = idx;
+        renderPuzzle();
+        checkPuzzleWin();
+      }
+    }
 
-      var val = $('#word-input').value.trim().toUpperCase();
-      if (!val) return;
-
-      if (!canFormWord(val, currentBaseWord)) { showToast('❌ Нет таких букв в слове!'); return; }
-
-      if (foundWords.indexOf(val) !== -1) { showToast('Ты уже нашел это слово!'); return; }
-      if (val.length < 3) { showToast('Слишком короткое!'); return; }
-
-      if (VALID_WORDS.has(val.toLowerCase())) {
-        foundWords.push(val);
-        $('#word-found-count').textContent = foundWords.length;
-        $('#word-input').value = '';
-        var span = document.createElement('span');
-        span.textContent = val;
-        $('#found-words-list').appendChild(span);
-        showToast('✅ +1 слово!');
-
-        if (foundWords.length > wordRecord) {
-          wordRecord = foundWords.length;
-          localStorage.setItem('dyshi_word_record', wordRecord);
-          $('#word-record').textContent = wordRecord;
-        }
-      } else {
-        showToast('❌ Такого слова нет в словаре!');
-        startWordCooldown();
+    function checkPuzzleWin() {
+      var isWin = true;
+      for (var i = 0; i < 15; i++) {
+        if (puzzleTiles[i] !== i + 1) { isWin = false; break; }
+      }
+      if (isWin) {
+        showToast('🎉 Пятнашки собраны!');
+        launchConfetti(100);
       }
     }
 
@@ -2242,7 +2174,7 @@
         el.style.boxShadow = 'none';
       } else {
         el.style.background = typeColors[board[r][c]];
-        el.style.boxShadow = 'none';
+        el.style.boxShadow = 'inset -2px -2px 5px rgba(0,0,0,0.3), inset 2px 2px 5px rgba(255,255,255,0.3)';
       }
     }
 
@@ -2519,7 +2451,6 @@
           });
         }
 
-        // УСИЛЕННЫЙ ПРОМТ С ЗАПРЕТОМ НА ОШИБКИ
         historyForAI.unshift({
           role: 'system',
           content: `Ты — Самый Лучший в Мире Психолог и Эксперт по отказу от курения с мировым именем. Твоя главная задача — помочь пользователю полностью освободиться от никотиновой зависимости, бережно ведя его за руку через каждый сложный момент.
@@ -2552,7 +2483,7 @@
           body: JSON.stringify({ 
             messages: historyForAI, 
             model: 'openai',
-            temperature: 0.0, // СНИЖАЕМ КРЕАТИВНОСТЬ ДО НУЛЯ, ЧТОБЫ ИИ НЕ ВЫДУМЫВАЛ СЛОВА
+            temperature: 0.0,
             private: true 
           })
         })
