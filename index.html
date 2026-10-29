@@ -438,26 +438,26 @@
     
     .snake-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 20px; padding-top: calc(16px + env(safe-area-inset-top));
+      padding: 12px 20px; padding-top: calc(12px + env(safe-area-inset-top));
       background: rgba(30, 41, 59, 0.9); border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
     }
-    .snake-header-title { font-size: 20px; font-weight: 800; color: var(--accent-2); }
+    .snake-header-title { font-size: 18px; font-weight: 800; color: var(--accent-2); }
     .snake-close-btn {
       background: rgba(148,163,184,0.15); border: none; color: #fff;
-      width: 40px; height: 40px; border-radius: 50%; font-size: 20px;
+      width: 36px; height: 36px; border-radius: 50%; font-size: 16px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
 
     .snake-game-container {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 10px; overflow: hidden; position: relative;
+      padding: 10px; position: relative; overflow: hidden;
     }
     
     #snake-full-canvas {
-      background: #0f172a; border-radius: 12px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.6);
-      max-width: 100%; max-height: 100%; display: block;
-      touch-action: none;
+      background: #0f172a; border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      display: block; touch-action: none;
     }
 
     .snake-overlay-full {
@@ -466,35 +466,36 @@
       z-index: 10; backdrop-filter: blur(4px);
     }
     .snake-overlay-text { font-size: 24px; font-weight: 800; margin-bottom: 20px; color: #fff; text-align: center; }
-    .snake-overlay-btn { width: 200px; padding: 16px; font-size: 18px; }
+    .snake-overlay-btn { width: 200px; padding: 14px; font-size: 16px; }
 
     .snake-controls-bottom {
-      padding: 16px 20px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
-      background: rgba(30, 41, 59, 0.9); border-top: 1px solid var(--card-border);
+      padding: 10px 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      background: rgba(30, 41, 59, 0.95); border-top: 1px solid var(--card-border);
       display: flex; flex-direction: column; align-items: center;
+      flex-shrink: 0;
     }
 
     .snake-stats-row {
-      display: flex; justify-content: space-between; width: 100%; max-width: 400px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; width: 100%; max-width: 400px; margin-bottom: 10px;
       font-size: 14px; color: var(--text-dim);
     }
     .snake-stats-row strong { color: var(--accent-2); font-size: 16px; }
 
-    /* Удобный D-Pad */
+    /* Крупный D-Pad */
     .dpad {
       display: grid;
-      grid-template-columns: repeat(3, 60px);
-      grid-template-rows: repeat(3, 60px);
+      grid-template-columns: repeat(3, 75px);
+      grid-template-rows: repeat(3, 75px);
       gap: 6px;
       justify-content: center;
-      margin: 0 auto;
+      margin: 0 auto 10px;
     }
     .dpad-btn {
       background: rgba(148, 163, 184, 0.15);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 14px;
       color: var(--accent-2);
-      font-size: 24px;
+      font-size: 32px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -950,7 +951,7 @@
       <button class="snake-close-btn" id="close-snake-modal">✕</button>
     </div>
     
-    <div class="snake-game-container">
+    <div class="snake-game-container" id="snake-game-container">
       <canvas id="snake-full-canvas"></canvas>
       
       <div class="snake-overlay-full" id="snake-overlay">
@@ -965,23 +966,23 @@
         <span>Рекорд: <strong id="snake-best">0</strong></span>
       </div>
       
-      <div class="difficulty-row" style="margin-bottom: 16px;">
+      <div class="difficulty-row" style="margin-bottom: 12px;">
         <button class="diff-btn snake-speed-btn active" data-speed="300">Оч. медленно</button>
         <button class="diff-btn snake-speed-btn" data-speed="200">Медленно</button>
         <button class="diff-btn snake-speed-btn" data-speed="130">Средне</button>
         <button class="diff-btn snake-speed-btn" data-speed="80">Быстро</button>
       </div>
 
-      <div class="dpad" style="margin-bottom: 16px;">
+      <div class="dpad">
         <div class="dpad-btn up" data-dir="up">⬆</div>
         <div class="dpad-btn left" data-dir="left">⬅</div>
         <div class="dpad-btn down" data-dir="down">⬇</div>
         <div class="dpad-btn right" data-dir="right">➡</div>
       </div>
       
-      <div style="display:flex; gap:8px; width:100%; max-width:400px;">
-        <button class="btn btn-ghost" id="snake-pause-btn" style="flex:1;">⏸ Пауза</button>
-        <button class="btn btn-ghost" id="snake-reset" style="flex:1;">🔄 Заново</button>
+      <div style="display:flex; gap:12px; width:100%; max-width:400px; margin-top: 10px;">
+        <button class="btn btn-ghost" id="snake-pause-btn" style="flex:1; padding: 12px;">⏸ Пауза</button>
+        <button class="btn btn-ghost" id="snake-reset" style="flex:1; padding: 12px;">🔄 Заново</button>
       </div>
     </div>
   </div>
@@ -1659,7 +1660,7 @@
     var snakeBest = parseInt(localStorage.getItem(SNAKE_RECORDS_KEY) || '0', 10);
     var snakeInterval = null;
     var snakeSpeed = 300; 
-    var boxSize = 20; // Начальный размер клетки, будет пересчитываться
+    var boxSize = 20; 
     var cols = 15;
     var rows = 15;
     var isGameOver = false;
@@ -1681,8 +1682,11 @@
     // Открытие/закрытие модалки
     $('#open-snake-modal-btn').addEventListener('click', function() {
       snakeModal.classList.add('show');
-      resizeSnakeCanvas();
-      initSnake();
+      // Даем браузеру время отрисовать модалку, чтобы получить правильные размеры
+      setTimeout(function() {
+        resizeSnakeCanvas();
+        initSnake();
+      }, 50);
     });
 
     $('#close-snake-modal').addEventListener('click', function() {
@@ -1693,21 +1697,27 @@
 
     // Адаптация размера поля под экран
     function resizeSnakeCanvas() {
-      var container = $('.snake-game-container');
-      var maxDim = Math.min(container.clientWidth, container.clientHeight) - 20;
+      var container = $('#snake-game-container');
+      var maxDim = Math.min(container.clientWidth, container.clientHeight);
       
       // Определяем сетку, чтобы клетки были ровными
       var targetCellSize = 25;
       cols = Math.floor(maxDim / targetCellSize);
-      rows = cols;
-      boxSize = maxDim / cols; // Точный размер клетки
+      // Делаем поле квадратным, чтобы не было перекосов
+      rows = cols; 
+      // Вычисляем точный размер клетки под контейнер
+      boxSize = Math.floor(maxDim / cols); 
+      
+      var finalSize = boxSize * cols;
       
       // Подстраиваем под DPI экрана для четкости
       var dpr = window.devicePixelRatio || 1;
-      snakeCanvas.width = maxDim * dpr;
-      snakeCanvas.height = maxDim * dpr;
-      snakeCanvas.style.width = maxDim + 'px';
-      snakeCanvas.style.height = maxDim + 'px';
+      snakeCanvas.width = finalSize * dpr;
+      snakeCanvas.height = finalSize * dpr;
+      snakeCanvas.style.width = finalSize + 'px';
+      snakeCanvas.style.height = finalSize + 'px';
+      
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
       
       if (snake.length > 0) drawSnake();
