@@ -448,7 +448,7 @@
       width: 36px; height: 36px; border-radius: 50%; font-size: 16px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-    .snake-pause-btn-top {
+    .snake-reset-top-btn {
       background: rgba(148,163,184,0.15); border: none; color: #fff;
       width: 36px; height: 36px; border-radius: 50%; font-size: 16px;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -456,7 +456,7 @@
 
     .snake-game-container {
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 0; /* Убираем отступы, чтобы поле занимало все место */
+      padding: 0;
       position: relative; overflow: hidden;
     }
     
@@ -486,14 +486,14 @@
     }
     .snake-stats-row strong { color: var(--accent-2); font-size: 16px; }
 
-    /* Крупный D-Pad */
+    /* Удобный D-Pad */
     .dpad {
       display: grid;
       grid-template-columns: repeat(3, 65px);
       grid-template-rows: repeat(3, 65px);
       gap: 6px;
       justify-content: center;
-      margin: 0 auto;
+      margin: 0 auto 10px;
     }
     .dpad-btn {
       background: rgba(148, 163, 184, 0.15);
@@ -954,8 +954,7 @@
     <div class="snake-header">
       <div class="snake-header-title">🐍 Змейка</div>
       <div style="display:flex; gap:8px;">
-        <button class="snake-pause-btn-top" id="snake-pause-btn-top" title="Пауза">⏸</button>
-        <button class="snake-pause-btn-top" id="snake-reset-top" title="Заново">🔄</button>
+        <button class="snake-reset-top-btn" id="snake-reset-top" title="Заново">🔄</button>
         <button class="snake-close-btn" id="close-snake-modal">✕</button>
       </div>
     </div>
@@ -988,6 +987,9 @@
         <div class="dpad-btn down" data-dir="down">⬇</div>
         <div class="dpad-btn right" data-dir="right">➡</div>
       </div>
+
+      <!-- Кнопка Пауза внизу по центру -->
+      <button class="btn btn-ghost" id="snake-pause-btn-bottom" style="width: 100%; max-width: 400px; margin-top: 10px; padding: 12px;">⏸ Пауза</button>
     </div>
   </div>
 
@@ -1978,8 +1980,8 @@
       }
     });
 
-    // Пауза (верхняя кнопка)
-    $('#snake-pause-btn-top').addEventListener('click', function() {
+    // Пауза (нижняя кнопка)
+    $('#snake-pause-btn-bottom').addEventListener('click', function() {
       if (isGameOver) return;
       isPaused = true;
       if (snakeInterval) clearInterval(snakeInterval);
